@@ -3,7 +3,7 @@ import type { SiteSeed } from "./types";
 /**
  * Verbatim extraction of _reference/antyodaya.html.
  * One functional change (owner-approved): the hero CTAs now point at the real
- * reader app on book.zephyrcode.live instead of in-page anchors — the landing
+ * reader app on book-antyodaya.zephyrcode.live instead of in-page anchors — the landing
  * page's job is to open the actual book. Copy unchanged.
  */
 export const antyodayaSeed: SiteSeed = {
@@ -53,8 +53,8 @@ export const antyodayaSeed: SiteSeed = {
       position: 3,
       data: {
         ctas: [
-          { label: "Begin at D+000 →", href: "https://book.zephyrcode.live", style: "solid" },
-          { label: "Open the dossiers", href: "https://book.zephyrcode.live/dossiers", style: "ghost" },
+          { label: "Begin at D+000 →", href: "https://book-antyodaya.zephyrcode.live", style: "solid" },
+          { label: "Open the dossiers", href: "https://book-antyodaya.zephyrcode.live/dossiers", style: "ghost" },
         ],
       },
     },

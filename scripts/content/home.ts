@@ -105,8 +105,8 @@ export const homeSeed: SiteSeed = {
             { label: "7 interactive scenes", live: false },
           ],
           ctas: [
-            { label: "Enter the reader →", href: "https://book.zephyrcode.live", style: "solid" },
-            { label: "Open the dossiers", href: "https://book.zephyrcode.live/dossiers", style: "ghost" },
+            { label: "Enter the reader →", href: "https://book-antyodaya.zephyrcode.live", style: "solid" },
+            { label: "Open the dossiers", href: "https://book-antyodaya.zephyrcode.live/dossiers", style: "ghost" },
           ],
         },
         shorts: {

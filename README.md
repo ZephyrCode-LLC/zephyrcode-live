@@ -40,7 +40,7 @@ pnpm dev                      # http://localhost:3000/?site=read (or read.localh
   UptimeCounter. All props-driven from DB; all honor `prefers-reduced-motion`
   (static frame / disabled loops, parity with the source pages).
 - **The book link**: the antyodaya landing's CTAs and unsealed chapter cards open
-  the real reader at **book.zephyrcode.live** (Amplify custom domain on the
+  the real reader at **book-antyodaya.zephyrcode.live** (Amplify custom domain on the
   antyodaya reader app). Link targets only — copy untouched.
 
 ## DNS (Namecheap) — pointed at Amplify
