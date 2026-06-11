@@ -70,6 +70,31 @@ export const arcadeSeed: SiteSeed = {
         ],
       },
     },
+    // operator-author refinement brief — headline/body verbatim from the brief;
+    // form/status microcopy is functional chrome (flagged for author sign-off)
+    {
+      section: "capture",
+      kind: "kv",
+      position: 5,
+      data: {
+        k: "ONE NEW MACHINE A MONTH.",
+        sub: "No essays, just the cartridge.",
+        placeholder: "your@address",
+        button: "SUBSCRIBE",
+        ok: "Noted. One cartridge a month.",
+        err: "Didn't take. Try again.",
+      },
+    },
+    {
+      section: "studio",
+      kind: "kv",
+      position: 6,
+      data: {
+        k: "COMMISSION A MACHINE",
+        body: "I build the playable version of your course/book's core idea. White-label, your domain, two-week turnaround.",
+        cta: { label: "operator.zephyrcode.live →", href: "https://operator.zephyrcode.live" },
+      },
+    },
   ],
   sims: [
     {

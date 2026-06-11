@@ -1,19 +1,21 @@
 import "@/styles/sites/arcade.css";
-import type { ReactNode } from "react";
+import Script from "next/script";
 import { z } from "zod";
 import { dataOf, getBlocks, getSims, getSites } from "@/lib/content";
 import { TopBar } from "@/components/system/TopBar";
 import { Vignette } from "@/components/system/Vignette";
 import { Constellation } from "@/components/system/Constellation";
 import { RevealManager } from "@/components/system/Reveal";
-import { CascadeDelays } from "@/components/engine/CascadeDelays";
+import { SCREENS } from "./screens";
+import { Capture } from "./Capture";
+import { ArcadeRuntime } from "./Runtime";
 
 /**
  * arcade.zephyrcode.live — DOM structure mirrors /_reference/arcade.html
- * exactly. Zero content strings here: every word comes from the DB (blocks
- * + the sims table). The per-cabinet attract-loop screens are pure CSS/SVG
- * design markup from the source page, keyed by sim slug below — the SVG
- * paths and glyphs are design, not copy.
+ * exactly, plus the operator-author refinement brief: email capture, studio
+ * strip, per-machine deep links (/m/[machine] + anchors), shareVerdict
+ * helper, cookieless analytics, a11y pass. Zero content strings here: every
+ * word comes from the DB (blocks + the sims table).
  */
 
 const Crumb = z.object({ text: z.string() });
@@ -24,77 +26,24 @@ const Scores = z.object({
   k: z.string(),
   rows: z.array(z.tuple([z.string(), z.string()])),
 });
+const CaptureBlock = z.object({
+  k: z.string(),
+  sub: z.string(),
+  placeholder: z.string(),
+  button: z.string(),
+  ok: z.string(),
+  err: z.string(),
+});
+const Studio = z.object({
+  k: z.string(),
+  body: z.string(),
+  cta: z.object({ label: z.string(), href: z.string() }),
+});
 
 function req<T>(value: T | undefined, section: string): T {
   if (value === undefined) throw new Error(`arcade: missing block "${section}"`);
   return value;
 }
-
-/** Attract loops, verbatim from the source page (design, not copy). */
-const SCREENS: Record<string, ReactNode> = {
-  leap: (
-    <div className="screen s-leap">
-      <svg viewBox="0 0 250 130" preserveAspectRatio="none">
-        <path
-          d="M0,40 C60,40 80,95 125,95 C170,95 190,30 250,30"
-          fill="none"
-          stroke="rgba(201,164,92,.7)"
-          strokeWidth="2"
-        />
-        <circle className="dot" r="5" fill="#E85D2A" />
-      </svg>
-    </div>
-  ),
-  bedtime: (
-    <div className="screen s-bed">
-      <div className="card3">
-        <i className="a">✓</i>
-        <i className="b">✕</i>
-      </div>
-      <div className="meters">
-        <b />
-        <b />
-        <b />
-        <b />
-      </div>
-    </div>
-  ),
-  plate: (
-    <div className="screen s-plate">
-      <svg viewBox="0 0 250 130" preserveAspectRatio="none">
-        <path
-          className="p1"
-          d="M10,95 C70,90 110,84 240,80"
-          fill="none"
-          stroke="rgba(201,164,92,.8)"
-          strokeWidth="2"
-        />
-        <path
-          className="p2"
-          d="M10,95 C60,30 95,18 130,55 C165,92 200,88 240,84"
-          fill="none"
-          stroke="#E85D2A"
-          strokeWidth="2"
-        />
-      </svg>
-    </div>
-  ),
-  cascade: (
-    <div className="screen s-casc">
-      <CascadeDelays />
-    </div>
-  ),
-  tax: (
-    <div className="screen s-tax">
-      <b />
-      <b />
-      <b />
-      <b />
-      <b />
-      <b />
-    </div>
-  ),
-};
 
 export default async function ArcadePage() {
   const [sites, blocks, sims] = await Promise.all([
@@ -107,6 +56,8 @@ export default async function ArcadePage() {
   const lede = req(dataOf(blocks, "lede", Lede), "lede");
   const play = req(dataOf(blocks, "play", Play), "play");
   const scores = req(dataOf(blocks, "scores", Scores), "scores");
+  const capture = dataOf(blocks, "capture", CaptureBlock);
+  const studio = dataOf(blocks, "studio", Studio);
 
   return (
     <>
@@ -122,19 +73,28 @@ export default async function ArcadePage() {
 
         <section className="row5">
           {sims.map((sim) => (
-            <div key={sim.slug} className="cab rv">
+            <article key={sim.slug} id={sim.slug} className="cab rv" aria-label={sim.name}>
               {SCREENS[sim.slug]}
               <div className="cinfo">
                 <p className="n">{sim.name}</p>
                 <p>{sim.blurb}</p>
-                <a className="play" href={play.hrefs[sim.slug]}>
+                <a
+                  className="play"
+                  href={play.hrefs[sim.slug]}
+                  aria-label={`${play.label} ${sim.name}`}
+                >
                   {play.label}
+                </a>
+                <a className="plink" href={`/m/${sim.slug}`} aria-label={`${sim.name} — /m/${sim.slug}`}>
+                  #{sim.slug}
                 </a>
               </div>
               <div className="coin">{sim.grammar}</div>
-            </div>
+            </article>
           ))}
         </section>
+
+        {capture && <Capture {...capture} />}
 
         <section className="scores rv">
           <p className="k">{scores.k}</p>
@@ -145,9 +105,32 @@ export default async function ArcadePage() {
             </div>
           ))}
         </section>
+
+        {studio && (
+          <section className="studio rv" aria-label={studio.k}>
+            <p className="k">{studio.k}</p>
+            <p className="b">{studio.body}</p>
+            <a className="cta" href={studio.cta.href}>
+              {studio.cta.label}
+            </a>
+          </section>
+        )}
       </main>
       <Constellation sites={sites} current="arcade" />
       <RevealManager threshold={0.12} />
+      <ArcadeRuntime />
+      {/* cookieless analytics — create "arcade.zephyrcode.live" in Plausible
+          (or point src at a self-hosted Umami script) and events flow */}
+      <Script
+        id="arcade-plausible-q"
+        strategy="afterInteractive"
+      >{`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}`}</Script>
+      <Script
+        defer
+        data-domain="arcade.zephyrcode.live"
+        src="https://plausible.io/js/script.js"
+        strategy="afterInteractive"
+      />
     </>
   );
 }
