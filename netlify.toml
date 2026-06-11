@@ -1,0 +1,7 @@
+# zephyrcode.live — one app, eight hosts (apex + 7 subdomain aliases on this site).
+# Netlify's Next.js runtime handles SSR/ISR + revalidateTag natively.
+[build]
+  command = "pnpm build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

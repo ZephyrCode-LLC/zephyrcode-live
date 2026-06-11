@@ -1,5 +1,7 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 /**
  * The CASCADE cabinet's attract loop, ported exactly from the source page:
  * fills the .s-casc grid with 28 dots (4 rows × 7 columns) whose ignite
@@ -12,7 +14,7 @@ const SEED_Y = 1;
 const STEP_S = 0.22;
 
 export function CascadeDelays() {
-  const dots: React.ReactNode[] = [];
+  const dots: ReactNode[] = [];
   for (let y = 0; y < 4; y++) {
     for (let x = 0; x < 7; x++) {
       const d = Math.abs(x - SEED_X) + Math.abs(y - SEED_Y);
