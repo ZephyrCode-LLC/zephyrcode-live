@@ -38,7 +38,7 @@ const FAVICONS: Record<string, string> = {
 export function generateStaticParams() {
   return Object.keys(PAGES).map((site) => ({ site }));
 }
-export const dynamicParams = false;
+export const dynamicParams = true; // unknown slugs 404 via PAGES lookup; evicted pages re-render on demand
 
 export async function generateMetadata({
   params,

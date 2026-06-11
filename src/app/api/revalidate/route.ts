@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 /** Supabase Database Webhooks land here → edits are live within seconds (BRIEF §4). */
 
@@ -36,9 +36,16 @@ export async function POST(req: Request) {
   }
   if (slugs.length === 0) {
     revalidateTag("content");
+    ["home","antyodaya","stories","operator","arcade","read","watch","listen"].forEach((s) =>
+      revalidatePath(`/sites/${s}`)
+    );
     return NextResponse.json({ ok: true, revalidated: ["content (all sites)"] });
   }
-  const tags = [...new Set(slugs)].map((s) => `site:${s}`);
+  const unique = [...new Set(slugs)];
+  const tags = unique.map((s) => `site:${s}`);
   tags.forEach((t) => revalidateTag(t));
-  return NextResponse.json({ ok: true, revalidated: tags });
+  // Netlify's runtime needs the concrete prerendered path too — tag eviction
+  // alone can leave the rewritten page 404ing until the next full build.
+  unique.forEach((s) => revalidatePath(`/sites/${s}`));
+  return NextResponse.json({ ok: true, revalidated: [...tags, ...unique.map((s) => `/sites/${s}`)] });
 }
