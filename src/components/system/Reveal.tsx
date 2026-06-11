@@ -19,7 +19,15 @@ export function RevealManager({ threshold = 0.15 }: { threshold?: number }) {
       },
       { threshold }
     );
-    document.querySelectorAll(".rv").forEach((el) => io.observe(el));
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    document.querySelectorAll<HTMLElement>(".rv").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      // Above-the-fold elements reveal immediately (still CSS-fades in) so the
+      // hero never flashes blank or stays hidden if the observer is slow or
+      // suspended (e.g. backgrounded tab). Everything below the fold observes.
+      if (r.top < vh && r.bottom > 0) el.classList.add("in");
+      else io.observe(el);
+    });
     return () => io.disconnect();
   }, [threshold]);
   return null;
