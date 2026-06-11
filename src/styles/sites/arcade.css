@@ -1,0 +1,272 @@
+/* ============================================================
+   THE ARCADE — page styles ported verbatim from /_reference/arcade.html,
+   scoped to the dispatcher wrapper [data-site="arcade"].
+   Shared system styles (tokens, .vig, .top, .rv, footer, reduced-motion)
+   live in globals.css — not duplicated here. Keyframes are global, so
+   they carry the zc-arc- prefix to avoid collisions.
+   ============================================================ */
+
+[data-site="arcade"] main {
+  position: relative;
+  z-index: 5;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 120px var(--pad) 0;
+}
+
+/* marquee hero */
+[data-site="arcade"] .marquee {
+  position: relative;
+  padding: clamp(30px, 5vw, 56px);
+  text-align: center;
+  background: rgba(10, 8, 6, 0.7);
+}
+[data-site="arcade"] .marquee::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--ember), var(--brass), var(--iris), var(--ember)) 0 0/300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: zc-arc-chase 6s linear infinite;
+}
+@keyframes zc-arc-chase { to { background-position: 300% 0; } }
+[data-site="arcade"] .marquee .ey {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  color: var(--ember);
+  text-transform: uppercase;
+}
+[data-site="arcade"] .marquee h1 {
+  font-size: clamp(3rem, 9vw, 6.6rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin: 12px 0 6px;
+}
+[data-site="arcade"] .marquee .sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+[data-site="arcade"] .marquee .sub b { color: var(--brass); font-weight: 500; }
+[data-site="arcade"] .lede {
+  margin: 34px auto 0;
+  max-width: 62ch;
+  text-align: center;
+  color: var(--dim);
+}
+[data-site="arcade"] .lede b { color: var(--bone); font-weight: 600; }
+
+/* cabinets */
+[data-site="arcade"] .row5 {
+  margin-top: 7vh;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+[data-site="arcade"] .cab {
+  border: 1px solid var(--line);
+  background: linear-gradient(170deg, #16120e, #0e0b08);
+  display: flex;
+  flex-direction: column;
+}
+[data-site="arcade"] .screen {
+  height: 130px;
+  margin: 14px;
+  background: #0a0806;
+  border: 1px solid var(--soft);
+  position: relative;
+  overflow: hidden;
+}
+[data-site="arcade"] .screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, rgba(236, 226, 211, 0.028) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+[data-site="arcade"] .cinfo { padding: 4px 20px 22px; }
+[data-site="arcade"] .cinfo .n {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  color: var(--brass);
+}
+[data-site="arcade"] .cinfo p {
+  font-size: 0.9rem;
+  color: var(--dim);
+  font-style: italic;
+  margin: 8px 0 14px;
+  min-height: 3.4em;
+}
+[data-site="arcade"] .play {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ember);
+  border: 1px solid rgba(232, 93, 42, 0.5);
+  padding: 9px 16px;
+  border-radius: 2px;
+  display: inline-block;
+  transition: 0.2s;
+}
+[data-site="arcade"] .play:hover { background: var(--ember); color: var(--ink); }
+[data-site="arcade"] .coin {
+  margin-top: auto;
+  padding: 10px 20px;
+  border-top: 1px solid var(--soft);
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+/* per-cabinet attract loops */
+[data-site="arcade"] .s-leap svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+[data-site="arcade"] .s-leap .dot {
+  offset-path: path("M0,40 C60,40 80,95 125,95 C170,95 190,30 250,30");
+  offset-distance: 0%;
+  animation: zc-arc-leap 3.2s ease-in-out infinite;
+}
+@keyframes zc-arc-leap {
+  0% { offset-distance: 0%; }
+  55% { offset-distance: 100%; }
+  100% { offset-distance: 100%; }
+}
+[data-site="arcade"] .s-bed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  height: 100%;
+}
+[data-site="arcade"] .card3 {
+  width: 54px;
+  height: 78px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: zc-arc-flip 2.8s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+}
+[data-site="arcade"] .card3 i {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--brass);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 20px;
+  backface-visibility: hidden;
+  background: #14100c;
+}
+[data-site="arcade"] .card3 i.b { transform: rotateY(180deg); color: var(--ember); }
+[data-site="arcade"] .card3 i.a { color: var(--brass); }
+@keyframes zc-arc-flip {
+  0%, 38% { transform: rotateY(0); }
+  55%, 88% { transform: rotateY(180deg); }
+  100% { transform: rotateY(360deg); }
+}
+[data-site="arcade"] .meters { display: flex; gap: 6px; align-items: flex-end; height: 60px; }
+[data-site="arcade"] .meters b {
+  width: 8px;
+  background: var(--ember);
+  opacity: 0.75;
+  animation: zc-arc-mtr 2.8s ease-in-out infinite;
+}
+[data-site="arcade"] .meters b:nth-child(1) { height: 46%; }
+[data-site="arcade"] .meters b:nth-child(2) { height: 70%; animation-delay: 0.3s; background: var(--brass); }
+[data-site="arcade"] .meters b:nth-child(3) { height: 34%; animation-delay: 0.6s; }
+[data-site="arcade"] .meters b:nth-child(4) { height: 58%; animation-delay: 0.9s; background: var(--iris); }
+@keyframes zc-arc-mtr { 50% { transform: scaleY(0.45); } }
+[data-site="arcade"] .s-plate svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+[data-site="arcade"] .s-plate .p1 { animation: zc-arc-xf 4s ease-in-out infinite; }
+[data-site="arcade"] .s-plate .p2 { animation: zc-arc-xf 4s ease-in-out infinite reverse; }
+@keyframes zc-arc-xf {
+  0%, 45% { opacity: 1; }
+  55%, 95% { opacity: 0; }
+  100% { opacity: 1; }
+}
+[data-site="arcade"] .s-casc {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 9px;
+  place-items: center;
+  height: 100%;
+  padding: 18px 26px;
+}
+[data-site="arcade"] .s-casc i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faint);
+  opacity: 0.35;
+  animation: zc-arc-ignite 3.6s ease-in-out infinite;
+}
+@keyframes zc-arc-ignite {
+  12%, 42% { background: var(--ember); opacity: 1; box-shadow: 0 0 10px rgba(232, 93, 42, 0.9); }
+  60% { background: var(--faint); opacity: 0.35; box-shadow: none; }
+}
+[data-site="arcade"] .s-tax {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  padding: 0 22px;
+}
+[data-site="arcade"] .s-tax b {
+  height: 16px;
+  background: var(--brass);
+  flex: 1;
+  animation: zc-arc-tax 3.4s ease-in-out infinite;
+}
+[data-site="arcade"] .s-tax b:nth-child(3) { background: var(--ember); }
+[data-site="arcade"] .s-tax b:nth-child(3) { animation-name: zc-arc-taxdrop; }
+[data-site="arcade"] .s-tax b:nth-child(n + 4) { animation-name: zc-arc-taxshift; }
+@keyframes zc-arc-tax {
+  0%, 100% { transform: none; }
+}
+@keyframes zc-arc-taxdrop {
+  30%, 70% { transform: translateY(26px) scaleX(0.7); opacity: 0.85; }
+}
+@keyframes zc-arc-taxshift {
+  30%, 70% { transform: translateX(16px); }
+}
+
+/* high scores */
+[data-site="arcade"] .scores {
+  margin-top: 9vh;
+  border: 1px solid var(--line);
+  background: rgba(8, 6, 4, 0.55);
+  padding: 26px 30px;
+  max-width: 640px;
+}
+[data-site="arcade"] .scores .k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--ember);
+  margin-bottom: 16px;
+}
+[data-site="arcade"] .scores .r {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--soft);
+  color: var(--dim);
+}
+[data-site="arcade"] .scores .r:last-child { border: none; }
+[data-site="arcade"] .scores .v { color: var(--brass); }

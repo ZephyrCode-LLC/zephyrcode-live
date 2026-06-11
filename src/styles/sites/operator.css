@@ -1,0 +1,218 @@
+/* ============================================================
+   OPERATOR — page styles ported verbatim from /_reference/operator.html,
+   scoped to the dispatcher wrapper [data-site="operator"].
+   Shared system styles (tokens, .vig, .top, .eyebrow, .btn, .rv,
+   footer, reduced-motion) live in globals.css — not duplicated here.
+   ============================================================ */
+
+[data-site="operator"] main {
+  position: relative;
+  z-index: 5;
+  max-width: 1020px;
+  margin: 0 auto;
+  padding: 110px var(--pad) 0;
+}
+[data-site="operator"] h1 {
+  font-size: clamp(2.7rem, 6.8vw, 5.2rem);
+  font-weight: 400;
+  line-height: 1.03;
+  margin: 16px 0 14px;
+}
+[data-site="operator"] h1 em { font-style: italic; color: var(--brass); }
+[data-site="operator"] h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 400; }
+[data-site="operator"] h2 em { font-style: italic; color: var(--brass); }
+[data-site="operator"] .lede { color: var(--dim); max-width: 60ch; }
+[data-site="operator"] .lede b { color: var(--bone); font-weight: 600; }
+
+/* boot */
+[data-site="operator"] .boot {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 2;
+  color: var(--brass);
+  background: rgba(8, 6, 4, 0.6);
+  border: 1px solid var(--line);
+  padding: 22px 26px;
+  max-width: 640px;
+  margin-bottom: 7vh;
+  min-height: 200px;
+}
+[data-site="operator"] .boot .ok { color: var(--ember); }
+[data-site="operator"] .boot .warn { color: var(--faint); font-style: italic; }
+[data-site="operator"] .boot .caret {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--ember);
+  vertical-align: -2px;
+  animation: zc-op-blink 1s steps(1) infinite;
+}
+@keyframes zc-op-blink { 50% { opacity: 0; } }
+
+/* layers */
+[data-site="operator"] .layers { margin: 7vh 0; display: grid; gap: 14px; max-width: 760px; }
+[data-site="operator"] .win {
+  border: 1px solid var(--line);
+  background: rgba(16, 13, 10, 0.85);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
+}
+[data-site="operator"] .win .bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--soft);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: var(--faint);
+}
+[data-site="operator"] .win .bar i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--faint);
+  opacity: 0.5;
+  font-style: normal;
+}
+[data-site="operator"] .win .bar i.e { background: var(--ember); opacity: 1; }
+[data-site="operator"] .win .body { padding: 20px 22px; }
+[data-site="operator"] .win h3 {
+  font-size: 1.45rem;
+  font-style: italic;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+[data-site="operator"] .win p { font-size: 0.95rem; color: var(--dim); }
+[data-site="operator"] .win p b { color: var(--bone); font-weight: 600; }
+[data-site="operator"] .win:nth-child(2) { transform: translateX(clamp(0px, 4vw, 46px)); }
+[data-site="operator"] .win:nth-child(3) { transform: translateX(clamp(0px, 8vw, 92px)); }
+@media (max-width: 700px) {
+  [data-site="operator"] .win:nth-child(2),
+  [data-site="operator"] .win:nth-child(3) { transform: none; }
+}
+
+/* engine */
+[data-site="operator"] .engine {
+  margin: 9vh 0;
+  border: 1px solid var(--line);
+  background: rgba(13, 11, 9, 0.75);
+  padding: clamp(24px, 4vw, 44px);
+}
+[data-site="operator"] .engine .k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  color: var(--ember);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+[data-site="operator"] .engine .sub {
+  font-size: 0.98rem;
+  color: var(--dim);
+  max-width: 60ch;
+  margin-bottom: 26px;
+}
+[data-site="operator"] .month {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 7px;
+  max-width: 430px;
+  margin-bottom: 24px;
+}
+[data-site="operator"] .cell {
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  cursor: pointer;
+  background: rgba(232, 93, 42, 0.14);
+  border-color: rgba(232, 93, 42, 0.55);
+  transition: 0.18s;
+  position: relative;
+}
+[data-site="operator"] .cell.miss { background: transparent; border-color: var(--line); }
+[data-site="operator"] .cell.miss::after {
+  content: "";
+  position: absolute;
+  inset: 30%;
+  border-top: 1px solid var(--faint);
+  transform: rotate(-45deg);
+}
+[data-site="operator"] .cell:hover { transform: scale(1.08); }
+[data-site="operator"] .engine svg { display: block; width: 100%; max-width: 640px; height: 96px; }
+[data-site="operator"] .readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 34px;
+  margin-top: 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+[data-site="operator"] .readout .v { color: var(--ember); font-weight: 700; }
+[data-site="operator"] .readout .l { color: var(--faint); }
+[data-site="operator"] .readout .grade { color: var(--brass); }
+
+/* flagships + roadmap */
+[data-site="operator"] .flag {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 34px;
+}
+[data-site="operator"] .fcard {
+  border: 1px solid var(--line);
+  padding: 26px 24px;
+  background: linear-gradient(155deg, rgba(28, 22, 16, 0.8), rgba(13, 11, 9, 0.7));
+}
+[data-site="operator"] .fcard .k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--brass);
+  text-transform: uppercase;
+}
+[data-site="operator"] .fcard h3 { font-size: 1.9rem; font-weight: 600; margin: 10px 0 8px; }
+[data-site="operator"] .fcard p { font-size: 0.94rem; color: var(--dim); }
+[data-site="operator"] .fcard .up {
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ember);
+  letter-spacing: 0.12em;
+}
+[data-site="operator"] .acts { margin-top: 8vh; }
+[data-site="operator"] .act {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 22px;
+  padding: 24px 4px;
+  border-bottom: 1px solid var(--soft);
+}
+[data-site="operator"] .act .n {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--ember);
+}
+[data-site="operator"] .act h3 {
+  font-size: 1.3rem;
+  font-style: italic;
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+[data-site="operator"] .act p { font-size: 0.95rem; color: var(--dim); }
+[data-site="operator"] .kill {
+  margin-top: 30px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+  color: var(--brass);
+  border-left: 2px solid var(--ember);
+  padding-left: 16px;
+  max-width: 62ch;
+}
+@media (max-width: 600px) {
+  [data-site="operator"] .act { grid-template-columns: 1fr; gap: 6px; }
+}

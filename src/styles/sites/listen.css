@@ -1,0 +1,149 @@
+/* ============================================================
+   listen.zephyrcode.live — page CSS ported from /_reference/listen.html,
+   scoped under [data-site="listen"]. Shared system styles (tokens, body,
+   .vig, .top, .wm, .crumb, .eyebrow, .rv, footer, reduced-motion) live
+   in globals.css and are NOT duplicated here.
+   ============================================================ */
+
+[data-site="listen"] main {
+  position: relative;
+  z-index: 5;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 120px var(--pad) 0;
+}
+[data-site="listen"] h1 {
+  font-size: clamp(2.6rem, 6.4vw, 4.8rem);
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 16px 0 14px;
+}
+[data-site="listen"] h1 em { font-style: italic; color: var(--brass); }
+[data-site="listen"] .lede { color: var(--dim); max-width: 60ch; }
+[data-site="listen"] .lede b { color: var(--bone); font-weight: 600; }
+
+/* proof tabs + scope */
+[data-site="listen"] .proofs { margin: 6vh 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+[data-site="listen"] .pf {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  padding: 11px 16px;
+  border-radius: 2px;
+  transition: 0.22s;
+}
+[data-site="listen"] .pf:hover { border-color: var(--brass); color: var(--brass); }
+[data-site="listen"] .pf.on { border-color: var(--ember); color: var(--ember); background: rgba(232, 93, 42, 0.1); }
+[data-site="listen"] .scope { margin-top: 22px; border: 1px solid var(--line); background: rgba(8, 6, 4, 0.7); position: relative; }
+[data-site="listen"] .scope canvas { display: block; width: 100%; height: 170px; }
+[data-site="listen"] .scope .lab {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  color: var(--faint);
+}
+[data-site="listen"] .scope .hz {
+  position: absolute;
+  bottom: 10px;
+  right: 16px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+[data-site="listen"] .claim {
+  margin-top: 18px;
+  font-size: 1.04rem;
+  font-style: italic;
+  color: var(--brass);
+  min-height: 2.6em;
+  max-width: 62ch;
+}
+
+/* tracks */
+[data-site="listen"] .tracks { margin-top: 30px; }
+[data-site="listen"] .trk {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 20px;
+  align-items: baseline;
+  padding: 16px 2px;
+  border-bottom: 1px solid var(--soft);
+}
+[data-site="listen"] .trk:last-child { border: none; }
+[data-site="listen"] .trk .t { font-size: 1.14rem; font-style: italic; }
+[data-site="listen"] .trk .a {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--brass);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+[data-site="listen"] .trk .why { grid-column: 1 / -1; font-size: 0.9rem; color: var(--dim); margin-top: -2px; }
+@media (max-width: 560px) {
+  [data-site="listen"] .trk { grid-template-columns: 1fr; }
+}
+
+/* ignition + rig */
+[data-site="listen"] .ign {
+  margin-top: 8vh;
+  border: 1px solid rgba(232, 93, 42, 0.4);
+  background: linear-gradient(135deg, rgba(232, 93, 42, 0.1), rgba(13, 11, 9, 0.7));
+  padding: 24px 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 30px;
+  align-items: baseline;
+}
+[data-site="listen"] .ign .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.26em; color: var(--ember); }
+[data-site="listen"] .ign .t { font-style: italic; color: var(--bone); }
+[data-site="listen"] .ign .s { font-family: var(--mono); font-size: 10px; color: var(--faint); letter-spacing: 0.08em; }
+[data-site="listen"] .rig {
+  margin-top: 7vh;
+  border: 1px solid var(--line);
+  background: rgba(10, 8, 6, 0.7);
+  padding: clamp(24px, 4vw, 42px);
+}
+[data-site="listen"] .rig .k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--brass);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+[data-site="listen"] .chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+}
+[data-site="listen"] .chain b {
+  border: 1px solid var(--line);
+  padding: 9px 14px;
+  border-radius: 2px;
+  color: var(--bone);
+  font-weight: 500;
+  background: rgba(236, 226, 211, 0.04);
+}
+[data-site="listen"] .chain i { color: var(--ember); font-style: normal; }
+[data-site="listen"] .rig p.note {
+  margin-top: 20px;
+  font-size: 0.95rem;
+  color: var(--dim);
+  font-style: italic;
+  max-width: 62ch;
+}
+[data-site="listen"] .rig p.note b { color: var(--bone); font-weight: 600; font-style: normal; }

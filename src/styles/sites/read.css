@@ -1,0 +1,227 @@
+/* ============================================================
+   read.zephyrcode.live — page-specific CSS, ported verbatim from
+   /_reference/read.html <style>. Shared system rules (tokens,
+   .vig, .top, .eyebrow, .rv, footer, …) live in globals.css.
+   Every selector is scoped to [data-site="read"].
+   ============================================================ */
+
+[data-site="read"] main {
+  position: relative;
+  z-index: 5;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 120px var(--pad) 0;
+}
+[data-site="read"] h1 {
+  font-size: clamp(2.6rem, 6.4vw, 4.8rem);
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 16px 0 14px;
+}
+[data-site="read"] h1 em {
+  font-style: italic;
+  color: var(--brass);
+}
+[data-site="read"] .lede {
+  color: var(--dim);
+  max-width: 58ch;
+}
+[data-site="read"] .lede b {
+  color: var(--bone);
+  font-weight: 600;
+}
+
+/* ambient glow driven by the dial. Source: fixed z-0 sibling of <main>;
+   here it lives inside <main> (a z-5 stacking context), so z-index:-1
+   keeps it painting behind the content exactly as in the original.
+   The 232,93,42 fallback mirrors the source's `--glow:232,93,42` :root
+   default — JS overrides it on documentElement. */
+[data-site="read"] .amb {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: background 1.2s ease;
+  background: radial-gradient(70% 50% at 50% 0%, rgba(var(--glow, 232, 93, 42), 0.13), transparent 70%);
+}
+
+/* the dial */
+[data-site="read"] .dial {
+  margin: 6vh 0 5vh;
+  border: 1px solid var(--line);
+  background: rgba(10, 8, 6, 0.7);
+  padding: 26px 30px;
+}
+[data-site="read"] .dial .k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  color: var(--faint);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+[data-site="read"] .dial .k .f {
+  color: var(--ember);
+}
+[data-site="read"] .dial .k .s {
+  color: var(--iris);
+}
+[data-site="read"] input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  background: linear-gradient(90deg, var(--ember), var(--brass), var(--iris));
+}
+[data-site="read"] input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bone);
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 2px var(--bone), 0 0 18px rgba(236, 226, 211, 0.45);
+  cursor: grab;
+}
+[data-site="read"] input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bone);
+  border: 3px solid var(--ink);
+  cursor: grab;
+}
+[data-site="read"] .dial .ask {
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--brass);
+  min-height: 1.6em;
+}
+
+/* the spine + books */
+[data-site="read"] .shelf {
+  position: relative;
+  padding-left: 34px;
+}
+[data-site="read"] .shelf::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--ember), var(--brass) 50%, var(--iris));
+  opacity: 0.8;
+}
+[data-site="read"] .book {
+  position: relative;
+  padding: 24px 0 22px;
+  border-bottom: 1px solid var(--soft);
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+[data-site="read"] .book.dim {
+  opacity: 0.22;
+  filter: saturate(0.4);
+}
+[data-site="read"] .book::before {
+  content: "";
+  position: absolute;
+  left: -30px;
+  top: 34px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c, #e85d2a);
+  box-shadow: 0 0 12px var(--c, #e85d2a);
+}
+[data-site="read"] .book .no {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--faint);
+}
+[data-site="read"] .book h3 {
+  font-size: clamp(1.25rem, 2.6vw, 1.7rem);
+  font-style: italic;
+  font-weight: 400;
+  margin: 6px 0 2px;
+}
+[data-site="read"] .book .by {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  color: var(--brass);
+  text-transform: uppercase;
+}
+[data-site="read"] .book p {
+  margin-top: 10px;
+  color: var(--dim);
+  font-size: 0.98rem;
+  max-width: 60ch;
+}
+[data-site="read"] .book .chips {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+[data-site="read"] .bchip {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  border: 1px solid var(--line);
+  color: var(--faint);
+  padding: 5px 9px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+/* start this week */
+[data-site="read"] .start {
+  margin-top: 9vh;
+  border: 1px solid var(--line);
+  background: linear-gradient(140deg, rgba(232, 93, 42, 0.08), rgba(13, 11, 9, 0.7));
+  padding: clamp(24px, 4vw, 42px);
+}
+[data-site="read"] .start .k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--ember);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+[data-site="read"] .start .four {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+[data-site="read"] .start .four div {
+  border-left: 2px solid var(--brass);
+  padding-left: 14px;
+}
+[data-site="read"] .start .four b {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.08rem;
+}
+[data-site="read"] .start .four span {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--faint);
+}
+[data-site="read"] .start p.tail {
+  margin-top: 22px;
+  font-size: 0.95rem;
+  color: var(--dim);
+  font-style: italic;
+}

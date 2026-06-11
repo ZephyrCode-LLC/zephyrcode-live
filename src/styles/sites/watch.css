@@ -1,0 +1,147 @@
+/* ============================================================
+   watch.zephyrcode.live — page CSS ported from /_reference/watch.html,
+   scoped under [data-site="watch"]. Shared system styles (tokens, body,
+   .vig, .top, .wm, .crumb, .eyebrow, .rv, footer, reduced-motion) live
+   in globals.css and are NOT duplicated here.
+   ============================================================ */
+
+[data-site="watch"] .beam {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: conic-gradient(
+    from 195deg at 78% -10%,
+    transparent 38%,
+    rgba(236, 226, 211, 0.05) 47%,
+    rgba(232, 93, 42, 0.07) 50%,
+    rgba(236, 226, 211, 0.05) 53%,
+    transparent 62%
+  );
+}
+[data-site="watch"] main {
+  position: relative;
+  z-index: 5;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 120px var(--pad) 0;
+}
+[data-site="watch"] h1 {
+  font-size: clamp(2.6rem, 6.4vw, 4.8rem);
+  font-weight: 400;
+  line-height: 1.05;
+  margin: 16px 0 14px;
+}
+[data-site="watch"] h1 em { font-style: italic; color: var(--brass); }
+[data-site="watch"] .lede { color: var(--dim); max-width: 60ch; }
+[data-site="watch"] .lede b { color: var(--bone); font-weight: 600; }
+
+/* channel chips */
+[data-site="watch"] .chans { margin: 6vh 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+[data-site="watch"] .ch {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  padding: 11px 16px;
+  border-radius: 2px;
+  transition: 0.22s;
+}
+[data-site="watch"] .ch:hover { border-color: var(--brass); color: var(--brass); }
+[data-site="watch"] .ch.on {
+  border-color: var(--ember);
+  color: var(--ember);
+  background: rgba(232, 93, 42, 0.1);
+  box-shadow: 0 0 18px rgba(232, 93, 42, 0.18);
+}
+[data-site="watch"] .ch .n { color: var(--faint); margin-right: 8px; }
+[data-site="watch"] .ch.on .n { color: var(--ember); }
+
+/* now playing */
+[data-site="watch"] .np {
+  margin-top: 26px;
+  border: 1px solid var(--line);
+  background: rgba(10, 8, 6, 0.78);
+  position: relative;
+  overflow: hidden;
+  padding: clamp(24px, 4vw, 42px);
+}
+[data-site="watch"] .np.flick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(236, 226, 211, 0.12) 0 2px, transparent 2px 5px);
+  animation: zc-watch-flick 0.26s steps(3) 1;
+}
+@keyframes zc-watch-flick {
+  0% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0.6; transform: translateY(-2px); }
+  100% { opacity: 0; }
+}
+[data-site="watch"] .np .k {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--faint);
+  text-transform: uppercase;
+}
+[data-site="watch"] .np h2 { font-size: clamp(1.8rem, 4.4vw, 3rem); font-weight: 400; margin: 8px 0 4px; }
+[data-site="watch"] .np h2 em { font-style: italic; color: var(--brass); }
+[data-site="watch"] .np .tagline {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--brass);
+  margin-bottom: 26px;
+}
+[data-site="watch"] .title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 22px;
+  align-items: center;
+  padding: 16px 2px;
+  border-bottom: 1px solid var(--soft);
+}
+[data-site="watch"] .title:last-child { border: none; }
+[data-site="watch"] .title .t { font-size: 1.18rem; font-style: italic; }
+[data-site="watch"] .title .why { grid-column: 1 / -1; font-size: 0.9rem; color: var(--dim); margin-top: -4px; }
+[data-site="watch"] .title .side { display: flex; align-items: center; gap: 14px; }
+[data-site="watch"] .pchip {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  border: 1px solid var(--line);
+  color: var(--faint);
+  padding: 4px 8px;
+  border-radius: 2px;
+}
+[data-site="watch"] .match {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--brass);
+}
+[data-site="watch"] .match .bar { width: 74px; height: 4px; background: var(--soft); border-radius: 2px; overflow: hidden; }
+[data-site="watch"] .match .bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--brass), var(--ember));
+}
+[data-site="watch"] .np .footnote {
+  margin-top: 24px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+@media (max-width: 620px) {
+  [data-site="watch"] .title { grid-template-columns: 1fr; }
+  [data-site="watch"] .title .side { justify-content: flex-start; }
+}
