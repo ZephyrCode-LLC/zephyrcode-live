@@ -10,7 +10,7 @@ import ReadSite from "@/components/sites/read/Page";
 import WatchSite from "@/components/sites/watch/Page";
 import ListenSite from "@/components/sites/listen/Page";
 
-export const revalidate = 3600; // + on-demand via /api/revalidate (BRIEF §4)
+export const revalidate = 300; // edge TTL: author edits live in ≤5 min (CloudFront can't be purged on demand); origin busts instantly via /api/revalidate
 
 const PAGES: Record<string, React.ComponentType> = {
   home: HomeSite,

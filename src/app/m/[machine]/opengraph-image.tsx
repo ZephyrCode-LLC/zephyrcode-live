@@ -7,7 +7,7 @@ import { getSims } from "@/lib/content";
  * image URL per machine, so shared links unfurl with the right card.
  */
 
-export const revalidate = 3600;
+export const revalidate = 300; // edge TTL: author edits live in ≤5 min (CloudFront can't be purged on demand); origin busts instantly via /api/revalidate
 export const alt = "THE ARCADE — playable arguments";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

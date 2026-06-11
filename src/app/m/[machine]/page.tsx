@@ -13,7 +13,7 @@ import { SCREENS } from "@/components/sites/arcade/screens";
  * Canonical host: arcade.zephyrcode.live/m/<machine>.
  */
 
-export const revalidate = 3600;
+export const revalidate = 300; // edge TTL: author edits live in ≤5 min (CloudFront can't be purged on demand); origin busts instantly via /api/revalidate
 export const dynamicParams = true;
 
 const ARCADE = "https://arcade.zephyrcode.live";

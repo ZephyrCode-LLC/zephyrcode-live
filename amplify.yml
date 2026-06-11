@@ -20,5 +20,7 @@ frontend:
       - '**/*'
   cache:
     paths:
-      - .next/cache/**/*
+      # .next/cache is intentionally NOT persisted: it pins stale DB reads into
+      # the prerender (new blocks/sims missing from a fresh deploy). Same fix
+      # as the reader app; re-fetching at build is cheap and always correct.
       - node_modules/**/*
