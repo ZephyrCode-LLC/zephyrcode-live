@@ -288,12 +288,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       for (let i = 0; i < N; i++) {
         const i3 = i * 3;
         const seed = aRand[i];
-        let ax = A[i3],
-          ay = A[i3 + 1],
-          az = A[i3 + 2];
-        let bx = B[i3],
-          by = B[i3 + 1],
-          bz = B[i3 + 2];
+        let ax = A[i3];
+        const ay = A[i3 + 1];
+        let az = A[i3 + 2];
+        let bx = B[i3];
+        const by = B[i3 + 1];
+        let bz = B[i3 + 2];
         if (sa === 3) {
           const ax2 = ax * rotC - az * rotS;
           az = ax * rotS + az * rotC;

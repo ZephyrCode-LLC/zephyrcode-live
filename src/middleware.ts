@@ -36,8 +36,8 @@ export function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const host = req.headers.get("host") ?? "";
 
-  // Never expose /_sites publicly: bounce to the canonical host's root.
-  if (url.pathname.startsWith("/_sites")) {
+  // Never expose /sites publicly: bounce to the canonical host's root.
+  if (url.pathname.startsWith("/sites")) {
     const slug = url.pathname.split("/")[2] ?? "home";
     const canonical =
       Object.entries(HOSTS).find(([h, s]) => s === slug && !h.startsWith("www."))?.[0] ??
@@ -50,12 +50,12 @@ export function middleware(req: NextRequest) {
   if (url.pathname === "/") {
     const slug = slugForHost(host, url);
     const rewritten = url.clone();
-    rewritten.pathname = `/_sites/${slug}`;
+    rewritten.pathname = `/sites/${slug}`;
     return NextResponse.rewrite(rewritten);
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/_sites/:path*"],
+  matcher: ["/", "/sites/:path*"],
 };
