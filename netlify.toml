@@ -3,5 +3,10 @@
 [build]
   command = "pnpm build"
 
+[build.environment]
+  # The Supabase anon key is public by design (RLS enforces access); Next inlines
+  # NEXT_PUBLIC_* into client chunks, which otherwise trips Netlify's secrets scanner.
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_URL"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
