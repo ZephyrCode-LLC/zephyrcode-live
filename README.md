@@ -9,18 +9,22 @@ zero content strings. Design system is bespoke CSS on the §7 token set — no U
 
 ```bash
 pnpm install
-cp .env.example .env.local   # values in Netlify env / Supabase dashboard
+cp .env.example .env.local   # values in Amplify console env / Supabase dashboard
 pnpm dev                      # http://localhost:3000/?site=read (or read.localhost:3000)
 ```
 
 ## Architecture decisions
 
-- **Hosting: Netlify (BRIEF §10 option a)** — wildcard subdomains are first-class,
-  the MCP connection automated site/env/deploys, and its Next runtime supports
-  `revalidateTag` natively, which powers the edit-to-live-in-seconds pipeline.
-  Assets ride CloudFront (§5) under AWS profile `lokam`. The one Netlify gotcha
-  worth recording: the Next plugin requires `publish = ".next"` in netlify.toml —
-  without it every deploy fails with a generic exit code 2.
+- **Hosting: AWS Amplify** (app `zephyrcode-live`, id `d29g10v1y8ncpb`, region
+  `ap-south-1`, profile `lokam`, platform WEB_COMPUTE/SSR). GitHub-connected:
+  pushes to `main` auto-build and deploy. Amplify's Next.js adapter runs the
+  middleware host-rewrite + ISR `revalidateTag` natively. Build config lives in
+  `amplify.yml` — the key detail is enabling pnpm via corepack in preBuild
+  (`corepack enable && corepack prepare pnpm@10.11.0 --activate`), since Amplify's
+  image ships only npm/yarn. Env vars are set in the Amplify console (Supabase
+  URL/anon key, REVALIDATE_SECRET, NEXT_PUBLIC_ASSET_BASE, NEXT_PUBLIC_BOOK_URL).
+  Assets ride a separate CloudFront dist (§5) under the same profile.
+  (Previously Netlify — fully migrated off; the site there was deleted.)
 - **Routing**: `src/middleware.ts` maps host → slug and rewrites `/` to
   `/sites/{slug}` (the brief's `_sites` is impossible — underscore directories are
   *private* in the App Router). Direct `/sites/*` hits 308-redirect to the
@@ -39,24 +43,21 @@ pnpm dev                      # http://localhost:3000/?site=read (or read.localh
   the real reader at **book.zephyrcode.live** (Amplify custom domain on the
   antyodaya reader app). Link targets only — copy untouched.
 
-## DNS (GoDaddy)
+## DNS (Namecheap) — pointed at Amplify
+
+The zephyrcode-live Amplify app serves the apex + 7 content subdomains off one
+CloudFront dist (`d228z59xlexxog.cloudfront.net`); the antyodaya reader app serves
+`book` off its own dist. The apex uses a Namecheap ALIAS (apex CNAME is invalid).
 
 | Type | Host | Value |
 |---|---|---|
-| A | `@` | `75.2.60.5` (Netlify load balancer) |
-| CNAME | `www` | `zephyrcode-live.netlify.app` |
-| CNAME | `antyodaya` | `zephyrcode-live.netlify.app` |
-| CNAME | `stories` | `zephyrcode-live.netlify.app` |
-| CNAME | `operator` | `zephyrcode-live.netlify.app` |
-| CNAME | `arcade` | `zephyrcode-live.netlify.app` |
-| CNAME | `read` | `zephyrcode-live.netlify.app` |
-| CNAME | `watch` | `zephyrcode-live.netlify.app` |
-| CNAME | `listen` | `zephyrcode-live.netlify.app` |
-| CNAME | `book` | `dzgiebcwohf0l.cloudfront.net` (Amplify reader) |
-| CNAME | `_f2e90fe508415271fece8a28ea877efa` | `_80a6b941df84229a45bead012ce9594e.xlfgrmvvlj.acm-validations.aws.` (ACM cert for book) |
+| ALIAS | `@` | `d228z59xlexxog.cloudfront.net` |
+| CNAME | `www` `antyodaya` `stories` `operator` `arcade` `read` `watch` `listen` | `d228z59xlexxog.cloudfront.net` |
+| CNAME | `book` | `d3w567ixpqet2a.cloudfront.net` (antyodaya reader app) |
+| CNAME | `_f2e90fe508415271fece8a28ea877efa` | `_80a6b941df84229a45bead012ce9594e.xlfgrmvvlj.acm-validations.aws.` (shared ACM validation for zephyrcode.live) |
 
-After DNS: add `zephyrcode.live` + the 7 subdomains as domain aliases in the
-Netlify dashboard (Domain management) so certificates issue.
+Custom domains are attached via `aws amplify create-domain-association` on each
+app; Amplify issues the Let's Encrypt/ACM cert once the records above resolve.
 
 ## Ops
 
