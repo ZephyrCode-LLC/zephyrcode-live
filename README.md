@@ -53,7 +53,7 @@ CloudFront dist (`d228z59xlexxog.cloudfront.net`); the antyodaya reader app serv
 |---|---|---|
 | ALIAS | `@` | `d228z59xlexxog.cloudfront.net` |
 | CNAME | `www` `antyodaya` `stories` `operator` `arcade` `read` `watch` `listen` | `d228z59xlexxog.cloudfront.net` |
-| CNAME | `book` | `d3w567ixpqet2a.cloudfront.net` (antyodaya reader app) |
+| CNAME | `book-antyodaya` | `d1db1651k651u7.cloudfront.net` (antyodaya reader app — per-book subdomain; future titles get `book-<title>`) |
 | CNAME | `_f2e90fe508415271fece8a28ea877efa` | `_80a6b941df84229a45bead012ce9594e.xlfgrmvvlj.acm-validations.aws.` (shared ACM validation for zephyrcode.live) |
 
 Custom domains are attached via `aws amplify create-domain-association` on each
