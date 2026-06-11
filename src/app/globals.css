@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
+/* ============================================================
+   ZEPHYRCODE — design tokens (BRIEF §7)
+   Palette inherited from the Antyodaya locked palette with the
+   reading-list's stillness-violet as the cold pole.
+   Two typographic voices: Fraunces = the story, Mono = the system.
+   ============================================================ */
+@theme {
+  --color-ink: #0d0b09;
+  --color-bone: #ece2d3;
+  --color-ember: #e85d2a;
+  --color-hot: #ff7a3d;
+  --color-brass: #c9a45c;
+  --color-iris: #8b7fd4;
+  --color-line: rgba(236, 226, 211, 0.13);
+  --color-soft: rgba(236, 226, 211, 0.07);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #0d0b09;
+  --ink-2: #14110d;
+  --ink-3: #1c1812;
+  --bone: #ece2d3;
+  --dim: rgba(236, 226, 211, 0.58);
+  --faint: rgba(236, 226, 211, 0.34);
+  --bone-dim: rgba(236, 226, 211, 0.58);
+  --bone-faint: rgba(236, 226, 211, 0.34);
+  --ember: #e85d2a;
+  --hot: #ff7a3d;
+  --ember-hot: #ff7a3d;
+  --brass: #c9a45c;
+  --iris: #8b7fd4;
+  --line: rgba(236, 226, 211, 0.13);
+  --soft: rgba(236, 226, 211, 0.07);
+  --line-soft: rgba(236, 226, 211, 0.07);
+  --serif: var(--font-fraunces), "Fraunces", Georgia, serif;
+  --mono: var(--font-jbmono), "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  --pad: clamp(20px, 5vw, 56px);
+}
+/* antyodaya carries its own warmer ink (per-site override, BRIEF §7) */
+[data-site="antyodaya"] {
+  --ink: #100e0c;
+  --ink-2: #171310;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--serif);
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.68;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--ember); color: var(--ink); }
+[data-site="stories"] ::selection { background: var(--iris); color: var(--ink); }
+
+/* ---- shared system ---- */
+.vig {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 30%, transparent 50%, rgba(6, 5, 3, 0.6));
+}
+.top {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px var(--pad);
+  background: linear-gradient(to bottom, rgba(13, 11, 9, 0.9), transparent);
+}
+.wm { font-family: var(--mono); font-size: 12px; letter-spacing: 0.3em; color: var(--bone); text-decoration: none; font-weight: 700; }
+.wm i { color: var(--ember); font-style: normal; }
+.crumb { font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; color: var(--faint); }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ember); }
+[data-site="stories"] .eyebrow { color: var(--iris); }
+.btn {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+  text-decoration: none; padding: 14px 26px; border-radius: 2px; display: inline-block; transition: 0.25s;
+}
+.btn.solid { background: var(--ember); color: var(--ink); font-weight: 700; }
+.btn.solid:hover { background: var(--hot); transform: translateY(-2px); }
+.btn.ghost { border: 1px solid var(--line); color: var(--dim); }
+.btn.ghost:hover { border-color: var(--brass); color: var(--brass); }
+.alink {
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.14em; color: var(--brass);
+  text-decoration: none; border-bottom: 1px solid rgba(201, 164, 92, 0.35); padding-bottom: 3px;
+}
+.alink:hover { color: var(--ember); border-color: var(--ember); }
+.rv { opacity: 0; transform: translateY(24px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.rv.in { opacity: 1; transform: none; }
+footer {
+  position: relative; z-index: 5; margin-top: 12vh; border-top: 1px solid var(--soft);
+  padding: 36px var(--pad); display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+}
+footer a { color: var(--faint); text-decoration: none; }
+footer a:hover { color: var(--ember); }
+footer .here { color: var(--ember); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rv { opacity: 1; transform: none; }
+  *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
 }
