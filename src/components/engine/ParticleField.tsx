@@ -155,7 +155,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         uTime: { value: 0 },
         uSize: { value: window.innerWidth < 700 ? 1.35 : 1.6 },
         uGrad: { value: 0 },
-        uAlpha: { value: 0.92 },
+        uAlpha: { value: 0.82 },
         uColA: { value: new THREE.Color(1, 1, 1) },
         uColB: { value: new THREE.Color(1, 1, 1) },
       },
@@ -183,6 +183,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         "  float a = glow + core;",
         "  float fl = 0.78 + 0.22*sin(uTime*2.4 + vSeed*43.7);",
         "  vec3 col = mix(uColA, uColB, clamp(vMix,0.0,1.0));",
+        // lift the crystals a touch lighter/warmer for a softer backdrop
+        "  col = mix(col, vec3(0.96, 0.90, 0.80), 0.16);",
         "  gl_FragColor = vec4(col, a * fl * uAlpha);",
         "}",
       ].join("\n"),
