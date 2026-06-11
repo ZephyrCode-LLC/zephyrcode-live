@@ -8,6 +8,11 @@ frontend:
         - pnpm install --frozen-lockfile
     build:
       commands:
+        # Amplify exposes console env vars at build but NOT to the Next SSR
+        # runtime. Write them to .env.production so the server (route handlers,
+        # server components) can read REVALIDATE_SECRET etc. at runtime —
+        # otherwise /api/revalidate 401s and the publish webhook silently fails.
+        - env | grep -E '^(REVALIDATE_SECRET|NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|NEXT_PUBLIC_ASSET_BASE|NEXT_PUBLIC_BOOK_URL)=' >> .env.production
         - pnpm run build
   artifacts:
     baseDirectory: .next
