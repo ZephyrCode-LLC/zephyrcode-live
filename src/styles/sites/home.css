@@ -2,9 +2,12 @@
 [data-site="home"] { --maxw: 1140px; }
 
 /* ---- fixed layers ---- */
-[data-site="home"] #field { position: fixed; inset: 0; z-index: 0; display: block; }
+/* translateZ promotes the canvas to its own layer — keeps the fixed WebGL bg
+   painting on mobile Safari (fixed canvases behind scrolling content otherwise
+   freeze/vanish there). */
+[data-site="home"] #field { position: fixed; inset: 0; z-index: 0; display: block; transform: translateZ(0); }
 [data-site="home"] .grain {
-  position: fixed; inset: -50%; z-index: 2; pointer-events: none; opacity: 0.05;
+  position: fixed; inset: -12%; z-index: 2; pointer-events: none; opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
   animation: zc-home-grain 9s steps(8) infinite;
 }
@@ -167,3 +170,19 @@
 [data-site="home"] .cmap a:hover .u { color: var(--ember); }
 [data-site="home"] .cmap .what { font-size: 0.85rem; font-style: italic; color: var(--bone-faint); white-space: nowrap; }
 [data-site="home"] .legal { max-width: var(--maxw); margin: 54px auto 0; display: flex; flex-wrap: wrap; gap: 10px 30px; justify-content: space-between; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--bone-faint); }
+
+/* ---- mobile ---- */
+@media (max-width: 640px) {
+  /* header must fit the viewport — the long CTA was overflowing → h-scroll */
+  [data-site="home"] .wordmark { font-size: 11px; letter-spacing: 0.16em; }
+  [data-site="home"] .top-cta { font-size: 8.5px; letter-spacing: 0.07em; padding: 7px 10px; white-space: nowrap; }
+  /* Let the living particle field show through on phones. Desktop reveals it in
+     the side margins of the centered column; on mobile the column is full-width,
+     so the wide desktop scrim would blanket the whole field. The inherited
+     text-halo + the label backdrops carry contrast, so a tighter, lighter scrim
+     is enough — and the animation stays visible "as in web". */
+  [data-site="home"] .scene::before {
+    inset: 14% 0;
+    background: radial-gradient(82% 54% at 50% 50%, rgba(9, 7, 5, 0.8), rgba(9, 7, 5, 0.42) 62%, rgba(9, 7, 5, 0) 86%);
+  }
+}
