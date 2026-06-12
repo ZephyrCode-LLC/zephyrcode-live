@@ -18,6 +18,15 @@ declare global {
 
 export function MachineRuntime({ machine }: { machine: string }) {
   useEffect(() => {
+    // the effect can run before the afterInteractive queue shim — install it
+    // here idempotently so machine_play is never dropped by the race
+    if (!window.plausible) {
+      const q = function (...args: unknown[]) {
+        (q as unknown as { q: unknown[] }).q.push(args);
+      };
+      (q as unknown as { q: unknown[] }).q = [];
+      window.plausible = q as unknown as Window["plausible"];
+    }
     window.plausible?.("machine_play", { props: { machine } });
     const onMsg = (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return;
