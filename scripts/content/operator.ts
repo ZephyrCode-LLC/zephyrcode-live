@@ -159,5 +159,22 @@ export const operatorSeed: SiteSeed = {
         kill: "KILL CRITERIA — forty paying humans by the end of month four, or this page becomes a museum with excellent lighting. We publish the number either way. Consequence engines that exempt their maker are called marketing.",
       },
     },
+    // creator-facing commission page (operator.zephyrcode.live/commission) —
+    // the arcade's Rail-1 door; copy verbatim from the production-audit directive
+    {
+      section: "commission",
+      kind: "kv",
+      position: 50,
+      data: {
+        ey: "COMMISSION A MACHINE",
+        h1: "Your idea, playable.",
+        body: "I turn your course/book's core idea into a machine your audience can play. Founding rate $1,500, two weeks, white-label, first three clients only.",
+        cta: {
+          label: "COMMISSION A MACHINE →",
+          href: "mailto:hello@zephyrcode.live?subject=Commission%20a%20machine%20%E2%80%94%20%5Byour%20name%5D",
+        },
+        proof: { label: "SEE THE MACHINES FIRST →", href: "https://arcade.zephyrcode.live" },
+      },
+    },
   ],
 };

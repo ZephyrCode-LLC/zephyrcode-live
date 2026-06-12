@@ -18,6 +18,9 @@ const jbmono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  // P0-2: relative og:image/canonical URLs must resolve to a real domain,
+  // never the serving host (which is a rewrite target on subdomains)
+  metadataBase: new URL("https://zephyrcode.live"),
   title: "ZephyrCode",
 };
 

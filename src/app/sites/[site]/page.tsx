@@ -60,7 +60,9 @@ export async function generateMetadata({
       description: row.description,
       url,
       type: "website",
-      images: row.og_image && assetBase ? [`${assetBase}${row.og_image}`] : undefined,
+      // P0-2: every site gets a card — DB-pinned art if set, else the
+      // generated cabinet-style default (absolute via root metadataBase)
+      images: row.og_image && assetBase ? [`${assetBase}${row.og_image}`] : [`/sites/${site}/opengraph-image`],
     },
   };
 }

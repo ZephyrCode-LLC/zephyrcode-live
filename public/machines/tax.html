@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE INTERRUPTION TAX — a playable argument · ZephyrCode Arcade</title>
+<meta name="description" content="What one quick meeting really costs a maker's afternoon. Bring a strong stomach.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0B09;--ink2:#14110D;--ink3:#1B1712;--bone:#ECE2D3;--dim:rgba(236,226,211,.74);
+--faint:rgba(236,226,211,.4);--ember:#E85D2A;--brass:#C9A45C;--iris:#8B7FD4;
+--line:rgba(236,226,211,.13);--soft:rgba(236,226,211,.07);--green:#9CB86F;--red:#D85C4A;
+--serif:"Fraunces",Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--bone);font-family:var(--serif);font-weight:400;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--ember);color:var(--ink)}
+.hud{display:flex;align-items:baseline;gap:14px;padding:18px 22px;border-bottom:1px solid var(--soft)}
+.hud .n{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--brass);font-weight:700}
+.hud .g{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--faint)}
+.hud .r{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);background:none;border:1px solid var(--line);padding:6px 12px;border-radius:2px;cursor:pointer}
+.hud .r:hover{color:var(--ember);border-color:var(--ember)}
+.stage{flex:1;max-width:860px;width:100%;margin:0 auto;padding:24px 22px 40px}
+.brief{font-size:15px;color:var(--dim);max-width:62ch;line-height:1.6}
+.brief b{color:var(--bone)}
+.tray{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.intr{font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:10px 14px;border:1px solid var(--line);border-radius:3px;color:var(--bone);background:var(--ink2);cursor:pointer;transition:.15s}
+.intr:hover{border-color:var(--red);color:var(--red)}
+.intr b{color:var(--faint);font-weight:400}
+.day{margin-top:18px;border:1px solid var(--line);border-radius:6px;background:var(--ink2);padding:18px 16px 8px;position:relative}
+.dayk{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--faint);margin-bottom:10px;display:flex;justify-content:space-between}
+.timeline{position:relative;height:96px}
+.block{position:absolute;top:18px;height:44px;border-radius:3px}
+.block.deep{background:linear-gradient(180deg,rgba(232,93,42,.85),rgba(168,67,28,.85))}
+.block.shallow{background:rgba(232,93,42,.22)}
+.block.dead{background:repeating-linear-gradient(45deg,rgba(216,92,74,.5) 0 5px,rgba(216,92,74,.25) 5px 10px);cursor:pointer}
+.block.refocus{background:repeating-linear-gradient(45deg,rgba(236,226,211,.16) 0 4px,transparent 4px 8px)}
+.block .bl{position:absolute;top:-15px;left:2px;font-family:var(--mono);font-size:7.5px;letter-spacing:.1em;color:var(--faint);white-space:nowrap}
+.hours{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;font-family:var(--mono);font-size:8.5px;color:var(--faint)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:var(--faint)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.ledger{margin-top:20px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.lrow{display:grid;grid-template-columns:1.4fr 90px 110px;border-bottom:1px solid var(--soft);background:var(--ink2)}
+.lrow:last-child{border:none}
+.lrow>div{padding:10px 14px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--dim)}
+.lrow.hd>div{font-size:8.5px;letter-spacing:.18em;color:var(--faint);background:var(--ink3);padding:8px 14px}
+.lrow .c{text-align:right}.lrow .true{color:var(--red);font-weight:700}
+.lrow.total>div{color:var(--bone);font-weight:700;border-top:1px solid var(--line)}
+.lrow.total .true{color:var(--red)}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.ro{background:var(--ink2);border:1px solid var(--line);border-radius:5px;padding:13px 16px}
+.ro .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.ro .v{font-family:var(--mono);font-size:20px;font-weight:700;margin-top:4px}
+.ro .v.gr{color:var(--green)}.ro .v.em{color:var(--ember)}.ro .v.rd{color:var(--red)}
+.lock{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;background:transparent;border:1px solid var(--ember);color:var(--ember);padding:13px 26px;border-radius:2px;cursor:pointer;transition:.2s}
+.lock:hover{background:var(--ember);color:var(--ink)}
+.verdict{display:none;margin-top:24px;border:1px solid var(--brass);border-radius:6px;background:var(--ink2);padding:26px 28px}
+.verdict.on{display:block}
+.verdict .vk{font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:var(--ember);margin-bottom:10px}
+.verdict .vt{font-size:28px;font-weight:600}
+.verdict .vl{font-family:var(--mono);font-size:11px;color:var(--brass);margin-top:6px;letter-spacing:.08em}
+.verdict p{margin-top:13px;font-size:15px;color:var(--dim);line-height:1.65;max-width:58ch}
+.vbtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.vbtn{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:11px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--line);background:none;color:var(--bone)}
+.vbtn.hot{border-color:var(--ember);color:var(--ember)}.vbtn.hot:hover{background:var(--ember);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,8px);background:var(--ink3);border:1px solid var(--brass);color:var(--bone);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:10px 18px;border-radius:2px;opacity:0;transition:.3s;max-width:86vw;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.foot{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint);padding:14px 22px;border-top:1px solid var(--soft)}
+@media(max-width:620px){.readout{grid-template-columns:1fr 1fr}.lrow{grid-template-columns:1fr 70px 90px}}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="hud"><span class="n">THE INTERRUPTION TAX</span><span class="g">GRAMMAR · THE LEDGER</span><button class="r" id="reset">RESET</button></div>
+<div class="stage">
+  <p class="brief">A maker's afternoon: 13:00 to 18:00, one hard problem. Deep work <b>compounds</b> — the second hour
+  is worth more than the first. Every interruption bills twice: its own minutes, plus <b>23 minutes of refocus</b>,
+  plus the compounding it reset. Add meetings. Watch the ledger. Tap a placed one to cancel it.</p>
+
+  <div class="tray">
+    <button class="intr" data-d="30" data-n="QUICK SYNC">+ QUICK SYNC <b>· 30M</b></button>
+    <button class="intr" data-d="60" data-n="STATUS MEETING">+ STATUS MEETING <b>· 60M</b></button>
+    <button class="intr" data-d="5" data-n="PING">+ "GOT A SEC?" <b>· 5M</b></button>
+    <button class="intr" data-d="10" data-n="ONE QUESTION">+ JUST ONE QUESTION <b>· 10M</b></button>
+    <button class="intr" data-d="15" data-n="CALL SLIPPED IN">+ CALL THAT SLIPPED IN <b>· 15M</b></button>
+  </div>
+
+  <div class="day">
+    <div class="dayk"><span>THE AFTERNOON</span><span id="dk2">UNTOUCHED</span></div>
+    <div class="timeline" id="tl"></div>
+    <div class="hours"><span>13:00</span><span>14:00</span><span>15:00</span><span>16:00</span><span>17:00</span><span>18:00</span></div>
+  </div>
+  <div class="legend">
+    <span><i style="background:linear-gradient(180deg,rgba(232,93,42,.85),rgba(168,67,28,.85))"></i>DEEP — COMPOUNDING</span>
+    <span><i style="background:rgba(232,93,42,.22)"></i>SHALLOW — WARMING UP</span>
+    <span><i style="background:repeating-linear-gradient(45deg,rgba(216,92,74,.5) 0 5px,rgba(216,92,74,.25) 5px 10px)"></i>THE INTERRUPTION</span>
+    <span><i style="background:repeating-linear-gradient(45deg,rgba(236,226,211,.16) 0 4px,transparent 4px 8px)"></i>REFOCUS — THE TAX</span>
+  </div>
+
+  <div class="ledger" id="lg"></div>
+
+  <div class="readout">
+    <div class="ro"><div class="k">Calendar says lost</div><div class="v" id="roL">0m</div></div>
+    <div class="ro"><div class="k">Actually billed</div><div class="v rd" id="roT">0m</div></div>
+    <div class="ro"><div class="k">Deep output left</div><div class="v gr" id="roD">100%</div></div>
+  </div>
+
+  <button class="lock" id="lock">CLOSE THE LEDGER →</button>
+
+  <div class="verdict" id="vd">
+    <div class="vk">THE LEDGER'S VERDICT</div>
+    <div class="vt" id="vt">—</div>
+    <div class="vl" id="vl">—</div>
+    <p id="vp"></p>
+    <div class="vbtns">
+      <button class="vbtn hot" id="share">↗ SHARE THIS VERDICT</button>
+      <button class="vbtn" id="again">NEW AFTERNOON</button>
+    </div>
+  </div>
+</div>
+<div class="foot">THE ARCADE · ZEPHYRCODE · THE CALENDAR LISTS THE PRICE. THE LEDGER BILLS THE COST.</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MACHINE='tax', CANON='https://arcade.zephyrcode.live/m/tax';
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1900);}
+function share(line){const txt=line+' — play it: '+CANON;
+  const done=()=>{toast('Copied.');try{if(parent!==window)parent.postMessage({type:'zc-share',machine:MACHINE},'*');}catch(e){}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>toast(txt));}else toast(txt);}
+
+const DAY=300, REFOCUS=23, WARM=25; // minutes; WARM = shallow ramp before deep resumes compounding
+let items=[]; // {n,d,at}
+function nextSlot(d){
+  // place after the last item, spaced through the afternoon
+  const sorted=items.slice().sort((a,b)=>a.at-b.at);
+  let t=40;
+  for(const it of sorted){ if(t+d<=it.at) break; t=Math.max(t,it.at+it.d+20); }
+  return t+d>DAY?null:t;
+}
+function compute(){
+  // walk the day; deep output accrues with multiplier that ramps during WARM then compounds
+  const sorted=items.slice().sort((a,b)=>a.at-b.at);
+  let t=0, out=0, maxOut=0, segs=[], focusAge=0;
+  const evts=sorted.map(i=>({...i}));
+  function addSeg(type,from,to,label){if(to>from)segs.push({type,from,to,label});}
+  let cursor=0;
+  for(let m=0;m<DAY;m++){
+    const ev=evts.find(e=>m>=e.at&&m<e.at+e.d);
+    const inRefocus=evts.some(e=>m>=e.at+e.d&&m<e.at+e.d+REFOCUS);
+    if(ev){focusAge=0;}
+    else if(inRefocus){focusAge=0;}
+    else{focusAge++;}
+    // potential (uninterrupted) accrues with same ramp from t=0
+    const pAge=m+1, pMult=Math.min(1+ (pAge>WARM?(pAge-WARM)/180:0), 2.2), base=pAge<=WARM?0.55:1;
+    maxOut+= (pAge<=WARM?0.55:1)*Math.min(1+(pAge>WARM?(pAge-WARM)/180:0),2.2);
+    if(!ev&&!inRefocus){
+      const mult=Math.min(1+(focusAge>WARM?(focusAge-WARM)/180:0),2.2);
+      out+=(focusAge<=WARM?0.55:1)*mult;
+    }
+  }
+  // build segments for paint
+  let pos=0;
+  const marks=[];
+  for(const e of evts){
+    if(e.at>pos)marks.push({type:'work',from:pos,to:e.at});
+    marks.push({type:'dead',from:e.at,to:e.at+e.d,label:e.n,ref:e});
+    marks.push({type:'refocus',from:e.at+e.d,to:Math.min(e.at+e.d+REFOCUS,DAY)});
+    pos=Math.min(e.at+e.d+REFOCUS,DAY);
+  }
+  if(pos<DAY)marks.push({type:'work',from:pos,to:DAY});
+  const listed=items.reduce((s,i)=>s+i.d,0);
+  const billed=Math.round(listed+items.length*REFOCUS+(maxOut-out-(listed+items.length*REFOCUS))*0.45+ (listed?0:0));
+  const trueCost=Math.max(listed?listed+items.length*REFOCUS:0, Math.round(DAY*(1-out/maxOut)));
+  return {marks,listed,trueCost,deepPct:Math.round(out/maxOut*100)};
+}
+function paint(){
+  const {marks,listed,trueCost,deepPct}=compute();
+  const tl=$('tl');
+  tl.innerHTML=marks.map((s,i)=>{
+    const l=(s.from/DAY*100).toFixed(2), w=((s.to-s.from)/DAY*100).toFixed(2);
+    if(s.type==='work'){
+      const deep=(s.to-s.from)>WARM;
+      return `<div class="block ${deep?'deep':'shallow'}" style="left:${l}%;width:${w}%"></div>`;
+    }
+    if(s.type==='dead')return `<div class="block dead" data-at="${s.ref.at}" style="left:${l}%;width:${w}%" title="tap to cancel"><span class="bl">${s.ref.n}</span></div>`;
+    return `<div class="block refocus" style="left:${l}%;width:${w}%"></div>`;
+  }).join('');
+  $('dk2').textContent=items.length?items.length+' INTERRUPTION'+(items.length>1?'S':''):'UNTOUCHED';
+  $('lg').innerHTML=items.length?
+    `<div class="lrow hd"><div>ITEM</div><div class="c">LISTED</div><div class="c">BILLED</div></div>`+
+    items.slice().sort((a,b)=>a.at-b.at).map(i=>`<div class="lrow"><div>${i.n} · ${hh(i.at)}</div><div class="c">${i.d}m</div><div class="c true">${i.d+REFOCUS}m+</div></div>`).join('')+
+    `<div class="lrow total"><div>THE AFTERNOON, NET</div><div class="c">${listed}m</div><div class="c true">≈${trueCost}m</div></div>`
+    :'';
+  $('roL').textContent=listed+'m';
+  $('roT').textContent='≈'+trueCost+'m';
+  $('roD').textContent=deepPct+'%';
+  $('roD').className='v '+(deepPct>=75?'gr':deepPct>=45?'em':'rd');
+  return {listed,trueCost,deepPct};
+}
+function hh(m){const h=13+Math.floor(m/60),mm=(''+(m%60)).padStart(2,'0');return h+':'+mm;}
+document.querySelector('.tray').addEventListener('click',e=>{
+  const b=e.target.closest('.intr');if(!b)return;
+  const at=nextSlot(+b.dataset.d);
+  if(at===null){toast('The afternoon is full. That is rather the point.');return;}
+  items.push({n:b.dataset.n,d:+b.dataset.d,at});paint();
+});
+$('tl').addEventListener('click',e=>{
+  const d=e.target.closest('.block.dead');if(!d)return;
+  items=items.filter(i=>i.at!==+d.dataset.at);paint();
+});
+let lastLine='';
+$('lock').addEventListener('click',()=>{
+  const {listed,trueCost,deepPct}=paint();
+  let t,p;
+  const n=items.length;
+  if(n===0){t='THE QUIET AFTERNOON';p='Five hours, zero interruptions, 100% of the deep output banked. This afternoon does not exist in nature, which is why it has to be built — door shut, status red, calendar lying on your behalf.';}
+  else if(deepPct>=70){t='DEFENSIBLE';p=n+' interruption'+(n>1?'s':'')+', and the structure held — they clustered, so the compounding got one long unbroken run. The lesson is not fewer meetings. It is adjacent meetings.';}
+  else if(deepPct>=40){t='DEATH BY SYNC';p='The calendar admits to '+listed+' minutes. The ledger bills ≈'+trueCost+' — each break paid its 23-minute refocus tax and reset the compounding to zero. Nobody approved that invoice. It was paid anyway.';}
+  else{t='CALENDAR CONFETTI';p=n+' interruptions shredded the afternoon into pieces too short to think in. '+deepPct+'% of the deep output survived. "You still had four free hours" — yes, in twenty-minute coupons, none of which buy anything.';}
+  $('vt').textContent=t;$('vl').textContent=n+' INTERRUPTIONS · LISTED '+listed+'M · BILLED ≈'+trueCost+'M';
+  $('vp').textContent=p;
+  lastLine=`My Interruption Tax: ${t} · listed ${listed}m, billed ≈${trueCost}m`;
+  $('vd').classList.add('on');$('vd').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+$('share').addEventListener('click',()=>share(lastLine));
+$('again').addEventListener('click',()=>{items=[];$('vd').classList.remove('on');paint();});
+$('reset').addEventListener('click',()=>{items=[];$('vd').classList.remove('on');paint();});
+paint();
+</script>
+</body>
+</html>

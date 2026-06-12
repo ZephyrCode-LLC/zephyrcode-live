@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE PLATE — a playable argument · ZephyrCode Arcade</title>
+<meta name="description" content="Build the meal with your hands; the glucose curve answers in real time. The curve is honest. Brutally.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0B09;--ink2:#14110D;--ink3:#1B1712;--bone:#ECE2D3;--dim:rgba(236,226,211,.74);
+--faint:rgba(236,226,211,.4);--ember:#E85D2A;--brass:#C9A45C;--iris:#8B7FD4;
+--line:rgba(236,226,211,.13);--soft:rgba(236,226,211,.07);--green:#9CB86F;--red:#D85C4A;
+--serif:"Fraunces",Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--bone);font-family:var(--serif);font-weight:400;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--ember);color:var(--ink)}
+.hud{display:flex;align-items:baseline;gap:14px;padding:18px 22px;border-bottom:1px solid var(--soft)}
+.hud .n{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--brass);font-weight:700}
+.hud .g{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--faint)}
+.hud .r{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);background:none;border:1px solid var(--line);padding:6px 12px;border-radius:2px;cursor:pointer}
+.hud .r:hover{color:var(--ember);border-color:var(--ember)}
+.stage{flex:1;max-width:860px;width:100%;margin:0 auto;padding:24px 22px 40px}
+.brief{font-size:15px;color:var(--dim);max-width:60ch;line-height:1.6}
+.brief b{color:var(--bone)}
+.pantry{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:9px 13px;border:1px solid var(--line);
+border-radius:3px;color:var(--bone);background:var(--ink2);cursor:pointer;user-select:none;-webkit-user-select:none;transition:.15s}
+.chip:hover{border-color:var(--brass);color:var(--brass)}
+.platezone{margin-top:18px;border:1px dashed rgba(201,164,92,.4);border-radius:10px;background:var(--ink2);
+min-height:110px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start}
+.platezone .ph{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--faint);width:100%;text-align:center;padding:24px 0}
+.onplate{font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:9px 13px;border:1px solid rgba(201,164,92,.55);
+border-radius:3px;color:var(--brass);background:var(--ink3);cursor:pointer;user-select:none}
+.onplate:hover{border-color:var(--red);color:var(--red);text-decoration:line-through}
+.note{font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--faint);margin-top:8px}
+.chart{margin-top:22px;border:1px solid var(--line);border-radius:6px;background:var(--ink2);padding:16px 12px 6px}
+svg{display:block;width:100%;height:250px}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.ro{background:var(--ink2);border:1px solid var(--line);border-radius:5px;padding:13px 16px}
+.ro .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.ro .v{font-family:var(--mono);font-size:20px;font-weight:700;margin-top:4px}
+.ro .v.gr{color:var(--green)}.ro .v.em{color:var(--ember)}.ro .v.rd{color:var(--red)}.ro .v.br{color:var(--brass)}
+.lock{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;background:transparent;border:1px solid var(--ember);color:var(--ember);padding:13px 26px;border-radius:2px;cursor:pointer;transition:.2s}
+.lock:hover{background:var(--ember);color:var(--ink)}
+.verdict{display:none;margin-top:24px;border:1px solid var(--brass);border-radius:6px;background:var(--ink2);padding:26px 28px}
+.verdict.on{display:block}
+.verdict .vk{font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:var(--ember);margin-bottom:10px}
+.verdict .vt{font-size:28px;font-weight:600}
+.verdict .vl{font-family:var(--mono);font-size:11px;color:var(--brass);margin-top:6px;letter-spacing:.08em}
+.verdict p{margin-top:13px;font-size:15px;color:var(--dim);line-height:1.65;max-width:56ch}
+.vbtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.vbtn{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:11px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--line);background:none;color:var(--bone)}
+.vbtn.hot{border-color:var(--ember);color:var(--ember)}.vbtn.hot:hover{background:var(--ember);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,8px);background:var(--ink3);border:1px solid var(--brass);color:var(--bone);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:10px 18px;border-radius:2px;opacity:0;transition:.3s;max-width:86vw;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.foot{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint);padding:14px 22px;border-top:1px solid var(--soft)}
+@media(max-width:620px){.readout{grid-template-columns:1fr 1fr}svg{height:200px}}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="hud"><span class="n">THE PLATE</span><span class="g">GRAMMAR · DIRECT MANIPULATION</span><button class="r" id="reset">RESET</button></div>
+<div class="stage">
+  <p class="brief">Tap food onto the plate. The curve below is the next three hours of your blood glucose,
+  computed live. <b>Fiber, fat and protein flatten; naked carbs launch.</b> Tap anything on the plate to take it back.</p>
+
+  <div class="pantry" id="pantry"></div>
+  <div class="platezone" id="plate"><div class="ph">THE PLATE — EMPTY. THE CURVE IS BORED.</div></div>
+  <div class="note">// portions are one serving each; doubles allowed; the model is a teaching curve, not your endocrinologist</div>
+
+  <div class="chart"><svg id="cv" viewBox="0 0 800 250" preserveAspectRatio="none" aria-label="Projected glucose curve"></svg></div>
+
+  <div class="readout">
+    <div class="ro"><div class="k">Peak</div><div class="v" id="roP">—</div></div>
+    <div class="ro"><div class="k">Minutes over 140</div><div class="v" id="roO">—</div></div>
+    <div class="ro"><div class="k">The crash</div><div class="v" id="roC">—</div></div>
+  </div>
+
+  <button class="lock" id="lock">EAT IT →</button>
+
+  <div class="verdict" id="vd">
+    <div class="vk">THE CURVE'S VERDICT</div>
+    <div class="vt" id="vt">—</div>
+    <div class="vl" id="vl">—</div>
+    <p id="vp"></p>
+    <div class="vbtns">
+      <button class="vbtn hot" id="share">↗ SHARE THIS VERDICT</button>
+      <button class="vbtn" id="again">COOK AGAIN</button>
+    </div>
+  </div>
+</div>
+<div class="foot">THE ARCADE · ZEPHYRCODE · THE CURVE IS HONEST. BRUTALLY.</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MACHINE='plate', CANON='https://arcade.zephyrcode.live/m/plate';
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1900);}
+function share(line){const txt=line+' — play it: '+CANON;
+  const done=()=>{toast('Copied.');try{if(parent!==window)parent.postMessage({type:'zc-share',machine:MACHINE},'*');}catch(e){}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>toast(txt));}else toast(txt);}
+
+/* food: [glycemic load gl, fiber f, protein p, fat ft] — teaching values */
+const FOODS=[
+ ['WHITE RICE',22,.5,2,0],['ROTI',12,2,3,1],['DAL',9,6,9,2],['PANEER',3,0,14,15],
+ ['CHICKEN',0,0,26,8],['SALAD',2,4,1,0],['CURD',5,0,8,4],['BANANA',13,2,1,0],
+ ['COLA',26,0,0,0],['FRIES',24,2,3,12],['GULAB JAMUN',28,0,2,8],['NUTS',2,3,6,16]
+];
+let plate=[];
+function renderPantry(){
+  $('pantry').innerHTML=FOODS.map((f,i)=>`<button class="chip" data-i="${i}">+ ${f[0]}</button>`).join('');
+}
+function renderPlate(){
+  $('plate').innerHTML=plate.length?plate.map((i,k)=>`<button class="onplate" data-k="${k}">${FOODS[i][0]} ✕</button>`).join('')
+   :'<div class="ph">THE PLATE — EMPTY. THE CURVE IS BORED.</div>';
+}
+$('pantry').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;plate.push(+b.dataset.i);renderPlate();draw();});
+$('plate').addEventListener('click',e=>{const b=e.target.closest('.onplate');if(!b)return;plate.splice(+b.dataset.k,1);renderPlate();draw();});
+
+/* curve model: baseline 88. rise driven by net GL; damped by fiber/fat/protein (slows absorption);
+   crash if spike fast and tall. 180 minutes simulated. */
+function curve(){
+  const gl=plate.reduce((s,i)=>s+FOODS[i][1],0);
+  const fib=plate.reduce((s,i)=>s+FOODS[i][2],0);
+  const pro=plate.reduce((s,i)=>s+FOODS[i][3],0);
+  const fat=plate.reduce((s,i)=>s+FOODS[i][4],0);
+  const damp=1+ (fib*0.10 + pro*0.025 + fat*0.03);
+  // saturating response: absorption caps out — worst meals ~250, not 380
+  const gle= gl<=0?0: 60*gl/(gl+40);
+  const peakH= (gle*4.0)/Math.sqrt(damp);                    // mg/dl above baseline
+  const tPeak= 35*Math.sqrt(damp);                            // damped = later, lower
+  const crashDepth= Math.max(0, (peakH/damp) * 0.34 - fib*1.2); // tall fast spikes overshoot insulin
+  const pts=[];
+  for(let t=0;t<=180;t+=3){
+    const rise= peakH*Math.exp(-Math.pow((t-tPeak)/(tPeak*0.75),2));
+    const crash= crashDepth*Math.exp(-Math.pow((t-(tPeak+70))/40,2));
+    pts.push(88+rise-crash);
+  }
+  return {pts,gl};
+}
+function draw(){
+  const {pts}=curve();
+  const W=800,H=250,P=22;
+  const maxV=Math.max(200,...pts)+10, minV=Math.min(60,...pts)-6;
+  const x=i=>P+i/(pts.length-1)*(W-2*P), y=v=>H-P-(v-minV)/(maxV-minV)*(H-2*P);
+  let path='M'; pts.forEach((v,i)=>path+=`${x(i)},${y(v)} `);
+  const y140=y(140), y88=y(88);
+  $('cv').innerHTML=`
+   <line x1="${P}" y1="${y140}" x2="${W-P}" y2="${y140}" stroke="rgba(216,92,74,.45)" stroke-dasharray="3 4"/>
+   <text x="${W-P-4}" y="${y140-5}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="rgba(216,92,74,.8)">140 — THE LINE</text>
+   <line x1="${P}" y1="${y88}" x2="${W-P}" y2="${y88}" stroke="rgba(236,226,211,.25)" stroke-dasharray="2 5"/>
+   <text x="${W-P-4}" y="${y88+12}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="rgba(236,226,211,.45)">BASELINE 88</text>
+   <path d="${path}" fill="none" stroke="#E85D2A" stroke-width="2.5"/>
+   <text x="${P}" y="${H-5}" font-family="JetBrains Mono" font-size="9" fill="rgba(236,226,211,.4)">NOW</text>
+   <text x="${W-P}" y="${H-5}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="rgba(236,226,211,.4)">+3H</text>`;
+  const peak=Math.round(Math.max(...pts)), over=pts.filter(v=>v>140).length*3, dip=Math.round(Math.min(...pts.slice(20)));
+  $('roP').textContent=plate.length?peak:'—';
+  $('roP').className='v '+(peak>175?'rd':peak>140?'em':'gr');
+  $('roO').textContent=plate.length?over+'m':'—';
+  $('roO').className='v '+(over>60?'rd':over>0?'em':'gr');
+  $('roC').textContent=plate.length?(dip<75?dip:'NONE'):'—';
+  $('roC').className='v '+(dip<70?'rd':dip<75?'em':'gr');
+  return {peak,over,dip};
+}
+let lastLine='';
+$('lock').addEventListener('click',()=>{
+  if(!plate.length){toast('The plate is empty. The curve refuses to judge air.');return;}
+  const {peak,over,dip}=draw();
+  let t,p;
+  if(peak<=125){t='FLATLINE';p='Peak '+peak+'. The curve barely noticed the meal — fiber and protein absorbed the punch. This is what most lunches think they look like and almost none do.';}
+  else if(peak<=150&&dip>=75){t='ROLLING HILL';p='A civilised rise, a civilised return. Peak '+peak+', no crash. Whatever you put next to the carbs did the chaperoning.';}
+  else if(dip<72){t='THE ROLLERCOASTER';p='Peak '+peak+', then the overshoot — down to '+dip+' within two hours. That 4pm fog you keep blaming on meetings has a menu.';}
+  else{t='THE SPIKE';p='Peak '+peak+', '+over+' minutes above the line. The curve does not negotiate with "but it was one samosa".';}
+  $('vt').textContent=t;$('vl').textContent='PEAK '+peak+' · '+over+'M OVER 140'+(dip<75?' · DIP '+dip:'');
+  $('vp').textContent=p;
+  lastLine=`My Plate verdict: ${t} · peak ${peak}`;
+  $('vd').classList.add('on');$('vd').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+$('share').addEventListener('click',()=>share(lastLine));
+$('again').addEventListener('click',()=>{$('vd').classList.remove('on');});
+$('reset').addEventListener('click',()=>{plate=[];$('vd').classList.remove('on');renderPlate();draw();});
+renderPantry();renderPlate();draw();
+</script>
+</body>
+</html>

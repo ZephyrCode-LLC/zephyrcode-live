@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BEDTIME — a playable argument · ZephyrCode Arcade</title>
+<meta name="description" content="A dilemma deck with four meters that remember exactly what you chose at 9:47pm.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0B09;--ink2:#14110D;--ink3:#1B1712;--bone:#ECE2D3;--dim:rgba(236,226,211,.74);
+--faint:rgba(236,226,211,.4);--ember:#E85D2A;--brass:#C9A45C;--iris:#8B7FD4;
+--line:rgba(236,226,211,.13);--soft:rgba(236,226,211,.07);--green:#9CB86F;--red:#D85C4A;
+--serif:"Fraunces",Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--bone);font-family:var(--serif);font-weight:400;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--ember);color:var(--ink)}
+.hud{display:flex;align-items:baseline;gap:14px;padding:18px 22px;border-bottom:1px solid var(--soft)}
+.hud .n{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--brass);font-weight:700}
+.hud .g{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--faint)}
+.hud .r{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);background:none;border:1px solid var(--line);padding:6px 12px;border-radius:2px;cursor:pointer}
+.hud .r:hover{color:var(--ember);border-color:var(--ember)}
+.stage{flex:1;max-width:560px;width:100%;margin:0 auto;padding:22px;display:flex;flex-direction:column}
+.meters{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.m .k{font-family:var(--mono);font-size:8px;letter-spacing:.16em;color:var(--faint);margin-bottom:5px;display:flex;justify-content:space-between}
+.m .k b{color:var(--dim);font-weight:500}
+.m .bar{height:7px;background:var(--ink3);border:1px solid var(--soft);border-radius:4px;overflow:hidden}
+.m .f{height:100%;border-radius:4px;transition:width .35s, background .35s}
+.deckwrap{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:330px;margin:18px 0 6px}
+.clock{position:absolute;top:0;left:0;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--ember)}
+.night{position:absolute;top:0;right:0;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--faint)}
+.card{position:absolute;width:min(86%,360px);background:var(--ink2);border:1px solid var(--line);border-radius:10px;
+padding:30px 26px 24px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+box-shadow:0 18px 50px rgba(0,0,0,.5);transition:border-color .2s}
+.card:active{cursor:grabbing}
+.card .ck{font-family:var(--mono);font-size:8.5px;letter-spacing:.22em;color:var(--brass);margin-bottom:14px}
+.card .ct{font-size:21px;font-weight:600;line-height:1.35;color:var(--bone);min-height:84px}
+.card .hint{display:flex;justify-content:space-between;margin-top:22px;font-family:var(--mono);font-size:8.5px;letter-spacing:.14em;color:var(--faint)}
+.card .hint .l{color:var(--red)}.card .hint .r{color:var(--green)}
+.stamp{position:absolute;top:18px;font-family:var(--mono);font-size:13px;letter-spacing:.2em;font-weight:700;padding:6px 12px;border-radius:3px;opacity:0;border:2px solid}
+.stamp.no{left:18px;color:var(--red);border-color:var(--red);transform:rotate(-12deg)}
+.stamp.yes{right:18px;color:var(--green);border-color:var(--green);transform:rotate(12deg)}
+.btns{display:flex;gap:12px;justify-content:center;padding-bottom:8px}
+.cb{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:13px 22px;border-radius:2px;cursor:pointer;background:none}
+.cb.no{border:1px solid rgba(216,92,74,.55);color:var(--red)}
+.cb.yes{border:1px solid rgba(156,184,111,.55);color:var(--green)}
+.cb:hover{filter:brightness(1.3)}
+.verdict{display:none;margin:10px 0 30px;border:1px solid var(--brass);border-radius:6px;background:var(--ink2);padding:26px 28px}
+.verdict.on{display:block}
+.verdict .vk{font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:var(--ember);margin-bottom:10px}
+.verdict .vt{font-size:28px;font-weight:600}
+.verdict p{margin-top:12px;font-size:14.5px;color:var(--dim);line-height:1.65}
+.ledger{margin-top:16px;font-family:var(--mono);font-size:10px;line-height:2;color:var(--dim);letter-spacing:.06em}
+.ledger b{color:var(--bone);font-weight:500}
+.ledger .y{color:var(--green)}.ledger .x{color:var(--red)}
+.vbtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.vbtn{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:11px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--line);background:none;color:var(--bone)}
+.vbtn.hot{border-color:var(--ember);color:var(--ember)}.vbtn.hot:hover{background:var(--ember);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,8px);background:var(--ink3);border:1px solid var(--brass);color:var(--bone);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:10px 18px;border-radius:2px;opacity:0;transition:.3s;max-width:86vw;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.foot{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint);padding:14px 22px;border-top:1px solid var(--soft)}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="hud"><span class="n">BEDTIME</span><span class="g">GRAMMAR · SWIPE &amp; SUFFER</span><button class="r" id="reset">RESET</button></div>
+<div class="stage">
+  <div class="meters" id="meters"></div>
+  <div class="deckwrap" id="deck">
+    <span class="clock">21:47</span><span class="night" id="night">NIGHT 1 / 7</span>
+  </div>
+  <div class="btns" id="btns">
+    <button class="cb no" id="bNo">✕ REFUSE</button>
+    <button class="cb yes" id="bYes">✓ GIVE IN</button>
+  </div>
+  <div class="verdict" id="vd">
+    <div class="vk">THE WEEK, AUDITED</div>
+    <div class="vt" id="vt">—</div>
+    <p id="vp"></p>
+    <div class="ledger" id="vl"></div>
+    <div class="vbtns">
+      <button class="vbtn hot" id="share">↗ SHARE THIS VERDICT</button>
+      <button class="vbtn" id="again">DEAL AGAIN</button>
+    </div>
+  </div>
+</div>
+<div class="foot">THE ARCADE · ZEPHYRCODE · THE DECK REMEMBERS. SO DOES TOMORROW.</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MACHINE='bedtime', CANON='https://arcade.zephyrcode.live/m/bedtime';
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1900);}
+function share(line){const txt=line+' — play it: '+CANON;
+  const done=()=>{toast('Copied.');try{if(parent!==window)parent.postMessage({type:'zc-share',machine:MACHINE},'*');}catch(e){}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>toast(txt));}else toast(txt);}
+
+const METERS=[['SLEEP','#8B7FD4'],['FOCUS','#E85D2A'],['MOOD','#C9A45C'],['RESOLVE','#9CB86F']];
+/* deltas: [sleep,focus,mood,resolve] for GIVE IN / REFUSE */
+const CARDS=[
+ {t:'One more episode. It is 41 minutes, and the recap means you have technically already started.',tag:'THE CLIFFHANGER',y:[-14,-8,8,-10],n:[4,4,-5,12],yl:'episode',nl:'credits rolled'},
+ {t:'The group chat is litigating something that will not matter by Thursday. You have a take.',tag:'THE TRIBUNAL',y:[-10,-12,4,-8],n:[4,6,-3,10],yl:'posted the take',nl:'muted it'},
+ {t:'A work email lands. It can wait until morning. It says it cannot, but it says that every time.',tag:'THE URGENT FLAG',y:[-12,-10,-6,-6],n:[5,6,3,10],yl:'replied 23:12',nl:'morning problem'},
+ {t:'The fridge has opinions. Strong ones. There is cheese.',tag:'THE COLD LIGHT',y:[-6,-4,9,-8],n:[3,2,-4,9],yl:'cheese happened',nl:'water, bed'},
+ {t:'A 28-minute video essay: "Why You Cannot Sleep." You would be doing research, really.',tag:'THE IRONY',y:[-12,-6,5,-9],n:[5,4,-2,10],yl:'did the research',nl:'lived the answer'},
+ {t:'It is 23:58. The clean thing would be starting fresh at midnight. Round numbers feel like discipline.',tag:'THE ROUND NUMBER',y:[-8,-7,3,-12],n:[4,5,0,12],yl:'waited for 00:00',nl:'started ugly, slept'},
+ {t:'Tomorrow’s alarm offers a deal: fifteen more minutes now, it swears it will be fine.',tag:'THE NEGOTIATION',y:[-10,-9,4,-11],n:[6,6,2,11],yl:'took the deal',nl:'declined politely'}
+];
+let vals,night,log,card=null;
+function init(){vals=[64,64,64,64];night=0;log=[];$('vd').classList.remove('on');$('btns').style.display='flex';renderMeters();deal();}
+function renderMeters(){
+  $('meters').innerHTML=METERS.map((m,i)=>`<div class="m"><div class="k">${m[0]}<b>${Math.round(vals[i])}</b></div>
+  <div class="bar"><div class="f" style="width:${vals[i]}%;background:${vals[i]<30?'#D85C4A':m[1]}"></div></div></div>`).join('');
+}
+function deal(){
+  if(night>=CARDS.length){finish();return;}
+  $('night').textContent=`NIGHT ${night+1} / 7`;
+  const c=CARDS[night];
+  card=document.createElement('div');card.className='card';
+  card.innerHTML=`<div class="stamp no">REFUSED</div><div class="stamp yes">GAVE IN</div>
+   <div class="ck">${c.tag} · 21:47</div><div class="ct">${c.t}</div>
+   <div class="hint"><span class="l">◀ ✕ REFUSE</span><span class="r">GIVE IN ✓ ▶</span></div>`;
+  $('deck').appendChild(card);
+  attachDrag(card);
+}
+function attachDrag(el){
+  let sx=0,dx=0,drag=false;
+  el.addEventListener('pointerdown',e=>{drag=true;sx=e.clientX;el.setPointerCapture(e.pointerId);});
+  el.addEventListener('pointermove',e=>{if(!drag)return;dx=e.clientX-sx;
+    el.style.transform=`translateX(${dx}px) rotate(${dx/18}deg)`;
+    el.querySelector('.stamp.yes').style.opacity=Math.max(0,Math.min(1,dx/90));
+    el.querySelector('.stamp.no').style.opacity=Math.max(0,Math.min(1,-dx/90));});
+  el.addEventListener('pointerup',()=>{drag=false;
+    if(dx>90)resolve(true); else if(dx<-90)resolve(false);
+    else{el.style.transform='';el.querySelectorAll('.stamp').forEach(s=>s.style.opacity=0);}
+    dx=0;});
+}
+function resolve(gaveIn){
+  const c=CARDS[night], d=gaveIn?c.y:c.n;
+  vals=vals.map((v,i)=>Math.max(0,Math.min(100,v+d[i])));
+  log.push({tag:c.tag,gaveIn,label:gaveIn?c.yl:c.nl});
+  if(card){const el=card;el.style.transition='transform .35s, opacity .35s';
+    el.style.transform=`translateX(${gaveIn?420:-420}px) rotate(${gaveIn?22:-22}deg)`;el.style.opacity=0;
+    setTimeout(()=>el.remove(),360);}
+  renderMeters();night++;setTimeout(deal,240);
+}
+$('bYes').addEventListener('click',()=>{if(night<CARDS.length)resolve(true);});
+$('bNo').addEventListener('click',()=>{if(night<CARDS.length)resolve(false);});
+
+let lastLine='';
+function finish(){
+  $('btns').style.display='none';
+  const gaveIns=log.filter(l=>l.gaveIn).length, sleep=Math.round(vals[0]), resolve_=Math.round(vals[3]);
+  let t,p;
+  if(resolve_>=75&&sleep>=70){t='THE MONK';p='Seven nights, '+(7-gaveIns)+' refusals, and a resolve meter that barely flinched. Either you are lying to the machine or you are dangerous.';}
+  else if(sleep<30){t='THE 2AM ECONOMIST';p='You traded sleep for mood seven times at a 9:47pm exchange rate, and the rate was rigged. Look at the ledger — the deck remembers what the morning forgets.';}
+  else if(gaveIns>=5){t='THE SOFT YES';p='Five or more surrenders. None of them felt like decisions at the time; that is precisely how the meters drain — politely, one episode at a time.';}
+  else if(resolve_<35){t='THE NEGOTIATOR';p='You held some lines and folded on others, and the folding clustered late — the deck noticed your resolve drops after night four. So do app designers.';}
+  else{t='THE HUMAN';p='Some yes, some no, meters bruised but standing. This is what an ordinary week actually looks like; the trick is noticing which card got you. Check the ledger.';}
+  $('vt').textContent=t;$('vp').textContent=p;
+  $('vl').innerHTML=log.map((l,i)=>`<div>NIGHT ${i+1} · ${l.tag} — ${l.gaveIn?'<b class="x">✓ '+l.label+'</b>':'<b class="y">✕ '+l.label+'</b>'}</div>`).join('');
+  lastLine=`My Bedtime verdict: ${t} · gave in ${gaveIns}/7, sleep ${sleep}`;
+  $('vd').classList.add('on');$('vd').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('share').addEventListener('click',()=>share(lastLine));
+$('again').addEventListener('click',init);
+$('reset').addEventListener('click',init);
+init();
+</script>
+</body>
+</html>

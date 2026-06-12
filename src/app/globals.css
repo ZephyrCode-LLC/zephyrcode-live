@@ -22,9 +22,9 @@
   --ink-2: #14110d;
   --ink-3: #1c1812;
   --bone: #ece2d3;
-  --dim: rgba(236, 226, 211, 0.58);
+  --dim: rgba(236, 226, 211, 0.74); /* P1-3: was .58 — under-inked on non-retina */
   --faint: rgba(236, 226, 211, 0.34);
-  --bone-dim: rgba(236, 226, 211, 0.58);
+  --bone-dim: rgba(236, 226, 211, 0.74);
   --bone-faint: rgba(236, 226, 211, 0.34);
   --ember: #e85d2a;
   --hot: #ff7a3d;
@@ -51,7 +51,7 @@ body {
   color: var(--bone);
   font-family: var(--serif);
   font-optical-sizing: auto;
-  font-weight: 300;
+  font-weight: 400; /* P1-3: Fraunces 300 reserved for display sizes >=40px */
   font-size: 17px;
   line-height: 1.68;
   overflow-x: hidden;

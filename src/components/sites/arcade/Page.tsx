@@ -80,13 +80,10 @@ export default async function ArcadePage() {
                 <p>{sim.blurb}</p>
                 <a
                   className="play"
-                  href={play.hrefs[sim.slug]}
+                  href={play.hrefs[sim.slug] ?? `/m/${sim.slug}`}
                   aria-label={`${play.label} ${sim.name}`}
                 >
                   {play.label}
-                </a>
-                <a className="plink" href={`/m/${sim.slug}`} aria-label={`${sim.name} — /m/${sim.slug}`}>
-                  #{sim.slug}
                 </a>
               </div>
               <div className="coin">{sim.grammar}</div>

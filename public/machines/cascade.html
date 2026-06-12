@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CASCADE — a playable argument · ZephyrCode Arcade</title>
+<meta name="description" content="How ideas actually spread — simple contagion versus the complex kind that needs three friends and a nudge.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0B09;--ink2:#14110D;--ink3:#1B1712;--bone:#ECE2D3;--dim:rgba(236,226,211,.74);
+--faint:rgba(236,226,211,.4);--ember:#E85D2A;--brass:#C9A45C;--iris:#8B7FD4;
+--line:rgba(236,226,211,.13);--soft:rgba(236,226,211,.07);--green:#9CB86F;--red:#D85C4A;
+--serif:"Fraunces",Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--bone);font-family:var(--serif);font-weight:400;min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--ember);color:var(--ink)}
+.hud{display:flex;align-items:baseline;gap:14px;padding:18px 22px;border-bottom:1px solid var(--soft)}
+.hud .n{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--brass);font-weight:700}
+.hud .g{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--faint)}
+.hud .r{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);background:none;border:1px solid var(--line);padding:6px 12px;border-radius:2px;cursor:pointer}
+.hud .r:hover{color:var(--ember);border-color:var(--ember)}
+.stage{flex:1;max-width:860px;width:100%;margin:0 auto;padding:24px 22px 40px}
+.brief{font-size:15px;color:var(--dim);max-width:62ch;line-height:1.6}
+.brief b{color:var(--bone)}
+.modes{display:flex;gap:8px;margin-top:18px}
+.mode{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;padding:9px 16px;border:1px solid var(--line);border-radius:2px;background:none;color:var(--dim);cursor:pointer}
+.mode.on{border-color:var(--ember);color:var(--ember)}
+.modedesc{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;color:var(--faint);margin-top:10px;min-height:14px}
+.net{margin-top:14px;border:1px solid var(--line);border-radius:6px;background:var(--ink2);position:relative}
+svg{display:block;width:100%;height:380px;touch-action:manipulation}
+.netk{position:absolute;top:10px;left:14px;font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--faint)}
+.bar{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.lock{font-family:var(--mono);font-size:11px;letter-spacing:.22em;background:transparent;border:1px solid var(--ember);color:var(--ember);padding:13px 26px;border-radius:2px;cursor:pointer;transition:.2s}
+.lock:hover{background:var(--ember);color:var(--ink)}
+.lock:disabled{opacity:.4;cursor:default}
+.seeds{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim)}
+.seeds b{color:var(--ember);font-size:14px}
+.stat{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim)}
+.stat b{color:var(--bone);font-size:14px}
+.verdict{display:none;margin-top:24px;border:1px solid var(--brass);border-radius:6px;background:var(--ink2);padding:26px 28px}
+.verdict.on{display:block}
+.verdict .vk{font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:var(--ember);margin-bottom:10px}
+.verdict .vt{font-size:28px;font-weight:600}
+.verdict .vl{font-family:var(--mono);font-size:11px;color:var(--brass);margin-top:6px;letter-spacing:.08em}
+.verdict p{margin-top:13px;font-size:15px;color:var(--dim);line-height:1.65;max-width:58ch}
+.vbtns{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.vbtn{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:11px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--line);background:none;color:var(--bone)}
+.vbtn.hot{border-color:var(--ember);color:var(--ember)}.vbtn.hot:hover{background:var(--ember);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,8px);background:var(--ink3);border:1px solid var(--brass);color:var(--bone);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:10px 18px;border-radius:2px;opacity:0;transition:.3s;max-width:86vw;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.foot{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint);padding:14px 22px;border-top:1px solid var(--soft)}
+@media(max-width:620px){svg{height:300px}}
+@media(prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="hud"><span class="n">CASCADE</span><span class="g">GRAMMAR · AGENTS, RELEASED</span><button class="r" id="reset">RESET</button></div>
+<div class="stage">
+  <p class="brief">One hundred and forty people who mostly know their neighbours. <b>Tap up to five of them</b> to seed your idea,
+  pick how ideas move, then release. Gossip jumps on one contact. Conviction waits for <b>three</b>.</p>
+
+  <div class="modes">
+    <button class="mode on" id="mSimple">SIMPLE · GOSSIP</button>
+    <button class="mode" id="mComplex">COMPLEX · CONVICTION</button>
+  </div>
+  <div class="modedesc" id="mdesc">// simple contagion: any infected neighbour can pass it on — rumours, memes, fire</div>
+
+  <div class="net"><span class="netk" id="netk">SEED THE NETWORK — TAP DOTS</span><svg id="cv" viewBox="0 0 800 380"></svg></div>
+
+  <div class="bar">
+    <button class="lock" id="go">RELEASE →</button>
+    <span class="seeds">SEEDS <b id="sc">0</b>/5</span>
+    <span class="stat">ADOPTED <b id="ad">0%</b> · STEP <b id="st">0</b></span>
+  </div>
+
+  <div class="verdict" id="vd">
+    <div class="vk">THE NETWORK'S VERDICT</div>
+    <div class="vt" id="vt">—</div>
+    <div class="vl" id="vl">—</div>
+    <p id="vp"></p>
+    <div class="vbtns">
+      <button class="vbtn hot" id="share">↗ SHARE THIS VERDICT</button>
+      <button class="vbtn" id="again">RE-SEED</button>
+    </div>
+  </div>
+</div>
+<div class="foot">THE ARCADE · ZEPHYRCODE · YOUR IDEA IS NOT A RUMOUR. PLAN ACCORDINGLY.</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MACHINE='cascade', CANON='https://arcade.zephyrcode.live/m/cascade';
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1900);}
+function share(line){const txt=line+' — play it: '+CANON;
+  const done=()=>{toast('Copied.');try{if(parent!==window)parent.postMessage({type:'zc-share',machine:MACHINE},'*');}catch(e){}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>toast(txt));}else toast(txt);}
+
+/* lattice-ish small world: grid + few long links (deterministic-ish layout, seeded RNG) */
+let seedRng=7;function rnd(){seedRng=(seedRng*16807)%2147483647;return seedRng/2147483647;}
+const COLS=14,ROWS=10,N=COLS*ROWS,W=800,H=380;
+const nodes=[],edges=[],adj=Array.from({length:N},()=>new Set());
+for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+  nodes.push({x:40+c*(W-80)/(COLS-1)+(rnd()-0.5)*16, y:34+r*(H-68)/(ROWS-1)+(rnd()-0.5)*14});
+}
+function link(a,b){if(a===b||adj[a].has(b))return;adj[a].add(b);adj[b].add(a);edges.push([a,b]);}
+for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+  const i=r*COLS+c;
+  if(c<COLS-1)link(i,i+1);
+  if(r<ROWS-1)link(i,i+COLS);
+  // Moore neighbourhood: both diagonals — degree ~8, so conviction CAN
+  // travel from a dense cluster (threshold 3) yet dies from scatter
+  if(c<COLS-1&&r<ROWS-1)link(i,i+COLS+1);
+  if(c>0&&r<ROWS-1)link(i,i+COLS-1);
+}
+for(let k=0;k<10;k++)link(Math.floor(rnd()*N),Math.floor(rnd()*N)); // long bridges
+
+let mode='simple', state, seeds, running=false, step=0, history=[];
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function init(){state=Array(N).fill(0);seeds=new Set();running=false;step=0;history=[];
+  $('vd').classList.remove('on');$('go').disabled=false;$('netk').textContent='SEED THE NETWORK — TAP DOTS';update();}
+function update(){
+  $('cv').innerHTML=
+   edges.map(([a,b])=>`<line x1="${nodes[a].x}" y1="${nodes[a].y}" x2="${nodes[b].x}" y2="${nodes[b].y}"
+     stroke="${state[a]&&state[b]?'rgba(232,93,42,.4)':'rgba(236,226,211,.08)'}" stroke-width="1"/>`).join('')+
+   nodes.map((n,i)=>`<circle data-i="${i}" cx="${n.x}" cy="${n.y}" r="${seeds.has(i)?8:6}"
+     fill="${state[i]? (seeds.has(i)?'#FF7A3D':'#E85D2A') :'#2A241C'}"
+     stroke="${seeds.has(i)?'#ECE2D3':state[i]?'none':'rgba(236,226,211,.25)'}" stroke-width="1.5" style="cursor:pointer"/>`).join('');
+  $('sc').textContent=seeds.size;
+  const pct=Math.round(state.filter(Boolean).length/N*100);
+  $('ad').textContent=pct+'%';$('st').textContent=step;
+  return pct;
+}
+$('cv').addEventListener('click',e=>{
+  if(running)return;
+  const c=e.target.closest('circle');if(!c)return;
+  const i=+c.dataset.i;
+  if(seeds.has(i)){seeds.delete(i);state[i]=0;}
+  else{if(seeds.size>=5){toast('Five seeds. That is the budget — choose where, not how many.');return;}
+    seeds.add(i);state[i]=1;}
+  update();
+});
+function setMode(m){mode=m;
+  $('mSimple').classList.toggle('on',m==='simple');
+  $('mComplex').classList.toggle('on',m==='complex');
+  $('mdesc').textContent=m==='simple'
+   ?'// simple contagion: any infected neighbour can pass it on — rumours, memes, fire'
+   :'// complex contagion: a person adopts only when THREE neighbours already have — habits, beliefs, products that cost something';
+}
+$('mSimple').addEventListener('click',()=>setMode('simple'));
+$('mComplex').addEventListener('click',()=>setMode('complex'));
+
+function tick(){
+  const next=state.slice();let changed=false;
+  for(let i=0;i<N;i++){
+    if(state[i])continue;
+    const hot=[...adj[i]].filter(j=>state[j]).length;
+    if(mode==='simple'){if(hot>=1&&Math.random()<0.42){next[i]=1;changed=true;}}
+    else{if(hot>=3){next[i]=1;changed=true;}}
+  }
+  state=next;step++;const pct=update();history.push(pct);
+  const stalled=history.length>4&&history.slice(-4).every(v=>v===pct);
+  if(!changed&&(mode==='complex'||stalled)||pct>=100||step>45){finish(pct);return;}
+  if(!changed&&mode==='simple'&&stalled){finish(pct);return;}
+  setTimeout(tick,reduced?0:110);
+}
+$('go').addEventListener('click',()=>{
+  if(!seeds.size){toast('Seed someone first. Ideas do not start in the air.');return;}
+  running=true;$('go').disabled=true;$('netk').textContent='RELEASED — WATCH THE EDGES';
+  tick();
+});
+let lastLine='';
+function finish(pct){
+  running=false;
+  let t,p;
+  const m=mode==='simple'?'GOSSIP':'CONVICTION';
+  if(mode==='simple'&&pct>=85){t='WILDFIRE';p='Simple contagion with '+seeds.size+' seed'+(seeds.size>1?'s':'')+' reached '+pct+'% in '+step+' steps. Cheap to catch, cheap to drop — this is how memes travel, and how quickly they are forgotten.';}
+  else if(mode==='simple'){t='THE SLOW BURN';p=pct+'% in '+step+' steps. Even gossip needs bridges; your seeds sat in the same neighbourhood and the far shore never heard.';}
+  else if(pct>=60){t='THE MOVEMENT';p='Conviction crossed '+pct+'% — because you clustered seeds until whole pockets hit three believers each. This is the unglamorous truth of organising: density first, reach later.';}
+  else if(pct>=25){t='THE FOOTHOLD';p=pct+'% then the stall. Complex ideas die at sparse borders — every frontier node was waiting for a third neighbour who never came. Scatter feels efficient. It is not.';}
+  else{t='DAMP SQUIB';p='Stalled at '+pct+'%. Five scattered seeds, zero clusters — under complex contagion that is five lonely people with the same good idea. It needed three friends and a nudge.';}
+  $('vt').textContent=t;$('vl').textContent=m+' · '+seeds.size+(seeds.size===1?' SEED → ':' SEEDS → ')+pct+'% IN '+step+(step===1?' STEP':' STEPS');
+  $('vp').textContent=p;
+  lastLine=`My Cascade verdict: ${t} · ${m.toLowerCase()}, ${seeds.size} seeds → ${pct}%`;
+  $('vd').classList.add('on');$('vd').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+$('share').addEventListener('click',()=>share(lastLine));
+$('again').addEventListener('click',init);
+$('reset').addEventListener('click',init);
+init();
+</script>
+</body>
+</html>

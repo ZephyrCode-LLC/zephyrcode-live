@@ -59,7 +59,7 @@
   margin: 34px auto 0;
   max-width: 62ch;
   text-align: center;
-  color: var(--dim);
+  color: var(--bone); /* P1-3: full bone */
 }
 [data-site="arcade"] .lede b { color: var(--bone); font-weight: 600; }
 
@@ -75,7 +75,11 @@
   background: linear-gradient(170deg, #16120e, #0e0b08);
   display: flex;
   flex-direction: column;
+  transition: border-color 0.25s;
 }
+[data-site="arcade"] .cab:hover { border-color: rgba(232, 93, 42, 0.45); } /* P1-3 */
+[data-site="arcade"] .cab .screen { filter: brightness(1); transition: filter 0.25s; }
+[data-site="arcade"] .cab:hover .screen { filter: brightness(1.15); } /* art +15% */
 [data-site="arcade"] .screen {
   height: 130px;
   margin: 14px;
@@ -99,9 +103,8 @@
   color: var(--brass);
 }
 [data-site="arcade"] .cinfo p {
-  font-size: 0.9rem;
-  color: var(--dim);
-  font-style: italic;
+  font-size: 0.95rem;
+  color: rgba(236, 226, 211, 0.8); /* P1-3: no italic, bone .8 */
   margin: 8px 0 14px;
   min-height: 3.4em;
 }
@@ -124,9 +127,9 @@
   padding: 10px 20px;
   border-top: 1px solid var(--soft);
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 10px; /* P1-3: mono microcopy never below 10px */
   letter-spacing: 0.2em;
-  color: var(--dim); /* a11y: was --faint at 8.5px — below 4.5:1 */
+  color: var(--dim);
 }
 
 /* per-cabinet attract loops */
@@ -273,19 +276,6 @@
 
 /* ---- operator-author refinement brief ---- */
 
-/* per-machine permalink — findable, not loud */
-[data-site="arcade"] .plink {
-  display: inline-block;
-  margin-left: 10px;
-  font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  color: var(--dim);
-  text-decoration: none;
-  border-bottom: 1px dotted var(--soft);
-  padding-bottom: 2px;
-}
-[data-site="arcade"] .plink:hover { color: var(--brass); border-bottom-color: var(--brass); }
 
 /* email capture — after the cabinets */
 [data-site="arcade"] .capture {
@@ -429,3 +419,42 @@
 @media (prefers-reduced-motion: reduce) {
   .arc-toast { transition: none; }
 }
+
+/* ---- the machine page (/m/<slug>) — the simulator IS the page ---- */
+[data-site="arcade"].machine-shell { display: flex; flex-direction: column; min-height: 100vh; background: var(--ink); }
+[data-site="arcade"] .machine-bar {
+  display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  padding: 14px 20px; border-bottom: 1px solid var(--soft); background: var(--ink-2);
+}
+[data-site="arcade"] .machine-bar a { text-decoration: none; }
+[data-site="arcade"] .mb-back { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--dim); white-space: nowrap; }
+[data-site="arcade"] .mb-back:hover { color: var(--ember); }
+[data-site="arcade"] .mb-name { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; color: var(--brass); font-weight: 700; }
+[data-site="arcade"] .mb-coin { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--dim); }
+[data-site="arcade"] .mb-full { margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--ember); white-space: nowrap; }
+[data-site="arcade"] .mb-full:hover { text-decoration: underline; }
+[data-site="arcade"] .machine-frame { flex: 1; width: 100%; border: none; min-height: calc(100vh - 52px); display: block; background: var(--ink); }
+
+/* ---- /commission — the creator door ---- */
+[data-site="arcade"] .commission { max-width: 880px; margin: 0 auto; padding: 14vh 24px 90px; }
+[data-site="arcade"] .commission .ey { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--ember); text-transform: uppercase; }
+[data-site="arcade"] .commission h1 { font-size: clamp(38px, 6vw, 64px); font-weight: 600; line-height: 1.05; margin-top: 16px; color: var(--bone); }
+[data-site="arcade"] .commission .body { margin-top: 22px; font-size: 19px; line-height: 1.65; color: var(--dim); max-width: 56ch; }
+[data-site="arcade"] .commission .ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+[data-site="arcade"] .commission .cta {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-decoration: none;
+  padding: 14px 22px; border-radius: 2px; border: 1px solid var(--line); color: var(--bone); transition: 0.2s;
+}
+[data-site="arcade"] .commission .cta.hot { border-color: var(--ember); color: var(--ember); }
+[data-site="arcade"] .commission .cta.hot:hover { background: var(--ember); color: var(--ink); }
+[data-site="arcade"] .commission .cta:hover { border-color: var(--faint); }
+[data-site="arcade"] .proofrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 54px; }
+[data-site="arcade"] .proofcard {
+  border: 1px solid var(--line); background: var(--ink-2); border-radius: 4px; padding: 16px 18px;
+  text-decoration: none; transition: border-color 0.2s;
+}
+[data-site="arcade"] .proofcard:hover { border-color: rgba(232, 93, 42, 0.45); }
+[data-site="arcade"] .proofcard .pn { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--brass); }
+[data-site="arcade"] .proofcard .pg { display: block; margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--dim); }
+[data-site="arcade"] .below { display: inline-block; margin-top: 50px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--dim); text-decoration: none; border-bottom: 1px dotted var(--line); padding-bottom: 3px; }
+[data-site="arcade"] .below:hover { color: var(--ember); border-bottom-color: var(--ember); }

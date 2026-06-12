@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import "@/styles/sites/arcade.css";
 import { z } from "zod";
 import { dataOf, getBlocks, getSims } from "@/lib/content";
-import { TopBar } from "@/components/system/TopBar";
-import { Vignette } from "@/components/system/Vignette";
-import { SCREENS } from "@/components/sites/arcade/screens";
+import { MachineRuntime } from "@/components/sites/arcade/MachineRuntime";
 
 /**
- * Per-machine deep link (operator-author brief §3): every arcade cabinet has
- * its own URL with unique og:title/description/image so shared links unfurl.
- * Canonical host: arcade.zephyrcode.live/m/<machine>.
+ * The machine itself (P0-1): /m/<slug> renders the FULL standalone simulator
+ * (public/machines/<slug>.html) in a full-bleed iframe under a slim bar —
+ * back to the arcade, name, grammar, OPEN FULL SCREEN (raw file). Unique
+ * og:title/description/image per machine (metadataBase set in app/m/layout.tsx).
  */
 
-export const revalidate = 300; // edge TTL: author edits live in ≤5 min (CloudFront can't be purged on demand); origin busts instantly via /api/revalidate
+export const revalidate = 300; // edge TTL ≤5 min; origin busts instantly via /api/revalidate
 export const dynamicParams = true;
 
 const ARCADE = "https://arcade.zephyrcode.live";
@@ -45,9 +45,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-const Crumb = z.object({ text: z.string() });
 const Marquee = z.object({ ey: z.string(), h1: z.string(), sub: z.string() });
-const Play = z.object({ label: z.string(), hrefs: z.record(z.string(), z.string()) });
 
 export default async function MachinePage({ params }: { params: Params }) {
   const { machine } = await params;
@@ -55,35 +53,39 @@ export default async function MachinePage({ params }: { params: Params }) {
   const sim = sims.find((s) => s.slug === machine);
   if (!sim) notFound();
 
-  const crumb = dataOf(blocks, "crumb", Crumb);
   const marquee = dataOf(blocks, "marquee", Marquee);
-  const play = dataOf(blocks, "play", Play);
-  const anchor = play?.hrefs[sim.slug] ?? `#${sim.slug}`;
+  const src = `/machines/${sim.slug}.html`;
 
   return (
-    <div data-site="arcade">
-      <Vignette />
-      <TopBar crumb={crumb?.text ?? ""} />
-      <main className="machine-page">
-        <article className="cab solo" aria-label={sim.name}>
-          {SCREENS[sim.slug]}
-          <div className="cinfo">
-            <p className="n">{sim.name}</p>
-            <p>{sim.blurb}</p>
-            {play && (
-              <a className="play" href={`${ARCADE}/${anchor}`} aria-label={`${play.label} ${sim.name}`}>
-                {play.label}
-              </a>
-            )}
-          </div>
-          <div className="coin">{sim.grammar}</div>
-        </article>
-        {marquee && (
-          <a className="backrow" href={ARCADE}>
-            {marquee.h1} →
-          </a>
-        )}
-      </main>
+    <div data-site="arcade" className="machine-shell">
+      <div className="machine-bar">
+        <a className="mb-back" href={ARCADE}>
+          ← {marquee?.h1 ?? "THE ARCADE"}
+        </a>
+        <span className="mb-name">{sim.name}</span>
+        <span className="mb-coin">{sim.grammar}</span>
+        <a className="mb-full" href={src} target="_blank" rel="noopener">
+          OPEN FULL SCREEN →
+        </a>
+      </div>
+      <iframe
+        className="machine-frame"
+        src={src}
+        title={`${sim.name} — playable simulator`}
+        loading="eager"
+        allow="clipboard-write"
+      />
+      <MachineRuntime machine={sim.slug} />
+      <Script
+        id="arcade-plausible-q"
+        strategy="afterInteractive"
+      >{`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}`}</Script>
+      <Script
+        defer
+        data-domain="arcade.zephyrcode.live"
+        src="https://plausible.io/js/script.js"
+        strategy="afterInteractive"
+      />
     </div>
   );
 }

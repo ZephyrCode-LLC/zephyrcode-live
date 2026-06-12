@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE LEAP — a playable argument · ZephyrCode Arcade</title>
+<meta name="description" content="Drag the month you quit your job. Watch the valley floor rise — or not — to meet you.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0B09;--ink2:#14110D;--ink3:#1B1712;--bone:#ECE2D3;--dim:rgba(236,226,211,.74);
+--faint:rgba(236,226,211,.4);--ember:#E85D2A;--hot:#FF7A3D;--brass:#C9A45C;--iris:#8B7FD4;
+--line:rgba(236,226,211,.13);--soft:rgba(236,226,211,.07);--green:#9CB86F;--red:#D85C4A;
+--serif:"Fraunces",Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--bone);font-family:var(--serif);font-weight:400;min-height:100vh;
+display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--ember);color:var(--ink)}
+.hud{display:flex;align-items:baseline;gap:14px;padding:18px 22px;border-bottom:1px solid var(--soft)}
+.hud .n{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--brass);font-weight:700}
+.hud .g{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--faint)}
+.hud .r{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);
+background:none;border:1px solid var(--line);padding:6px 12px;border-radius:2px;cursor:pointer}
+.hud .r:hover{color:var(--ember);border-color:var(--ember)}
+.stage{flex:1;max-width:860px;width:100%;margin:0 auto;padding:26px 22px 40px}
+.brief{font-size:15.5px;color:var(--dim);max-width:58ch;line-height:1.6}
+.brief b{color:var(--bone)}
+.chart{position:relative;margin-top:26px;border:1px solid var(--line);border-radius:6px;background:var(--ink2);padding:18px 14px 8px}
+svg{display:block;width:100%;height:300px}
+.rail{position:relative;margin:6px 8px 0;height:56px}
+.rail .track{position:absolute;top:26px;left:0;right:0;height:3px;background:rgba(236,226,211,.16);border-radius:2px}
+.knob{position:absolute;top:8px;width:40px;height:40px;margin-left:-20px;border-radius:50%;cursor:grab;touch-action:none;
+background:var(--ink3);border:2px solid var(--ember);display:flex;align-items:center;justify-content:center;
+font-family:var(--mono);font-size:9px;color:var(--ember);font-weight:700;user-select:none;-webkit-user-select:none}
+.knob:active{cursor:grabbing;background:var(--ember);color:var(--ink)}
+.knob .tip{position:absolute;top:-22px;font-size:8.5px;letter-spacing:.14em;color:var(--faint);white-space:nowrap}
+.readout{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.ro{background:var(--ink2);border:1px solid var(--line);border-radius:5px;padding:13px 16px}
+.ro .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.ro .v{font-family:var(--mono);font-size:20px;font-weight:700;margin-top:4px;color:var(--bone)}
+.ro .v.em{color:var(--ember)}.ro .v.gr{color:var(--green)}.ro .v.rd{color:var(--red)}
+.lock{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;background:transparent;
+border:1px solid var(--ember);color:var(--ember);padding:13px 26px;border-radius:2px;cursor:pointer;transition:.2s}
+.lock:hover{background:var(--ember);color:var(--ink)}
+.verdict{display:none;margin-top:26px;border:1px solid var(--brass);border-radius:6px;background:var(--ink2);padding:26px 28px}
+.verdict.on{display:block}
+.verdict .vk{font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:var(--ember);margin-bottom:10px}
+.verdict .vt{font-size:30px;font-weight:600;color:var(--bone)}
+.verdict .vl{font-family:var(--mono);font-size:11px;color:var(--brass);margin-top:6px;letter-spacing:.08em}
+.verdict p{margin-top:14px;font-size:15px;color:var(--dim);line-height:1.65;max-width:54ch}
+.vbtns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.vbtn{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:11px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--line);background:none;color:var(--bone)}
+.vbtn.hot{border-color:var(--ember);color:var(--ember)}
+.vbtn.hot:hover{background:var(--ember);color:var(--ink)}
+.vbtn:hover{border-color:var(--faint)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,8px);background:var(--ink3);border:1px solid var(--brass);
+color:var(--bone);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:10px 18px;border-radius:2px;
+opacity:0;transition:.3s;max-width:86vw;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.foot{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint);padding:14px 22px;border-top:1px solid var(--soft)}
+@media(max-width:620px){.readout{grid-template-columns:1fr 1fr}svg{height:230px}}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+<div class="hud"><span class="n">THE LEAP</span><span class="g">GRAMMAR · DRAG THE FUTURE</span><button class="r" id="reset">RESET</button></div>
+<div class="stage">
+  <p class="brief">Salary until the month you quit. After that: six months of savings, a side income that grows
+  <b>faster once it has your whole day</b>, and a burn rate that never blinks. Drag the knob. The valley floor
+  rises to meet you — or it doesn't.</p>
+
+  <div class="chart">
+    <svg id="cv" viewBox="0 0 800 300" preserveAspectRatio="none" aria-label="Cash and income curves over 36 months"></svg>
+    <div class="rail" id="rail">
+      <div class="track"></div>
+      <div class="knob" id="knob"><span class="tip">QUIT MONTH — DRAG</span><span id="kl">M8</span></div>
+    </div>
+  </div>
+
+  <div class="readout">
+    <div class="ro"><div class="k">Crossover</div><div class="v em" id="roX">—</div></div>
+    <div class="ro"><div class="k">Cash trough</div><div class="v" id="roT">—</div></div>
+    <div class="ro"><div class="k">Runway out</div><div class="v" id="roR">—</div></div>
+  </div>
+
+  <button class="lock" id="lock">LOCK IT IN →</button>
+
+  <div class="verdict" id="vd">
+    <div class="vk">THE MACHINE'S VERDICT</div>
+    <div class="vt" id="vt">—</div>
+    <div class="vl" id="vl">—</div>
+    <p id="vp"></p>
+    <div class="vbtns">
+      <button class="vbtn hot" id="share">↗ SHARE THIS VERDICT</button>
+      <button class="vbtn" id="again">RUN IT AGAIN</button>
+    </div>
+  </div>
+</div>
+<div class="foot">THE ARCADE · ZEPHYRCODE · NOTHING HERE IS FINANCIAL ADVICE — IT IS WORSE: IT IS ARITHMETIC</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MACHINE='leap', CANON='https://arcade.zephyrcode.live/m/leap';
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),1900);}
+function share(line){const txt=line+' — play it: '+CANON;
+  const done=()=>{toast('Copied.');try{if(parent!==window)parent.postMessage({type:'zc-share',machine:MACHINE},'*');}catch(e){}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>toast(txt));}
+  else toast(txt);}
+
+/* model: 36 months. burn = 1.0/mo. salary covers burn pre-quit (cash flat at savings).
+   side income starts at 0.06×burn, grows 8%/mo employed, 16%/mo full-time.
+   cash(t) = savings + Σ(income - burn) post-quit; pre-quit cash = savings (salary nets out, side income banked). */
+const N=36, SAV=6, START=0.06, G_EMP=1.08, G_FREE=1.16;
+let quit=8, locked=false;
+
+function sim(q){
+  let inc=START, cash=SAV, X=null, trough=SAV, out=null;
+  const cs=[], is=[];
+  for(let m=1;m<=N;m++){
+    inc*= (m<=q? G_EMP: G_FREE);
+    if(m<=q){cash+=inc;}            // banked while employed
+    else{cash+=inc-1;}              // freelancing: income vs burn
+    cs.push(cash); is.push(inc);
+    if(X===null&&m>q&&inc>=1)X=m;
+    if(m>q){trough=Math.min(trough,cash); if(out===null&&cash<=0)out=m;}
+  }
+  return {cs,is,X,trough:+trough.toFixed(1),out};
+}
+function draw(){
+  const {cs,is,X,trough,out}=sim(quit);
+  const W=800,H=300,P=24;
+  const maxC=Math.max(...cs,8), maxI=Math.max(...is,2);
+  const x=m=>P+(m-1)/(N-1)*(W-2*P);
+  const yC=v=>H-P-(Math.max(v,-2)+2)/(maxC+2)*(H-2*P);
+  const yI=v=>H-P-(v/maxI)*(H-2*P);
+  let cashPath='M', incPath='M';
+  cs.forEach((v,i)=>{cashPath+=`${x(i+1)},${yC(v)} `;});
+  is.forEach((v,i)=>{incPath+=`${x(i+1)},${yI(v)} `;});
+  const burnY=yI(1), qx=x(quit), zX=yC(0);
+  $('cv').innerHTML=`
+    <line x1="${P}" y1="${zX}" x2="${W-P}" y2="${zX}" stroke="rgba(216,92,74,.5)" stroke-width="1" stroke-dasharray="3 4"/>
+    <text x="${W-P-4}" y="${zX-6}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="rgba(216,92,74,.8)">CASH ZERO</text>
+    <line x1="${P}" y1="${burnY}" x2="${W-P}" y2="${burnY}" stroke="rgba(236,226,211,.35)" stroke-width="1" stroke-dasharray="2 5"/>
+    <text x="${W-P-4}" y="${burnY-6}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="rgba(236,226,211,.5)">THE BURN</text>
+    <line x1="${qx}" y1="${P}" x2="${qx}" y2="${H-P}" stroke="rgba(232,93,42,.55)" stroke-width="1.5"/>
+    <text x="${qx+6}" y="${P+12}" font-family="JetBrains Mono" font-size="9" fill="#E85D2A">YOU JUMP</text>
+    <path d="${cashPath}" fill="none" stroke="#C9A45C" stroke-width="2"/>
+    <path d="${incPath}" fill="none" stroke="#E85D2A" stroke-width="2.5"/>
+    ${X?`<circle cx="${x(X)}" cy="${yI(is[X-1])}" r="5" fill="#E85D2A"/>
+    <text x="${x(X)+8}" y="${yI(is[X-1])+4}" font-family="JetBrains Mono" font-size="10" fill="#ECE2D3">M${X} — the floor</text>`:''}
+    <text x="${P}" y="${H-6}" font-family="JetBrains Mono" font-size="9" fill="rgba(236,226,211,.4)">M1</text>
+    <text x="${W-P}" y="${H-6}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="rgba(236,226,211,.4)">M36</text>`;
+  $('roX').textContent=X?('M'+X):'NEVER';
+  $('roT').textContent=trough+' mo';
+  $('roT').className='v '+(trough<=0?'rd':trough<2.5?'em':'gr');
+  $('roR').textContent=out?('M'+out):'HOLDS';
+  $('roR').className='v '+(out?'rd':'gr');
+  $('kl').textContent='M'+quit;
+  $('knob').style.left=((quit-1)/(N-1)*100)+'%';
+}
+/* drag */
+const rail=$('rail'), knob=$('knob');
+function setFromEvent(e){
+  const r=rail.getBoundingClientRect();
+  const px=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+  quit=Math.max(2,Math.min(30,Math.round(px/r.width*(N-1))+1));
+  draw();
+}
+let drag=false;
+knob.addEventListener('pointerdown',e=>{drag=true;knob.setPointerCapture(e.pointerId);e.preventDefault();});
+knob.addEventListener('pointermove',e=>{if(drag)setFromEvent(e);});
+knob.addEventListener('pointerup',()=>{drag=false;});
+rail.addEventListener('pointerdown',e=>{if(e.target===knob)return;setFromEvent(e);});
+
+function verdictOf(){
+  const {X,trough,out}=sim(quit);
+  if(out&&(!X||out<=X))return {t:'FREEFALL', d:`Runway dies at M${out}${X?`, the floor arrives at M${X}`:' and the floor never arrives'}. The gap between those numbers is not courage. It is a payday loan from your own future.`};
+  if(!X)return {t:'THE LONG FOG', d:'Income never crosses the burn inside three years. This is not a leap; it is a subscription to falling.'};
+  if(trough<2.5)return {t:'TIGHT', d:`Crossover M${X}, trough ${trough} months of cash. Survivable — if nothing surprises you. Something always surprises you.`};
+  if(trough<4.5)return {t:'CLEAN', d:`Crossover M${X} with ${trough} months still banked at the worst point. The valley floor rose to meet you because you let the side income learn to walk first.`};
+  return {t:'PADDED', d:`Crossover M${X}, never below ${trough} months of cash. Honestly, you could have jumped earlier — caution has a price too, and it compounds.`};
+}
+let lastLine='';
+$('lock').addEventListener('click',()=>{
+  const {X}=sim(quit), v=verdictOf();
+  $('vt').textContent=v.t;
+  $('vl').textContent=`QUIT M${quit} · CROSSOVER ${X?('M'+X):'NEVER'}`;
+  $('vp').textContent=v.d;
+  lastLine=`My Leap verdict: ${v.t} · crossover ${X?('M'+X):'never'}`;
+  $('vd').classList.add('on');
+  $('vd').scrollIntoView({behavior:'smooth',block:'nearest'});
+});
+$('share').addEventListener('click',()=>share(lastLine));
+$('again').addEventListener('click',()=>{$('vd').classList.remove('on');});
+$('reset').addEventListener('click',()=>{quit=8;$('vd').classList.remove('on');draw();});
+draw();
+</script>
+</body>
+</html>

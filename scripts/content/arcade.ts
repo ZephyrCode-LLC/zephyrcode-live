@@ -47,12 +47,13 @@ export const arcadeSeed: SiteSeed = {
       position: 3,
       data: {
         label: "PLAY →",
+        // the machines themselves (public/machines/<slug>.html, iframed at /m/<slug>)
         hrefs: {
-          leap: "#leap",
-          bedtime: "#bedtime",
-          plate: "#plate",
-          cascade: "#cascade",
-          tax: "#tax",
+          leap: "/m/leap",
+          bedtime: "/m/bedtime",
+          plate: "/m/plate",
+          cascade: "/m/cascade",
+          tax: "/m/tax",
         },
       },
     },
@@ -92,7 +93,10 @@ export const arcadeSeed: SiteSeed = {
       data: {
         k: "COMMISSION A MACHINE",
         body: "I build the playable version of your course/book's core idea. White-label, your domain, two-week turnaround.",
-        cta: { label: "operator.zephyrcode.live →", href: "https://operator.zephyrcode.live" },
+        cta: {
+          label: "operator.zephyrcode.live/commission →",
+          href: "https://operator.zephyrcode.live/commission",
+        },
       },
     },
   ],
