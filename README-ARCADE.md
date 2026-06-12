@@ -1,5 +1,15 @@
 # Arcade refinements — wiring notes
 
+> **Post-audit status:** the five machines are LIVE — self-contained vanilla
+> HTML at `public/machines/<slug>.html`, played at `/m/<slug>` (full-bleed
+> iframe + OPEN FULL SCREEN). Built to the cabinet specs (name/grammar/blurb);
+> if canonical versions exist on the author's side, drop-in replacing the
+> files is all it takes. Share buttons live inside each verdict screen
+> (clipboard + canonical URL + `share_copy{machine}` via postMessage). The
+> commission door is `operator.zephyrcode.live/commission`. `/ops` is the
+> private ledger — owner login, owner-only RLS (`zc_ledger_*`), noindex,
+> never edge-cached.
+
 1. **Email capture**: paste your endpoint into `ENDPOINT` in `src/components/sites/arcade/Capture.tsx`.
 2. Buttondown: `https://buttondown.com/api/emails/embed-subscribe/<list>` · Loops: your form endpoint. Form posts `email` urlencoded.
 3. Until wired, submits succeed optimistically and log a console warning (nobody is lost silently — wire it before promoting).
