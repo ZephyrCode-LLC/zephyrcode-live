@@ -178,17 +178,41 @@ export async function getDossiers(slug: string): Promise<Dossier[]> {
 
 export const StoryShort = z.object({
   title: z.string(),
+  slug: z.string().nullable(),
   status: z.string().nullable(),
   featured: z.boolean(),
   body: z.record(z.string(), z.unknown()),
   position: z.number(),
 });
 export type StoryShortT = z.infer<typeof StoryShort>;
+/** Index listing — deliberately excludes the heavy `markdown` column. */
 export async function getStoryShorts(slug: string): Promise<StoryShortT[]> {
   const { data, error } = await contentClient(slug)
     .from("story_shorts")
-    .select("*")
+    .select("title, slug, status, featured, body, position")
     .order("position");
   if (error) throw new Error(`story_shorts: ${error.message}`);
   return z.array(StoryShort.passthrough()).parse(data) as StoryShortT[];
+}
+
+/** One story's full reader payload, by slug. The reader is the only place markdown loads. */
+export const StoryFull = z.object({
+  title: z.string(),
+  slug: z.string(),
+  body: z.record(z.string(), z.unknown()),
+  markdown: z.string(),
+});
+export type StoryFullT = z.infer<typeof StoryFull>;
+export async function getStoryBySlug(
+  forSite: string,
+  storySlug: string
+): Promise<StoryFullT | null> {
+  const { data, error } = await contentClient(forSite)
+    .from("story_shorts")
+    .select("title, slug, body, markdown")
+    .eq("slug", storySlug)
+    .maybeSingle();
+  if (error) throw new Error(`story_shorts(${storySlug}): ${error.message}`);
+  if (!data || data.markdown == null) return null;
+  return StoryFull.passthrough().parse(data) as StoryFullT;
 }

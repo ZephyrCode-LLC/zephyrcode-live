@@ -1,40 +1,37 @@
 import "@/styles/sites/stories.css";
 import { z } from "zod";
 import { dataOf, getBlocks, getSites, getStoryShorts } from "@/lib/content";
-import { MagnetBoard } from "@/components/engine/MagnetBoard";
-import { StoriesGallery, type DoneStory } from "@/components/sites/stories/StoriesGallery";
+import { StoriesStage, type GalleryStory } from "@/components/sites/stories/StoriesStage";
 import { Constellation } from "@/components/system/Constellation";
 import { RevealManager } from "@/components/system/Reveal";
 import { TopBar } from "@/components/system/TopBar";
 import { Vignette } from "@/components/system/Vignette";
 
 /**
- * stories.zephyrcode.live — same DOM as /_reference/stories.html.
- * All copy comes from Supabase (blocks + story_shorts); this file
- * contains zero content strings.
+ * stories.zephyrcode.live — the page is pure tech: hero + the interactive stage
+ * (fridge board + accordion) + the dishwasher. Every story is a Supabase
+ * story_shorts row; this file holds zero content strings.
  */
 
 const Crumb = z.object({ text: z.string() });
 const Hero = z.object({ eyebrow: z.string(), h1Html: z.string(), lede: z.string() });
-const Fridge = z.object({
-  ariaLabel: z.string(),
-  k: z.string(),
-  sentences: z.array(z.array(z.string())).min(1),
-  notes: z.array(z.string()).min(1),
-  button: z.string(),
-});
 const Dishwasher = z.object({ h3: z.string(), sub: z.string() });
 
-/** A published short carries its full featured-card payload in story_shorts.body. */
-const DoneBody = z.object({
-  slug: z.string(),
+/** Everything a published short needs for the card + the fridge board it themes. */
+const StoryBody = z.object({
   accent: z.string(),
-  k: z.string(),
   dek: z.string(),
+  k: z.string(),
   pullquote: z.string(),
   paragraphs: z.array(z.string()).min(1),
   chips: z.array(z.string()).min(1),
   exhibit: z.object({ k: z.string(), line: z.string() }),
+  board: z.object({
+    k: z.string(),
+    sentences: z.array(z.array(z.string())).min(1),
+    notes: z.array(z.string()).min(1),
+    button: z.string(),
+  }),
 });
 
 function req<T>(value: T | undefined, section: string): T {
@@ -51,14 +48,13 @@ export default async function StoriesPage() {
 
   const crumb = req(dataOf(blocks, "top", Crumb), "top");
   const hero = req(dataOf(blocks, "hero", Hero), "hero");
-  const fridge = req(dataOf(blocks, "fridge", Fridge), "fridge");
   const dw = req(dataOf(blocks, "dishwasher", Dishwasher), "dishwasher");
 
-  // A short with no status is published → it gets the featured gallery treatment.
-  // Anything still carrying a status (outline, in edit) stays in the dishwasher.
-  const done: DoneStory[] = shorts
-    .filter((s) => s.status === null)
-    .map((s) => ({ title: s.title, ...DoneBody.parse(s.body) }));
+  // Published (status === null) → the interactive stage. Anything with a status
+  // (outline, in edit) is still rinsing in the dishwasher.
+  const done: GalleryStory[] = shorts
+    .filter((s) => s.status === null && s.slug)
+    .map((s) => ({ title: s.title, slug: s.slug!, ...StoryBody.parse(s.body) }));
   const rinsing = shorts.filter((s) => s.status !== null);
 
   return (
@@ -72,16 +68,7 @@ export default async function StoriesPage() {
           <p className="lede rv">{hero.lede}</p>
         </section>
 
-        <section className="fridge rv" aria-label={fridge.ariaLabel}>
-          <p className="k">{fridge.k}</p>
-          <MagnetBoard
-            sentences={fridge.sentences}
-            notes={fridge.notes}
-            buttonLabel={fridge.button}
-          />
-        </section>
-
-        <StoriesGallery stories={done} />
+        <StoriesStage stories={done} />
 
         {rinsing.length > 0 && (
           <section className="dw rv">

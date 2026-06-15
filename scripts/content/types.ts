@@ -30,5 +30,5 @@ export type SiteSeed = {
   sims?: Array<{ slug: string; name: string; grammar: string | null; blurb: string; position: number }>;
   chapters?: Array<{ code: string; dateline: string | null; title: string; sealed: boolean; position: number }>;
   dossiers?: Array<{ role: string; name: string; blurb: string; tiers: Array<{ label: string; open: boolean }>; position: number }>;
-  storyShorts?: Array<{ title: string; status: string | null; featured: boolean; body: Record<string, unknown>; position: number }>;
+  storyShorts?: Array<{ title: string; slug: string | null; status: string | null; featured: boolean; body: Record<string, unknown>; markdown: string | null; position: number }>;
 };

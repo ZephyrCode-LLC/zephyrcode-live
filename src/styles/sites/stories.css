@@ -55,6 +55,7 @@
   color: var(--faint);
   text-transform: uppercase;
   margin-bottom: 22px;
+  transition: color 0.45s ease;
 }
 [data-site="stories"] .board {
   min-height: 150px;
@@ -387,7 +388,8 @@
   [data-site="stories"] .detail,
   [data-site="stories"] .dot,
   [data-site="stories"] .schev,
-  [data-site="stories"] .stitle {
+  [data-site="stories"] .stitle,
+  [data-site="stories"] .fridge .k {
     transition: none !important;
   }
 }

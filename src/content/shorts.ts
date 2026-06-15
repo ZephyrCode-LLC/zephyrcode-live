@@ -1,16 +1,8 @@
-import { PURPLE_COW } from "./the-purple-cow";
-import { LAST_BORING_SUNDAY } from "./the-last-boring-sunday";
-import { NEGOTIATOR_PAJAMAS } from "./the-negotiator-wears-pajamas";
-
 /**
- * The shorts. Each long-form story is its own content module with its own theme
- * accent; the reader at /story/[slug] renders it. Add a new short by creating its
- * module and registering it here.
+ * The verbatim story modules carry the sacred prose (markdown) plus title/slug/
+ * accent/dek. They are the SEED source for the `story_shorts` table — at RUNTIME
+ * the reader (/story/[slug]) and the stories index read from Supabase, not from
+ * here. Adding a new story is an INSERT into story_shorts (see docs/AUTHOR_AGENT.md);
+ * no new module is required for it to appear.
  */
 export type Story = { slug: string; title: string; dek: string; accent: string; markdown: string };
-
-export const STORIES: Record<string, Story> = {
-  [PURPLE_COW.slug]: PURPLE_COW,
-  [LAST_BORING_SUNDAY.slug]: LAST_BORING_SUNDAY,
-  [NEGOTIATOR_PAJAMAS.slug]: NEGOTIATOR_PAJAMAS,
-};
