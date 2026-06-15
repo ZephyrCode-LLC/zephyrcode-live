@@ -70,7 +70,7 @@ export const storiesSeed: SiteSeed = {
           "Funny on the surface, Osho underneath: children don't download our lessons, they download our operating system. This is a story about reading your own source code because somebody small is compiling it daily.",
         ],
         chips: ["REGISTER · COMEDY, LOAD-BEARING", "RUNTIME · ONE COFFEE", "HAZARD · FEELINGS"],
-        cta: { label: "Read the story →", href: "#read-purple-cow" },
+        cta: { label: "Read the story →", href: "/story/the-purple-cow-lives-in-the-fridge" },
       },
     },
     {
