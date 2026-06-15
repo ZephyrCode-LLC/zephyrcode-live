@@ -101,9 +101,9 @@ export const storiesSeed: SiteSeed = {
     },
     {
       title: "The Negotiator Wears Pajamas",
-      status: "IN EDIT · BEDTIME DIPLOMACY",
+      status: null,
       featured: false,
-      body: {},
+      body: { slug: "the-negotiator-wears-pajamas" },
       position: 2,
     },
     {
