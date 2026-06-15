@@ -2,6 +2,7 @@ import "@/styles/sites/stories.css";
 import { z } from "zod";
 import { dataOf, getBlocks, getSites, getStoryShorts } from "@/lib/content";
 import { MagnetBoard } from "@/components/engine/MagnetBoard";
+import { StoriesGallery, type DoneStory } from "@/components/sites/stories/StoriesGallery";
 import { Constellation } from "@/components/system/Constellation";
 import { RevealManager } from "@/components/system/Reveal";
 import { TopBar } from "@/components/system/TopBar";
@@ -22,15 +23,19 @@ const Fridge = z.object({
   notes: z.array(z.string()).min(1),
   button: z.string(),
 });
-const Feature = z.object({
-  k: z.string(),
-  h2: z.string(),
-  pullquote: z.string(),
-  paragraphsHtml: z.array(z.string()).min(1),
-  chips: z.array(z.string()),
-  cta: z.object({ label: z.string(), href: z.string() }),
-});
 const Dishwasher = z.object({ h3: z.string(), sub: z.string() });
+
+/** A published short carries its full featured-card payload in story_shorts.body. */
+const DoneBody = z.object({
+  slug: z.string(),
+  accent: z.string(),
+  k: z.string(),
+  dek: z.string(),
+  pullquote: z.string(),
+  paragraphs: z.array(z.string()).min(1),
+  chips: z.array(z.string()).min(1),
+  exhibit: z.object({ k: z.string(), line: z.string() }),
+});
 
 function req<T>(value: T | undefined, section: string): T {
   if (value === undefined) throw new Error(`stories: missing "${section}" block`);
@@ -47,9 +52,14 @@ export default async function StoriesPage() {
   const crumb = req(dataOf(blocks, "top", Crumb), "top");
   const hero = req(dataOf(blocks, "hero", Hero), "hero");
   const fridge = req(dataOf(blocks, "fridge", Fridge), "fridge");
-  const feature = req(dataOf(blocks, "feature", Feature), "feature");
   const dw = req(dataOf(blocks, "dishwasher", Dishwasher), "dishwasher");
-  const rinsing = shorts.filter((s) => !s.featured);
+
+  // A short with no status is published → it gets the featured gallery treatment.
+  // Anything still carrying a status (outline, in edit) stays in the dishwasher.
+  const done: DoneStory[] = shorts
+    .filter((s) => s.status === null)
+    .map((s) => ({ title: s.title, ...DoneBody.parse(s.body) }));
+  const rinsing = shorts.filter((s) => s.status !== null);
 
   return (
     <>
@@ -71,51 +81,20 @@ export default async function StoriesPage() {
           />
         </section>
 
-        <article className="story rv">
-          <p className="k">{feature.k}</p>
-          <h2>{feature.h2}</h2>
-          <p className="pq">{feature.pullquote}</p>
-          {feature.paragraphsHtml.map((html, i) => (
-            <p
-              key={i}
-              className="body"
-              style={i > 0 ? { marginTop: 14 } : undefined}
-              dangerouslySetInnerHTML={{ __html: html }}
-            />
-          ))}
-          <div className="meta">
-            {feature.chips.map((chip) => (
-              <span key={chip} className="mchip">
-                {chip}
-              </span>
-            ))}
-          </div>
-          <a className="btn solid" href={feature.cta.href}>
-            {feature.cta.label}
-          </a>
-        </article>
+        <StoriesGallery stories={done} />
 
-        <section className="dw rv">
-          <h3>{dw.h3}</h3>
-          <p className="sub">{dw.sub}</p>
-          {rinsing.map((s) => {
-            const slug = typeof s.body?.slug === "string" ? s.body.slug : null;
-            if (slug) {
-              return (
-                <a key={s.title} className="row" href={`/story/${slug}`} style={{ textDecoration: "none" }}>
-                  <span className="t">{s.title}</span>
-                  <span className="s" style={{ color: "var(--iris)" }}>READ →</span>
-                </a>
-              );
-            }
-            return (
+        {rinsing.length > 0 && (
+          <section className="dw rv">
+            <h3>{dw.h3}</h3>
+            <p className="sub">{dw.sub}</p>
+            {rinsing.map((s) => (
               <div key={s.title} className="row">
                 <span className="t">{s.title}</span>
                 <span className="s">{s.status}</span>
               </div>
-            );
-          })}
-        </section>
+            ))}
+          </section>
+        )}
       </main>
       <RevealManager />
       <Constellation sites={sites} current="stories" />
