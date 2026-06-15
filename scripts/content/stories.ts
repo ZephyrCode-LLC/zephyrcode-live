@@ -115,9 +115,9 @@ export const storiesSeed: SiteSeed = {
     },
     {
       title: "The Last Boring Sunday",
-      status: "DRAFT 0 · A DEFENSE OF DOING NOTHING",
+      status: null,
       featured: false,
-      body: {},
+      body: { slug: "the-last-boring-sunday" },
       position: 4,
     },
   ],

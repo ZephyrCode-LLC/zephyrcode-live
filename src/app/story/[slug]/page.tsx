@@ -1,9 +1,10 @@
 import "@/styles/sites/stories.css";
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TopBar } from "@/components/system/TopBar";
 import { Vignette } from "@/components/system/Vignette";
-import { STORIES } from "@/content/the-purple-cow";
+import { STORIES } from "@/content/shorts";
 
 export const dynamicParams = false; // only the known shorts; anything else 404s
 
@@ -40,7 +41,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   const blocks = story.markdown.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
 
   return (
-    <div data-site="stories">
+    <div data-site="stories" style={{ "--iris": story.accent } as CSSProperties}>
       <Vignette />
       <TopBar crumb="STORIES · SHORT FICTION" />
       <main>

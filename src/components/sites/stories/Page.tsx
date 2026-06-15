@@ -98,12 +98,23 @@ export default async function StoriesPage() {
         <section className="dw rv">
           <h3>{dw.h3}</h3>
           <p className="sub">{dw.sub}</p>
-          {rinsing.map((s) => (
-            <div key={s.title} className="row">
-              <span className="t">{s.title}</span>
-              <span className="s">{s.status}</span>
-            </div>
-          ))}
+          {rinsing.map((s) => {
+            const slug = typeof s.body?.slug === "string" ? s.body.slug : null;
+            if (slug) {
+              return (
+                <a key={s.title} className="row" href={`/story/${slug}`} style={{ textDecoration: "none" }}>
+                  <span className="t">{s.title}</span>
+                  <span className="s" style={{ color: "var(--iris)" }}>READ →</span>
+                </a>
+              );
+            }
+            return (
+              <div key={s.title} className="row">
+                <span className="t">{s.title}</span>
+                <span className="s">{s.status}</span>
+              </div>
+            );
+          })}
         </section>
       </main>
       <RevealManager />

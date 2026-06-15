@@ -1,14 +1,11 @@
-/**
- * Full text of the featured short, verbatim. Long-form story bodies live as content
- * modules (not the blocks/story_shorts DB rows, which carry the teaser); the reader
- * at /story/[slug] renders this. Copy is sacred — do not edit the prose.
- */
-export type Story = { slug: string; title: string; dek: string; markdown: string };
+import type { Story } from "./shorts";
 
+/** Full text of the featured short, verbatim. Copy is sacred — do not edit the prose. */
 export const PURPLE_COW: Story = {
   slug: "the-purple-cow-lives-in-the-fridge",
   title: "The Purple Cow Lives in the Fridge",
   dek: "a short story",
+  accent: "#8B7FD4", // the stories iris — the featured short keeps the site's default tint
   markdown: `## 1. A Reasonable Request at an Unreasonable Hour
 
 At 11:47 on a Tuesday night, I asked an artificial intelligence to make me a thousand dollars a month, and it asked me, in return, whether I had considered enjoying my life.
@@ -150,8 +147,4 @@ Best deal I've closed all year.
 ---
 
 *— for P., who runs the only dashboard that matters, and accepts payment in biscuits.*`,
-};
-
-export const STORIES: Record<string, Story> = {
-  [PURPLE_COW.slug]: PURPLE_COW,
 };
