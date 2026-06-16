@@ -127,7 +127,7 @@ export const operatorSeed: SiteSeed = {
             k: "OS 02 · THE MIND",
             h3: "TEMPER",
             p: "Attention as the edge that holds under load — interruption budgets, a maker-schedule kernel, and a consequence engine that bills every context-switch. For people whose calendar is the malware.",
-            up: "STATUS · NOW BUILDING · temper.zephyrcode.live",
+            up: "STATUS · LIVE · zephyrcode.live/temper",
           },
         ],
       },

@@ -142,7 +142,7 @@ export const homeSeed: SiteSeed = {
             h3: "TEMPER",
             pHtml:
               "Attention is a blade — temper it or shatter it. The interruption tax a \"quick meeting\" really charges a maker, the day-clock that proves it, and customer-zero's eight weeks of moved metrics.",
-            link: { label: "Enter TEMPER →", href: "https://temper.zephyrcode.live" },
+            link: { label: "Enter TEMPER →", href: "/temper" },
             live: true,
           },
         ],
@@ -161,7 +161,7 @@ export const homeSeed: SiteSeed = {
           { n: "THE INTERRUPTION TAX", p: 'What one "quick meeting" really costs a maker\'s afternoon. Bring a strong stomach.' },
         ],
         ctas: [
-          { label: "Enter TEMPER →", href: "https://temper.zephyrcode.live", style: "solid" },
+          { label: "Enter TEMPER →", href: "/temper", style: "solid" },
           { label: "Visit the studio →", href: "https://operator.zephyrcode.live", style: "ghost" },
           { label: "Play the arcade", href: "https://arcade.zephyrcode.live", style: "ghost" },
         ],
