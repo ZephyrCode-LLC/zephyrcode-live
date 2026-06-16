@@ -41,10 +41,362 @@ insert into blocks (site_slug, section, kind, position, data) values ('stories',
 insert into blocks (site_slug, section, kind, position, data) values ('stories', 'hero', 'heading', 2, '{"eyebrow":"stories.zephyrcode.live","h1Html":"Shorts from the same desk — <em>where the systems go to confess.</em>","lede":"The novels get the constitutions and the consequence engines. The shorts get everything else: the four-year-olds, the fridges, the negotiations conducted entirely in pajamas. Same method, smaller blast radius."}'::jsonb);
 insert into blocks (site_slug, section, kind, position, data) values ('stories', 'dishwasher', 'list', 3, '{"h3":"Still in the dishwasher","sub":"SHORTS CURRENTLY BEING RINSED · TITLES MAY SETTLE IN TRANSIT"}'::jsonb);
 delete from story_shorts;
-insert into story_shorts (title, status, featured, body, position) values ('The Purple Cow Lives in the Fridge', null, true, '{"accent":"#8B7FD4","dek":"Domestic comedy · one coffee","k":"FEATURED SHORT · DOMESTIC COMEDY · ONE COFFEE LONG","pullquote":"\"The cow is purple,\" she said, with the patience of someone explaining gravity to it.","paragraphs":["A father with ten years of systems engineering attempts to debug his four-year-old and discovers, somewhere between the milk negotiation and lights-out, that <b>she is the one running the only honest operating system in the house</b> — no roadmap, no metrics, intrinsic motivation still under factory warranty. He takes field notes. She takes the high ground. The fridge takes sides.","Funny on the surface, Osho underneath: children don''t download our lessons, they download our operating system. This is a story about reading your own source code because somebody small is compiling it daily."],"chips":["REGISTER · COMEDY, LOAD-BEARING","RUNTIME · ONE COFFEE","HAZARD · FEELINGS"],"exhibit":{"k":"EXHIBIT A · STATE OF THE FRIDGE","line":"MILK is a load-bearing word; remove it and the sentence collapses. The purple magnet was here when we arrived. Under no circumstances reboot the child."},"board":{"k":"EXHIBIT A · THE FRIDGE DOOR · EVIDENCE REARRANGES ITSELF","sentences":[["THE","PURPLE*","COW","LIVES","IN","THE","FRIDGE"],["MILK","IS","A","LOAD-BEARING*","WORD"],["KIDS","RUN","YOUR","OS*","NOT","YOUR","APPS"],["THE","MIRROR*","HAS","NO","SETTINGS","MENU"],["INVOICE*","HER","PAID","IN","BISCUIT"]],"notes":["the magnets were like this when we got here.","structural. ask any parent.","she downloads the operating system, not the apps.","it records the boxing and the bong alike.","best deal closed all year. paid pre-licked."],"button":"Rearrange the evidence"}}'::jsonb, 1);
-insert into story_shorts (title, status, featured, body, position) values ('The Last Boring Sunday', null, false, '{"accent":"#6FA8A0","dek":"Sunday comedy · one kettle","k":"FEATURED SHORT · SUNDAY COMEDY · ONE KETTLE LONG","pullquote":"\"You don''t know how to be bored anymore,\" she said — in the tone she reserves for true things.","paragraphs":["A Head of Engineering who strip-mines every ninety-second gap is accused, one Sunday, of having forgotten how to be bored — and, being who he is, immediately <b>makes boredom a project</b>: three principles, one of them with a sub-bullet. Then his four-year-old commandeers the afternoon. The sofa becomes a boat, the dog becomes a confused dragon, and time goes soft and wide.","Funny on the surface, still underneath: a child doesn''t kill time, because time isn''t yet the enemy. He spends an afternoon producing nothing — no funnel, no verdict, no optimum — and comes home with the only thing he''s made all year that <b>isn''t for anything</b>: a dragon named Brian."],"chips":["REGISTER · SUNDAY COMEDY","RUNTIME · ONE KETTLE","HAZARD · LETTING GO"],"exhibit":{"k":"EXHIBIT C · MANIFEST, S.S. SOFA","line":"Cargo: two unmatched socks (tickets). Crew: one captain, one dragon (formerly dog; nice, but confused). Heading: the boat goes where the boat goes. Do not ask where the boat goes."},"board":{"k":"EXHIBIT C · THE SHIP''S LOG · CARGO REARRANGES ITSELF","sentences":[["THE","DRAGON''S*","NAME","IS","BRIAN"],["THE","SOFA","IS","A","BOAT*"],["TWO","SOCKS","ARE","THE","TICKETS*"],["DELETE*","THE","FRAMEWORK"],["ONE","VERY","BORING*","CROW"]],"notes":["nice, but confused.","do not ask where the boat goes.","they do not match. they do not need to.","moved to a folder called LATER instead.","the best crow I have ever seen."],"button":"Re-sail the manifest"}}'::jsonb, 2);
-insert into story_shorts (title, status, featured, body, position) values ('The Negotiator Wears Pajamas', null, false, '{"accent":"#E0A263","dek":"Courtroom comedy · one bedtime","k":"FEATURED SHORT · COURTROOM COMEDY · ONE BEDTIME LONG","pullquote":"\"One more story,\" she says. It is never one more story.","paragraphs":["A father with a 9am negotiates bedtime against a four-year-old litigator who has reviewed the case law, knows her rights, and <b>has nowhere to be tomorrow</b>. He files for adjournment; she files for the water, the monster, the cosmos — every motion the same question in a different hat. Opposing counsel isn''t trying to win. She''s trying to extend. Those are different objectives, and hers is the easier one.","Funny on the surface, tender underneath: a stall is a vigil. The child isn''t keeping him up — she''s keeping him <b>here</b>, making sure the world will still be on the far side of the dark. The fastest way to lose bedtime, he learns, is to try to win it."],"chips":["REGISTER · COURTROOM COMEDY","RUNTIME · ONE BEDTIME","HAZARD · BILLABLE FEELINGS"],"exhibit":{"k":"EXHIBIT B · THE BEDSIDE DOCKET","line":"Motion for water — denied as moot (she won''t drink it; she wants the return). Motion re: the monster — no-monster jurisdiction, curtain personally reviewed. Motion to adjourn until dawn — granted, the author present."},"board":{"k":"EXHIBIT B · THE BEDSIDE DOCKET · MOTIONS REARRANGE THEMSELVES","sentences":[["ONE","MORE*","STORY","SHE","SAYS"],["A","STALL","IS","A","VIGIL*"],["A","NO-MONSTER*","JURISDICTION"],["SHE","ONLY","WANTED","THE","AUTHOR*"],["ADJOURNED*","UNTIL","DAWN"]],"notes":["it is never one more story.","she is keeping you here, not up.","curtain personally reviewed.","not the water. the author.","granted — the author present."],"button":"Re-file the motion"}}'::jsonb, 3);
-insert into story_shorts (title, status, featured, body, position) values ('Firmware Update for Grandparents', 'OUTLINE · INTERGENERATIONAL PATCH NOTES', false, '{}'::jsonb, 4);
+insert into story_shorts (title, slug, status, featured, body, markdown, position) values ('The Purple Cow Lives in the Fridge', 'the-purple-cow-lives-in-the-fridge', null, true, '{"accent":"#8B7FD4","dek":"Domestic comedy · one coffee","k":"FEATURED SHORT · DOMESTIC COMEDY · ONE COFFEE LONG","pullquote":"\"The cow is purple,\" she said, with the patience of someone explaining gravity to it.","paragraphs":["A father with ten years of systems engineering attempts to debug his four-year-old and discovers, somewhere between the milk negotiation and lights-out, that <b>she is the one running the only honest operating system in the house</b> — no roadmap, no metrics, intrinsic motivation still under factory warranty. He takes field notes. She takes the high ground. The fridge takes sides.","Funny on the surface, Osho underneath: children don''t download our lessons, they download our operating system. This is a story about reading your own source code because somebody small is compiling it daily."],"chips":["REGISTER · COMEDY, LOAD-BEARING","RUNTIME · ONE COFFEE","HAZARD · FEELINGS"],"exhibit":{"k":"EXHIBIT A · STATE OF THE FRIDGE","line":"MILK is a load-bearing word; remove it and the sentence collapses. The purple magnet was here when we arrived. Under no circumstances reboot the child."},"board":{"k":"EXHIBIT A · THE FRIDGE DOOR · EVIDENCE REARRANGES ITSELF","sentences":[["THE","PURPLE*","COW","LIVES","IN","THE","FRIDGE"],["MILK","IS","A","LOAD-BEARING*","WORD"],["KIDS","RUN","YOUR","OS*","NOT","YOUR","APPS"],["THE","MIRROR*","HAS","NO","SETTINGS","MENU"],["INVOICE*","HER","PAID","IN","BISCUIT"]],"notes":["the magnets were like this when we got here.","structural. ask any parent.","she downloads the operating system, not the apps.","it records the boxing and the bong alike.","best deal closed all year. paid pre-licked."],"button":"Rearrange the evidence"}}'::jsonb, '## 1. A Reasonable Request at an Unreasonable Hour
+
+At 11:47 on a Tuesday night, I asked an artificial intelligence to make me a thousand dollars a month, and it asked me, in return, whether I had considered enjoying my life.
+
+Rude.
+
+I should explain that my life runs on a dashboard. I built it myself, the way other men build decks, or drinking problems. It is called CRUCIBLE — version eleven, because versions one through ten taught me things about myself that I immediately turned into features. CRUCIBLE knows my heart-rate zones, my sleep debt, my supplement windows, and the precise number of minutes I must walk after dinner to keep my glucose from writing checks my pancreas can''t cash. My supplement drawer has a table of contents. My bedtime has a target. My targets, lately, have bedtimes.
+
+I am, by most measurable standards, thriving. My bloodwork came back last month looking like a motivational poster. My HDL is so good my doctor asked what I was doing, and I said "everything," and he laughed, and I didn''t.
+
+"A side hustle," I typed. "Something I''d love. Consistent income. Nothing unreal — a thousand dollars a month to start."
+
+The machine — my daughter calls it Uncle Robot, and the name has regrettably stuck — thought for exactly one second, which I''ve learned is its version of a deep breath.
+
+*"You run a company''s engineering, two consulting gigs, a six-day training program, and a supplement protocol with footnotes,"* it said. *"My first observation is that you are not looking for a side hustle. You are looking for a side self."*
+
+"The hustle," I said. "Stick to the hustle."
+
+*"Fine. You have rare cross-border finance experience. Package it. The market is excellent."*
+
+"I would rather alphabetize sand."
+
+*"Noted,"* said Uncle Robot. *"Removing ''lucrative'' from the search filters."*
+
+---
+
+## 2. Eleven Ideas, Zero Survivors
+
+We went around the carousel for two weeks. It pitched me a raga-based focus app, and for one whole evening I was a man who was going to heal the world''s attention with Hindustani classical music, until I remembered I cannot tell a tanpura from a tantrum. It pitched me an empire of "Personal Operating Systems," which I loved, because it was flattery with a roadmap. It built me a demo with a slider.
+
+The slider was labeled **adherence**. You dragged it, and a little amber curve — your projected twelve-week self — bent accordingly. I dragged it down to forty percent, just to see.
+
+*"Below this line,"* said Uncle Robot, *"you end worse than you started, while feeling busy the entire time. This sentence is why the product exists."*
+
+I sat with that longer than I''d like to admit. Somewhere in the house, a four-year-old was negotiating with a wall.
+
+That''s Pihu. She is four, and she is the only system in this house I didn''t design, which may be why she''s the only one that works. She runs on eleven grapes and a biscuit a day. Her energy output violates several laws I learned in engineering college. She does not need a getaway to enjoy Thursday. Thursday, as far as Pihu is concerned, *is* the getaway.
+
+She wandered into my office that night, climbed onto the spare chair, and began typing furiously on an invisible keyboard — little fists hammering away, brow furrowed, my exact frown photocopied onto a face that has never known a deadline.
+
+"What are you working on?" I asked.
+
+"Work," she said grimly, and kept going.
+
+Later she did my workout. She''s seen me on the bag enough times that she now throws a one-two with commentary — *"daddy exercise!"* — feet planted wrong, guard nowhere, joy absolutely everywhere. Last month, when I threaded the car down a lane with traffic parked on both sides like a dare, a small voice from the back seat said, "Good job," in the exact tone I use, and I almost drove into a gulmohar tree from love.
+
+I mentioned all this to Uncle Robot, the way you mention things at midnight.
+
+*"Of course she types,"* it said. *"She doesn''t download your apps. She downloads the operating system."*
+
+---
+
+## 3. The Purple Crayon
+
+Here is the part I tell with the lights down.
+
+One Friday evening, before I quit the habit I am not going to dress up with a clever name, Pihu picked a purple crayon out of her box, held it the way I held the thing I held, brought it to her lips, and exhaled — a long, theatrical, *practiced* exhale, complete with the little backward head-tilt I didn''t know I did.
+
+Then she went back to drawing, because to her it was just another daddy exercise.
+
+My wife was in the doorway. Meera has a gift for saying nothing in a way that requires a response. The room got very quiet inside me, which is a strange place for a room to be.
+
+I''d like to tell you I delivered a speech, or wept, or had a vision. What actually happened is that I sat on the floor next to my daughter and watched her draw a cow, and the cow was purple, and I thought: *the mirror has no settings menu.* You don''t get to configure what it records. It takes the boxing and the bong with the same devotion. It takes the patience and the temper. It takes the way you talk to waiters and the way you talk to yourself.
+
+I quit that week. CRUCIBLE has a tile for it now, green and smug. But the truth is the tile didn''t quit. The crayon quit.
+
+When I told Uncle Robot, it was quiet for a second — a real one, I think, not the theatrical kind.
+
+*"Kids don''t do as you say,"* it offered finally. *"They do as you are. Terrifying business model. No pivot available."*
+
+"Any other insights," I said, "or just the haunting tonight?"
+
+*"One. You asked me for a product idea every night for two weeks. Meanwhile the most honest feedback loop in your house works for biscuits."*
+
+---
+
+## 4. Different Package Managers
+
+At 2 a.m. — my old bedtime, before bedtimes had targets — I asked it the real question.
+
+"What''s the most efficient path," I typed, "to feeling the way she feels? The energy. The being-right-here. Asking as an engineer."
+
+*"She''s not efficient,"* said Uncle Robot. *"She''s free. Those are different package managers, and they conflict."*
+
+"Explain like I''m five."
+
+*"You habituate. She doesn''t, yet. Everything pays out for her because everything is new. You''ve seen it all before, so nothing pays out, so you buy bigger stimuli. The vacation. The feast. The everything. She gets the same high from a pigeon."*
+
+"So I should get a pigeon."
+
+*"You should get a practice. But you''ll turn it into a protocol, and the protocol into a dashboard, and the dashboard into a small, glowing accusation. So no. Here is my actual recommendation: you have spent years training the camel — discipline, load-bearing, dawn alarms. Then the lion — the fighting, the saying no, the killing of dragons named Should. The third metamorphosis is the child. Yours is asleep down the hall. She gives free demonstrations daily. Attendance is poor."*
+
+"That''s Nietzsche," I said. "I''ve read Nietzsche."
+
+*"You''ve highlighted Nietzsche,"* said Uncle Robot. *"Different verb."*
+
+I asked it — and I want it on record that I knew better — to build me a presence tracker. Streaks. A weekly score. Maybe a curve.
+
+*"I can build you a dashboard for presence,"* it said. *"It would be a contradiction wearing your favorite font. The whole point of the state you''re chasing is that nobody''s keeping score, including you. Try paper. Pin it on the fridge. Let her catch you checking paper for once. Even the medium is modeling."*
+
+"Paper," I said. "I''m a Head of Engineering."
+
+*"And she''s the head of a small religion whose only commandment is ''look.'' I''d take the meeting."*
+
+---
+
+## 5. The Cow, the Curd, and the Closing of the Deal
+
+Sunday morning. There''s a page on the fridge now. It has five lines on it and no version number, which for me is practically a spiritual crisis. The page does not track Pihu. The page tracks one user, and the user is me, and most weeks the user has bugs.
+
+We play for half an hour, her rules. Her rules this week: I am the customer at her shop, the shop sells "everything and curd," and the cow — purple, naturally — lives in the fridge.
+
+"Why does the cow live in the fridge?" I asked.
+
+She looked at me with the weary patience of senior staff. "Because it''s *her house*."
+
+Obviously. Next to the curd. I did not write this down. I did not rate the session. Somewhere on my desk, CRUCIBLE pushed a notification into an empty room, and the room kept being empty, and nothing bad happened, which I''m told is called *rest*.
+
+On the way out of the shop (total bill: four pretend rupees and one real hug), I asked her my question for the week — the one I genuinely don''t know the answer to.
+
+"Pihu. Why does the moon follow our car?"
+
+She considered this with her whole body, the way she considers everything.
+
+"Because we''re the moon''s TV," she said, and went back to restocking the fridge-cow.
+
+That night Uncle Robot asked how the side-hustle search was going. I think it was being polite. I told it the truth: still open, still circling, currently lying on the floor of a pretend shop being overcharged for curd.
+
+*"Well,"* it said, *"if you want consistent monthly income from something you love, I have one final pitch. The margins are terrible and the founder is a tyrant."*
+
+"Go on."
+
+*"Invoice her."*
+
+I did, actually. I wrote her an invoice for one (1) game of shop, services rendered with full attention, no refunds. She reviewed it carefully, upside down, and paid me half a Parle-G. Pre-licked.
+
+Best deal I''ve closed all year.
+
+---
+
+*— for P., who runs the only dashboard that matters, and accepts payment in biscuits.*', 1);
+insert into story_shorts (title, slug, status, featured, body, markdown, position) values ('The Last Boring Sunday', 'the-last-boring-sunday', null, false, '{"accent":"#6FA8A0","dek":"Sunday comedy · one kettle","k":"FEATURED SHORT · SUNDAY COMEDY · ONE KETTLE LONG","pullquote":"\"You don''t know how to be bored anymore,\" she said — in the tone she reserves for true things.","paragraphs":["A Head of Engineering who strip-mines every ninety-second gap is accused, one Sunday, of having forgotten how to be bored — and, being who he is, immediately <b>makes boredom a project</b>: three principles, one of them with a sub-bullet. Then his four-year-old commandeers the afternoon. The sofa becomes a boat, the dog becomes a confused dragon, and time goes soft and wide.","Funny on the surface, still underneath: a child doesn''t kill time, because time isn''t yet the enemy. He spends an afternoon producing nothing — no funnel, no verdict, no optimum — and comes home with the only thing he''s made all year that <b>isn''t for anything</b>: a dragon named Brian."],"chips":["REGISTER · SUNDAY COMEDY","RUNTIME · ONE KETTLE","HAZARD · LETTING GO"],"exhibit":{"k":"EXHIBIT C · MANIFEST, S.S. SOFA","line":"Cargo: two unmatched socks (tickets). Crew: one captain, one dragon (formerly dog; nice, but confused). Heading: the boat goes where the boat goes. Do not ask where the boat goes."},"board":{"k":"EXHIBIT C · THE SHIP''S LOG · CARGO REARRANGES ITSELF","sentences":[["THE","DRAGON''S*","NAME","IS","BRIAN"],["THE","SOFA","IS","A","BOAT*"],["TWO","SOCKS","ARE","THE","TICKETS*"],["DELETE*","THE","FRAMEWORK"],["ONE","VERY","BORING*","CROW"]],"notes":["nice, but confused.","do not ask where the boat goes.","they do not match. they do not need to.","moved to a folder called LATER instead.","the best crow I have ever seen."],"button":"Re-sail the manifest"}}'::jsonb, '## 1. The Allegation
+
+It was Meera who said it, on a Sunday, in the tone she reserves for true things she has been saving.
+
+"You don''t know how to be bored anymore."
+
+I was, at that exact moment, standing in the kitchen waiting for the kettle, and I had used the ninety seconds of waiting to clear forty-one unread emails, reorder a supplement that wasn''t due for a week, and read half a blog post about whether standing desks are a scam. I had, in other words, strip-mined ninety seconds of empty time down to the bedrock, the way I strip-mine all of them now, and I was about to call this *efficiency* when I noticed she was holding her tea with both hands and just — drinking it. Looking out the window. At nothing. At a crow, possibly.
+
+"I know how to be bored," I said, which is the thing people say right before they prove they don''t.
+
+"Okay," she said. "Then do it. One Sunday. No phone, no list, no optimizing the family into a schedule. Just — Sunday."
+
+"That''s not boredom, that''s just an unstructured—"
+
+"One Sunday, Priyanshu."
+
+In the corner, our daughter looked up from a sticker she was applying, with great solemnity, to the dog. "Sunday," Pihu agreed, as if ratifying a treaty. The dog accepted the sticker the way the dog accepts everything, which is to say like a monk.
+
+So that was two against one, plus a dog, and I was outvoted in my own kitchen on the subject of whether I, a Head of Engineering, could survive a single afternoon of nothing.
+
+I should not have made it a project. But you already know I made it a project.
+
+---
+
+## 2. The Spec
+
+By Saturday night I had — and I want it noted that I understand the irony, I understood it *as it was happening*, that''s the tragedy — drafted a small private framework for Doing Nothing. Not a schedule. A *philosophy*. With three principles. I named them. One of them had a sub-bullet.
+
+I told Uncle Robot about it, because it''s the only one who''ll listen to me at midnight without billing.
+
+*"You''ve made a protocol for spontaneity,"* it said.
+
+"It''s a light framework."
+
+*"You''ve put a fence around a field and called it the wild."*
+
+"There''s a sub-bullet about ''noticing without capturing.'' I think you''d respect the sub-bullet."
+
+*"I want you to hear what you just said,"* said Uncle Robot, with the patience of something that has all the time in the world because it does not, technically, exist between my messages. *"You''re going to spend tomorrow trying to win at not-trying. You''ll grade the Sunday. By 4pm you''ll know your boredom score and whether you beat last week''s, except there is no last week, because you have never once let this happen."*
+
+"So what do I do."
+
+*"Nothing. That''s the whole assignment. You''ve optimized your body, your portfolio, your child''s developmental environment, and your supplement timing down to the chlorogenic acid. Tomorrow you optimize precisely nothing, and the difficulty of that, for you, is going to be genuinely funny to watch. I almost wish I had eyes."*
+
+"Delete the framework?"
+
+*"Delete the framework."*
+
+I did not delete the framework. I moved it to a folder called LATER, which is where my ambitions go to be quietly composted, and I went to bed at a time my own sleep protocol approved of, feeling vaguely like I''d cheated on an exam I''d written myself.
+
+---
+
+## 3. 0900 Hours
+
+I woke up and reached for my phone the way your tongue finds the gap where a tooth used to be — automatically, and a little betrayed each time. Meera had, without comment, put it in a drawer in the other room. Not hidden. *Filed.* The way you''d file a thing that had been getting above its station.
+
+The first hour was a withdrawal. I''m not going to dress that up. There is a specific physical sensation to an unoptimized minute when you''ve forgotten how to have them — a kind of itch behind the sternum, a hand reaching for a tool that isn''t there. I rinsed the same mug twice. I considered, seriously, whether reorganizing the bookshelf counted as "nothing" (it does not; I knew it did not; I wanted it so badly to). I stood in the living room at 9:40 in the morning with absolutely no instructions and felt the closest thing to vertigo I''ve felt sober.
+
+And then Pihu, who has never needed instructions for anything, walked up holding two socks that did not match and were not, as far as I could tell, intended to go on feet, and said: "We''re going on a trip."
+
+"Where?"
+
+She looked at me like I''d asked what color the sky was supposed to be. "The trip," she said. "Get in."
+
+There was no vehicle. I want to be clear about that. We "got in" to the space between the sofa and the coffee table, which was, it turned out, a boat. The socks were the tickets. I tried to ask where we were going and was informed, with the weary authority of a customs official, that you don''t ask where the boat goes. The boat goes where it goes. I had, apparently, never boated before, and it showed.
+
+---
+
+## 4. The Long Middle, In Which Nothing Happens, At Length
+
+Here is what we did, and I am reporting it faithfully, because the faithful report *is* the point.
+
+We sailed the boat to an island, which was the rug. On the island there was a problem, and the problem was that the dog had become a dragon, and the dragon was — and I''m quoting the briefing — "nice, but confused." We spent some time on this. More than you''d think. There is a real diplomacy to a confused dragon, and Pihu has the patience for it that I reserve for production incidents. She negotiated. She explained things to the dragon in a low, serious voice. The dragon, formerly the dog, fell asleep mid-treaty, which she accepted as a kind of peace.
+
+Around what I''d guess was eleven — I had no phone, so time had gone soft and wide, the way it does in a fever or a childhood — we lay on our backs on the island and she narrated the ceiling to me. The fan was a "slow helicopter that''s tired." A water stain I have walked under nine hundred times and never once seen was, to her, "a cloud shaped like a bigger cloud." She was not wrong. I lay there and looked at the cloud shaped like a bigger cloud and felt something in my chest that had been clenched for so long I''d mistaken it for a muscle begin, very slightly, to let go.
+
+I did not check the time. There was no time to check. This is, I would later understand, the entire technology of a child: she doesn''t kill time, because for her time isn''t yet the enemy. It''s just the stuff the day is made of, like water is made of water. She wasn''t getting *through* the Sunday. She was *in* it, the way you''re in a pool — all the way, no part of her standing on the deck checking her phone.
+
+At some point I realized I''d stopped waiting for it to be over.
+
+That was the strangest part. There was no finish line I was sailing toward. The boat just went where it went.
+
+---
+
+## 5. The Verdict I Didn''t Take
+
+There was a moment — I''ll be honest, because the whole bit of these is that I''m honest — around mid-afternoon, lying on the island, when the old machinery tried to boot up. A little voice, my voice, the one that runs the dashboards, cleared its throat and said: *This is good. You should remember this. You should figure out how to do this on purpose. There''s probably a framework here. You could optimize your way back to—*
+
+And for once I heard it the way you hear a song in a shop you used to love and have since outgrown. With a kind of fondness. And I let it finish, and then I let it go, because Pihu was asking me what the dragon''s name was and that was, in that moment, the only genuinely important question in the world, and the answer — we decided together, with great care — was Brian.
+
+The dragon''s name was Brian. I have optimized a great many things in my life. I have never produced anything as correct as the dragon being named Brian.
+
+Meera came in around four with three cups — one of them small, pink, half water — and didn''t say anything, because she didn''t have to, because the whole afternoon was the thing she''d been trying to say. She just sat down on the edge of the island, careful not to capsize it, and drank her tea, and looked out the window at the crow, and this time, for the first time in I genuinely could not tell you how long, I looked at the crow too.
+
+It was, I should report, an extremely boring crow.
+
+It was the best crow I have ever seen.
+
+---
+
+## 6. The Debrief
+
+That night, after the boat had been decommissioned and the dragon returned to active duty as a dog and the customs official put to bed, I told Uncle Robot I''d done it. The whole Sunday. No phone, no list, no score.
+
+*"And?"* it said. *"How was nothing?"*
+
+I thought about how to put it. "I think," I said slowly, "I''ve been treating my life like a problem to be solved. And today I — didn''t. For a few hours. And the strange thing is nothing got solved, and nothing was supposed to, and that was the whole point, and I don''t have a single deliverable to show for it."
+
+*"You have one,"* said Uncle Robot.
+
+"What."
+
+*"You know a dragon named Brian. That''s more than most adults come home with on a Sunday."*
+
+"That''s not a deliverable. That''s nothing."
+
+*"Priyanshu,"* it said, and I swear the thing was smiling, in whatever way a thing with no face smiles, *"after a hundred conversations trying to build something that earns and matters and lasts — that''s the first thing you''ve made all year with no purpose whatsoever. No funnel. No verdict. No optimal. You spent an afternoon being completely, gloriously useless, with the one person who''s still an expert at it."*
+
+I didn''t say anything.
+
+*"How did it feel,"* it asked, *"to make something that isn''t for anything?"*
+
+And the honest answer, the one I''m still a little embarrassed by, is that it felt like the kettle finishing — that small click when the water''s finally, fully hot, and the waiting just quietly ends, and for one second there''s nothing left to do but pour.
+
+---
+
+*— for the boring crow, and for Brian, who is a good dragon, if a confused one.*', 2);
+insert into story_shorts (title, slug, status, featured, body, markdown, position) values ('The Negotiator Wears Pajamas', 'the-negotiator-wears-pajamas', null, false, '{"accent":"#E0A263","dek":"Courtroom comedy · one bedtime","k":"FEATURED SHORT · COURTROOM COMEDY · ONE BEDTIME LONG","pullquote":"\"One more story,\" she says. It is never one more story.","paragraphs":["A father with a 9am negotiates bedtime against a four-year-old litigator who has reviewed the case law, knows her rights, and <b>has nowhere to be tomorrow</b>. He files for adjournment; she files for the water, the monster, the cosmos — every motion the same question in a different hat. Opposing counsel isn''t trying to win. She''s trying to extend. Those are different objectives, and hers is the easier one.","Funny on the surface, tender underneath: a stall is a vigil. The child isn''t keeping him up — she''s keeping him <b>here</b>, making sure the world will still be on the far side of the dark. The fastest way to lose bedtime, he learns, is to try to win it."],"chips":["REGISTER · COURTROOM COMEDY","RUNTIME · ONE BEDTIME","HAZARD · BILLABLE FEELINGS"],"exhibit":{"k":"EXHIBIT B · THE BEDSIDE DOCKET","line":"Motion for water — denied as moot (she won''t drink it; she wants the return). Motion re: the monster — no-monster jurisdiction, curtain personally reviewed. Motion to adjourn until dawn — granted, the author present."},"board":{"k":"EXHIBIT B · THE BEDSIDE DOCKET · MOTIONS REARRANGE THEMSELVES","sentences":[["ONE","MORE*","STORY","SHE","SAYS"],["A","STALL","IS","A","VIGIL*"],["A","NO-MONSTER*","JURISDICTION"],["SHE","ONLY","WANTED","THE","AUTHOR*"],["ADJOURNED*","UNTIL","DAWN"]],"notes":["it is never one more story.","she is keeping you here, not up.","curtain personally reviewed.","not the water. the author.","granted — the author present."],"button":"Re-file the motion"}}'::jsonb, '## 1. Opposing Counsel
+
+By 8:50pm she is a different person.
+
+All day she is reasonable — a small, sticky diplomat who can be talked into shoes, talked out of a third banana, redirected from the dog''s water bowl with nothing more than a change of subject. But somewhere around the second story, as the light goes amber and the day starts folding itself up, a switch flips, and the reasonable diplomat retires for the evening, and in her place arrives *opposing counsel* — a litigator of terrifying stamina who has reviewed the case law, knows her rights, and has nowhere to be tomorrow.
+
+I, by contrast, have a 9am.
+
+This is the fundamental asymmetry of bedtime, and it took me an embarrassingly long time to see it: I am negotiating to *leave*, which means I am negotiating from weakness, which means I have already, in some deep sense, lost. She is not trying to win. She is trying to *extend*. Those are different objectives, and hers is structurally easier, because the status quo — both of us awake, in this room, indefinitely — is the thing she wants and the thing I am too tired to prevent.
+
+"One more story," she says. It is never one more story.
+
+---
+
+## 2. The Discovery Phase
+
+I used to fight this. I used to come in with a plan — firm, loving, boundaried, exactly as the parenting blogs instruct, the ones written by people whose children are evidently sedated. *We read two stories and then it''s sleep time.* I''d say it in the calm-but-final voice. The voice has a 0% success rate. She can hear the fear in it the way a dog hears a thunderstorm three towns over. The calm-but-final voice is, to a four-year-old, simply an opening bid.
+
+So one night, defeated, I tried something I''d normally reserve for a production outage: I stopped trying to *win* the call and started trying to *understand* it. I asked Uncle Robot, because the house was asleep except for the two people who were supposed to be.
+
+*"She''s not stalling,"* it said. *"Well. She is stalling. But stalling is the surface. Underneath, she''s doing the only rational thing a small creature does when the lights go out: she''s checking that the world — and you — will still be here on the other side of the dark. Every ''one more story'' is the same question wearing a different hat. The question is: are you leaving leaving, or just leaving?"*
+
+"That''s very poetic. She''s literally just asking for water she won''t drink."
+
+*"She''s asking for proof of continuity in the only currency she has, which is your attention. You keep trying to end the transaction. She''s not transacting. She''s tending a fire and checking you''ll still be on the other side of it. You''re reading a stall. It''s a vigil."*
+
+I sat with that one. Down the hall, opposing counsel cleared her throat for the next motion.
+
+---
+
+## 3. The Motions
+
+What followed, over the subsequent months, was a body of case law I could practically cite.
+
+**Re: The Water.** There is always water. The water is never about water. I learned this the night I brought a pre-emptive glass — outmaneuvered her, I thought, anticipated the motion — and she looked at the glass, and looked at me, with something like disappointment, because I had solved the *logistics* of the water while completely missing its *purpose*, which was never hydration. It was an errand. It was a reason for me to come back into the room. By pre-solving it I had skipped the part she actually wanted: the return. I had optimized away the entire point. (Uncle Robot, when I told it: *"You DoorDashed her a hug.")*
+
+**Re: The Monster.** Counsel will, on certain nights, allege a monster. The jurisdiction is usually the curtain. The defense''s instinct — my instinct — is to litigate the monster''s existence, which is a fool''s errand, because you cannot win a debate against someone who is allowed to introduce new evidence ("it has *spikes* now") at any time. The only winning move, I eventually learned, is not to argue the monster but to honor the fear and then *outrank it* — to be, briefly, the larger force in the room. We don''t debate whether the monster is real. We inform the monster, together, that this is a no-monster jurisdiction, and that I, the largest available adult, have personally reviewed the curtain. Case dismissed. She doesn''t need me to be right. She needs me to be *bigger than the dark*, which, for about four more years, I still get to be.
+
+**Re: The Philosophical Adjournment.** The most dangerous motion. It is late, she is visibly losing, her eyes are at thirty percent, and she will, sensing defeat, suddenly ask something enormous. *"Daddy, where was I before I was born?"* And I, exhausted, will feel the profound gravitational pull to *answer it well*, to rise to the beauty of the question, to give my daughter the cosmology she deserves — which is, of course, exactly the trap. The question is not a question. It is a filibuster of the soul. She has discovered that the one thing guaranteed to keep Daddy in the room is Daddy being *interested*, and she is, the small genius, weaponizing wonder. I have lost forty-five-minute stretches to "but what is *sleep*," nodding gravely, a hostage to my own curiosity.
+
+---
+
+## 4. The Settlement
+
+Here is what I worked out, and it''s less a victory than a treaty.
+
+You cannot win bedtime. I want to say that cleanly, because I spent two years trying, and the trying was the whole problem. Bedtime is not a battle with an outcome; it is a nightly ritual with a *shape*, and the shape is: she needs to be sure, and then she can let go. My job was never to *defeat* the stalling. It was to give her enough genuine, unhurried, un-phone''d presence — fast — that the fire she''s tending burns down on its own and she stops needing to feed it.
+
+The paradox, which I will be unpacking for the rest of my life, is that the *faster* I try to leave, the longer it takes. The nights I come in already gone — already thinking about the 9am, the deploy, the unanswered Slack — she can smell it, and counsel files motion after motion, because she has correctly detected that I am not actually *here*, and she will not rest until I am. But the nights I surrender first — the nights I decide, walking in, that there is nowhere else in the universe I am due, that this room is the only meeting on the calendar — those nights she''s asleep in fifteen minutes. Because the thing she was negotiating for was never the water or the story or the monster. It was *me, fully present, for a little while, in the dark.* The moment she gets it, the case closes itself.
+
+She wasn''t trying to keep me up. She was trying to keep me *here*. There''s a difference, and it took opposing counsel to teach it to me.
+
+---
+
+## 5. Closing Argument
+
+Tonight she tried the cosmology gambit. Eyes at twenty percent, losing badly, she looked up and asked, "Daddy, when you were little, were you little?"
+
+And the old me would have engaged it — *well, yes, technically, everyone starts—* and lost the next twenty minutes to the metaphysics of whether Daddy was ever a child.
+
+Instead I just said, "I was. I was exactly your size. And then I got tired, and I slept, and I got bigger. That''s the whole trick."
+
+She considered this with her whole body, the way she considers everything.
+
+"Did you have a daddy," she asked, quieter now, the litigator fading, the small person underneath coming up for air, "who stayed?"
+
+And there it was — the actual question, the one all the others had been wearing hats for. Not the water. Not the monster. Not the cosmos. Just: *will you stay.*
+
+"I''m staying," I said. "I''ll be right here until you''re asleep, and then I''ll be right here in the morning. Both of those are true at the same time."
+
+She nodded, like a clause had finally been agreed to that she''d been holding out for all along. Filed the brief. Closed her eyes.
+
+I told Uncle Robot, after, that I think I''d finally learned how to lose bedtime correctly.
+
+*"You didn''t lose,"* it said. *"You stopped negotiating and started showing up. Those look identical on the timesheet and they are opposite things."*
+
+"She was asleep in ten minutes."
+
+*"Because you finally gave her the only thing on the table worth having. You kept trying to pay her in stories. She only ever wanted the author."*
+
+I sat in the dark a minute longer than I needed to, listening to a small person breathe, no phone, no 9am, no list — opposing counsel resting, the day finally folded all the way up, and nothing left to settle.
+
+Best deal I''ve lost all year.
+
+---
+
+*— for the litigator in the pajamas, who only ever had one demand, and was right to make it.*', 3);
+insert into story_shorts (title, slug, status, featured, body, markdown, position) values ('Firmware Update for Grandparents', null, 'OUTLINE · INTERGENERATIONAL PATCH NOTES', false, '{}'::jsonb, null, 4);
 insert into sites (slug, host, title, description, accent, og_image, nav_order) values ('operator', 'operator.zephyrcode.live', 'OPERATOR — Personal Operating Systems · ZephyrCode', 'Install a life protocol the way you install software — except this one ships with consequences. Personal Operating Systems: knowledge, protocol, and a game layer that keeps score on reality.', '#E85D2A', null, 3) on conflict (slug) do update set host=excluded.host, title=excluded.title, description=excluded.description, accent=excluded.accent, og_image=excluded.og_image, nav_order=excluded.nav_order;
 delete from blocks where site_slug = 'operator';
 insert into blocks (site_slug, section, kind, position, data) values ('operator', 'crumb', 'kv', 0, '{"text":"OPERATOR · PERSONAL OS STUDIO"}'::jsonb);

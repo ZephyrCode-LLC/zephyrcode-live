@@ -69,7 +69,7 @@ for (const seed of ALL_SITES) {
   if (seed.storyShorts) {
     trunc("story_shorts");
     for (const st of seed.storyShorts)
-      sql += `insert into story_shorts (title, status, featured, body, position) values (${q(st.title)}, ${q(st.status)}, ${q(st.featured)}, ${q(st.body)}, ${q(st.position)});\n`;
+      sql += `insert into story_shorts (title, slug, status, featured, body, markdown, position) values (${q(st.title)}, ${q(st.slug ?? null)}, ${q(st.status)}, ${q(st.featured)}, ${q(st.body)}, ${q(st.markdown ?? null)}, ${q(st.position)});\n`;
   }
 }
 sql += "commit;\n";
