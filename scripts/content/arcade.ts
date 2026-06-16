@@ -14,7 +14,7 @@ export const arcadeSeed: SiteSeed = {
       "Five simulators you play with your hands and lose to with your habits. Insert intention.",
     accent: "#E85D2A",
     og_image: null,
-    nav_order: 4,
+    nav_order: 5,
   },
   blocks: [
     {

@@ -45,6 +45,9 @@ const Systems = z.object({
   h2Html: z.string(),
   subHtml: z.string(),
   proofHtml: z.string(),
+  osCards: z
+    .array(z.object({ k: z.string(), h3: z.string(), pHtml: z.string(), link: Cta, live: z.boolean() }))
+    .optional(),
   toy: z.object({
     k: z.string(),
     dayLabels: z.array(z.string()),
@@ -198,7 +201,23 @@ export default async function HomeSite() {
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
             <p className="sub sys-lede" dangerouslySetInnerHTML={{ __html: systems.subHtml }} />
           </div>
-          <p className="proof rv" dangerouslySetInnerHTML={{ __html: systems.proofHtml }} />
+          {systems.osCards ? (
+            <div className="os-cards rv">
+              {systems.osCards.map((c) => (
+                <a key={c.h3} className={`os-card${c.live ? " live" : ""}`} href={c.link.href}>
+                  <span className="os-k">
+                    {c.k}
+                    {c.live && <span className="os-live">LIVE</span>}
+                  </span>
+                  <span className="os-h">{c.h3}</span>
+                  <span className="os-p" dangerouslySetInnerHTML={{ __html: c.pHtml }} />
+                  <span className="os-link">{c.link.label}</span>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="proof rv" dangerouslySetInnerHTML={{ __html: systems.proofHtml }} />
+          )}
           <ConsequenceWeek
             k={systems.toy.k}
             dayLabels={systems.toy.dayLabels}

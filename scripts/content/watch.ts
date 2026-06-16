@@ -15,7 +15,7 @@ export const watchSeed: SiteSeed = {
       "Series and films sorted by state of mind, not genre — from Brain on Fire to Decompress. Scored against one viewer's taste profile, ranked without mercy.",
     accent: "#C9A45C",
     og_image: null,
-    nav_order: 6,
+    nav_order: 7,
   },
   blocks: [
     {

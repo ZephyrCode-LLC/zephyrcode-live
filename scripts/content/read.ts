@@ -13,7 +13,7 @@ export const readSeed: SiteSeed = {
       "Fourteen books on a single heat gradient — from Dinkar's war drums to the dissolving quiet of The Book of Mirdad. Pick by the day you're having, not the canon you're told.",
     accent: "#E85D2A",
     og_image: null,
-    nav_order: 5,
+    nav_order: 6,
   },
   blocks: [
     {

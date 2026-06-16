@@ -116,6 +116,18 @@
 [data-site="home"] .sys-lede b { color: var(--bone); font-weight: 600; }
 [data-site="home"] .proof { font-family: var(--mono); font-size: 11.5px; color: var(--bone-faint); letter-spacing: 0.04em; border-left: 2px solid var(--brass); padding-left: 14px; margin: 22px 0 38px; max-width: 60ch; line-height: 1.7; }
 [data-site="home"] .proof b { color: var(--brass); font-weight: 500; }
+/* OS flagship cards (FORGE · the body / TEMPER · the mind) */
+[data-site="home"] .os-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 14px; margin: 24px 0 38px; max-width: 760px; }
+[data-site="home"] .os-card { display: flex; flex-direction: column; gap: 9px; padding: 22px 22px 20px; text-decoration: none; border: 1px solid var(--line-soft); background: rgba(13, 11, 9, 0.74); transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease; }
+[data-site="home"] .os-card:hover { background: rgba(28, 22, 16, 0.9); transform: translateY(-2px); }
+[data-site="home"] .os-card.live { border-color: rgba(201, 164, 92, 0.45); }
+[data-site="home"] .os-card .os-k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bone-faint); display: flex; align-items: center; gap: 9px; }
+[data-site="home"] .os-card .os-live { font-family: var(--mono); font-size: 8px; letter-spacing: 0.16em; color: var(--ink); background: var(--ember); border-radius: 3px; padding: 2px 6px; }
+[data-site="home"] .os-card .os-h { font-size: 1.85rem; font-weight: 400; line-height: 1; color: var(--bone); letter-spacing: 0.01em; }
+[data-site="home"] .os-card.live .os-h { color: var(--brass); }
+[data-site="home"] .os-card .os-p { font-size: 0.86rem; line-height: 1.55; color: var(--bone-dim); }
+[data-site="home"] .os-card .os-link { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--brass); margin-top: 2px; }
+[data-site="home"] .os-card:hover .os-link { color: var(--ember-hot); }
 [data-site="home"] .toy { border: 1px solid var(--line); background: rgba(13, 11, 9, 0.7); backdrop-filter: blur(2px); padding: 26px 28px; margin-bottom: 38px; max-width: 680px; }
 [data-site="home"] .toy .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ember); margin-bottom: 16px; }
 [data-site="home"] .days { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }

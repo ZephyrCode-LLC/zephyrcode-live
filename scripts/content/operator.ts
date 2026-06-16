@@ -125,9 +125,9 @@ export const operatorSeed: SiteSeed = {
           },
           {
             k: "OS 02 · THE MIND",
-            h3: "DEEP WORK",
-            p: "Attention as a managed resource: circadian load-balancing, interruption budgets, a maker-schedule kernel. For people whose calendar is the malware.",
-            up: "STATUS · IN THE FOUNDRY",
+            h3: "TEMPER",
+            p: "Attention as the edge that holds under load — interruption budgets, a maker-schedule kernel, and a consequence engine that bills every context-switch. For people whose calendar is the malware.",
+            up: "STATUS · NOW BUILDING · temper.zephyrcode.live",
           },
         ],
       },
@@ -143,7 +143,7 @@ export const operatorSeed: SiteSeed = {
           {
             n: "ACT I",
             h3: "Ship the flagships",
-            p: "FORGE and DEEP WORK as standalone, installable OSes. Real buyers, real adherence data, real curves bending.",
+            p: "FORGE and TEMPER as standalone, installable OSes. Real buyers, real adherence data, real curves bending.",
           },
           {
             n: "ACT II",

@@ -128,6 +128,24 @@ export const homeSeed: SiteSeed = {
           "Not courses <b>(passive)</b>. Not templates <b>(dead tables)</b>. Not habit apps <b>(checkbox theatre)</b>. An OS carries the knowledge, runs the protocol, and — the part nobody else ships — <b>simulates the consequences of your adherence</b>, like a save-file you're either leveling or corrupting.",
         proofHtml:
           "<b>ORIGIN: FORGE.</b> The founder's own 26-week system — three sessions a day, tuned to his genetics, audited by bloodwork that moved. The first customer was his own biology. It paid in full.",
+        osCards: [
+          {
+            k: "OS 01 · The body",
+            h3: "FORGE",
+            pHtml:
+              "The founder's own 26-week system — three sessions a day, tuned to his genetics, audited by bloodwork that moved. The first customer was his own biology. It paid in full.",
+            link: { label: "The origin →", href: "https://operator.zephyrcode.live" },
+            live: false,
+          },
+          {
+            k: "OS 02 · The mind",
+            h3: "TEMPER",
+            pHtml:
+              "Attention is a blade — temper it or shatter it. The interruption tax a \"quick meeting\" really charges a maker, the day-clock that proves it, and customer-zero's eight weeks of moved metrics.",
+            link: { label: "Enter TEMPER →", href: "https://temper.zephyrcode.live" },
+            live: true,
+          },
+        ],
         toy: {
           k: "The difference, in one toy — tap your week",
           dayLabels: ["M", "T", "W", "T", "F", "S", "S"],
@@ -143,7 +161,8 @@ export const homeSeed: SiteSeed = {
           { n: "THE INTERRUPTION TAX", p: 'What one "quick meeting" really costs a maker\'s afternoon. Bring a strong stomach.' },
         ],
         ctas: [
-          { label: "Visit the studio →", href: "https://operator.zephyrcode.live", style: "solid" },
+          { label: "Enter TEMPER →", href: "https://temper.zephyrcode.live", style: "solid" },
+          { label: "Visit the studio →", href: "https://operator.zephyrcode.live", style: "ghost" },
           { label: "Play the arcade", href: "https://arcade.zephyrcode.live", style: "ghost" },
         ],
       },

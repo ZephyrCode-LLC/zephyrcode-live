@@ -15,7 +15,7 @@ export const listenSeed: SiteSeed = {
       "Five things a rig must prove — weight, stage, breath, detail, dynamics — and the tracks that interrogate each one. Reference chain: HD 660S2 into a FiiO K11 R2R, balanced, high gain.",
     accent: "#E85D2A",
     og_image: null,
-    nav_order: 7,
+    nav_order: 8,
   },
   blocks: [
     {

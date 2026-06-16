@@ -11,6 +11,7 @@ const HOSTS: Record<string, string> = {
   "antyodaya.zephyrcode.live": "antyodaya",
   "stories.zephyrcode.live": "stories",
   "operator.zephyrcode.live": "operator",
+  "temper.zephyrcode.live": "temper",
   "arcade.zephyrcode.live": "arcade",
   "read.zephyrcode.live": "read",
   "watch.zephyrcode.live": "watch",
