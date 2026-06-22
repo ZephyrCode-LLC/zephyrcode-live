@@ -20,6 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/`, changeFrequency: "weekly", priority: 1 },
   ];
 
+  // The temper (DeepWork) room has no subdomain of its own — it lives at the hub
+  // path /temper — so the apex sitemap is where crawlers discover it.
+  if (slug === "home") {
+    urls.push({ url: `${base}/temper`, changeFrequency: "monthly", priority: 0.8 });
+  }
+
   // Content rooms list their sub-pages too. Best-effort — a content/CMS hiccup
   // must never fail the sitemap, so swallow and return at least the root.
   try {

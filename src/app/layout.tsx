@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   // never the serving host (which is a rewrite target on subdomains)
   metadataBase: new URL("https://zephyrcode.live"),
   title: "ZephyrCode",
+  // Google Search Console: the tag is served on the apex AND every subdomain (one
+  // app, many hosts), so it verifies each as a URL-prefix property via meta-tag.
+  // (A Domain property still uses the DNS TXT with this same token.)
+  verification: { google: "nvvu1A3gCs5B51M4DSihe8w5OeuWF0M0XKSGiXy6LFA" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
