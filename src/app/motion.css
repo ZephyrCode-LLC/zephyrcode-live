@@ -42,14 +42,14 @@
    PER-ROOM FOOTPRINTS — a colour no default would pick, per site.
    Each is chosen from the room's subject, none of them ember-orange.
    ============================================================ */
-[data-site="antyodaya"] { --accent: #b3402b; --accent-2: #5e8fa0; --accent-soft: rgba(179, 64, 43, 0.14); }  /* oxblood + SETU-cyan */
+[data-site="antyodaya"] { --accent: #cf5640; --accent-2: #5e8fa0; --accent-soft: rgba(207, 86, 64, 0.14); }  /* oxblood (lightened to clear WCAG AA 4.5:1 on antyodaya's dark ink, also fixes the CTA) + SETU-cyan */
 [data-site="stories"]   { --accent: #7fd6a8; --accent-2: #9b6bd6; --accent-soft: rgba(127, 214, 168, 0.16); } /* fridge-mint + cow-violet */
 [data-site="arcade"]    { --accent: #5be39a; --accent-2: #e85bc4; --accent-soft: rgba(91, 227, 154, 0.16); }  /* CRT phosphor + magenta */
 [data-site="listen"]    { --accent: #46c4b0; --accent-2: #c9a45c; --accent-soft: rgba(70, 196, 176, 0.16); }  /* VU-teal + brass */
 [data-site="operator"]  { --accent: #54d38a; --accent-2: #c8553a; --accent-soft: rgba(84, 211, 138, 0.16); }  /* vital-green + corrupt-red */
 [data-site="temper"]    { --accent: #9d8cf0; --accent-2: #6bc2d6; --accent-soft: rgba(157, 140, 240, 0.16); } /* focus-violet */
 [data-site="read"]      { --accent: #e85d2a; --accent-2: #4e7bc0; --accent-soft: rgba(232, 93, 42, 0.14); }   /* fire -> stillness poles */
-[data-site="watch"]     { --accent: #a9c2e8; --accent-2: #7a2d3a; --accent-soft: rgba(169, 194, 232, 0.16); } /* projector-blue */
+[data-site="watch"]     { --accent: #a9c2e8; --accent-2: #c75566; --accent-soft: rgba(169, 194, 232, 0.16); } /* projector-blue + curtain-rose (--accent-2 raised from #7a2d3a so .alink links stay legible) */
 
 /* ============================================================
    REFACTOR existing motion onto the system.

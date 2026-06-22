@@ -27,7 +27,7 @@
   inset: 0;
   padding: 2px;
   border-radius: 4px;
-  background: linear-gradient(90deg, var(--ember), var(--brass), var(--iris), var(--ember)) 0 0/300% 100%;
+  background: linear-gradient(90deg, var(--accent), var(--brass), var(--iris), var(--accent)) 0 0/300% 100%;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -38,7 +38,7 @@
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.34em;
-  color: var(--ember);
+  color: var(--accent);
   text-transform: uppercase;
 }
 [data-site="arcade"] .marquee h1 {
@@ -77,7 +77,7 @@
   flex-direction: column;
   transition: border-color 0.25s;
 }
-[data-site="arcade"] .cab:hover { border-color: rgba(232, 93, 42, 0.45); } /* P1-3 */
+[data-site="arcade"] .cab:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); } /* P1-3 */
 [data-site="arcade"] .cab .screen { filter: brightness(1); transition: filter 0.25s; }
 [data-site="arcade"] .cab:hover .screen { filter: brightness(1.15); } /* art +15% */
 [data-site="arcade"] .screen {
@@ -114,14 +114,14 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   text-decoration: none;
-  color: var(--ember);
-  border: 1px solid rgba(232, 93, 42, 0.5);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
   padding: 9px 16px;
   border-radius: 2px;
   display: inline-block;
   transition: 0.2s;
 }
-[data-site="arcade"] .play:hover { background: var(--ember); color: var(--ink); }
+[data-site="arcade"] .play:hover { background: var(--accent); color: var(--ink); }
 [data-site="arcade"] .coin {
   margin-top: auto;
   padding: 10px 20px;
@@ -172,7 +172,7 @@
   backface-visibility: hidden;
   background: #14100c;
 }
-[data-site="arcade"] .card3 i.b { transform: rotateY(180deg); color: var(--ember); }
+[data-site="arcade"] .card3 i.b { transform: rotateY(180deg); color: var(--accent); }
 [data-site="arcade"] .card3 i.a { color: var(--brass); }
 @keyframes zc-arc-flip {
   0%, 38% { transform: rotateY(0); }
@@ -182,7 +182,7 @@
 [data-site="arcade"] .meters { display: flex; gap: 6px; align-items: flex-end; height: 60px; }
 [data-site="arcade"] .meters b {
   width: 8px;
-  background: var(--ember);
+  background: var(--accent);
   opacity: 0.75;
   animation: zc-arc-mtr 2.8s ease-in-out infinite;
 }
@@ -216,7 +216,7 @@
   animation: zc-arc-ignite 3.6s ease-in-out infinite;
 }
 @keyframes zc-arc-ignite {
-  12%, 42% { background: var(--ember); opacity: 1; box-shadow: 0 0 10px rgba(232, 93, 42, 0.9); }
+  12%, 42% { background: var(--accent); opacity: 1; box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 90%, transparent); }
   60% { background: var(--faint); opacity: 0.35; box-shadow: none; }
 }
 [data-site="arcade"] .s-tax {
@@ -233,7 +233,7 @@
   flex: 1;
   animation: zc-arc-tax 3.4s ease-in-out infinite;
 }
-[data-site="arcade"] .s-tax b:nth-child(3) { background: var(--ember); }
+[data-site="arcade"] .s-tax b:nth-child(3) { background: var(--accent); }
 [data-site="arcade"] .s-tax b:nth-child(3) { animation-name: zc-arc-taxdrop; }
 [data-site="arcade"] .s-tax b:nth-child(n + 4) { animation-name: zc-arc-taxshift; }
 @keyframes zc-arc-tax {
@@ -258,7 +258,7 @@
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.28em;
-  color: var(--ember);
+  color: var(--accent);
   margin-bottom: 16px;
 }
 [data-site="arcade"] .scores .r {
@@ -316,14 +316,14 @@
   font-size: 11px;
   letter-spacing: 0.2em;
   background: transparent;
-  border: 1px solid var(--ember);
-  color: var(--ember);
+  border: 1px solid var(--accent);
+  color: var(--accent);
   border-radius: 2px;
   padding: 11px 20px;
   cursor: pointer;
   transition: 0.2s;
 }
-[data-site="arcade"] .cform button:hover { background: var(--ember); color: var(--ink); }
+[data-site="arcade"] .cform button:hover { background: var(--accent); color: var(--ink); }
 [data-site="arcade"] .capture .done,
 [data-site="arcade"] .cform .fail {
   font-family: var(--mono);
@@ -332,7 +332,7 @@
   margin-top: 14px;
 }
 [data-site="arcade"] .capture .done { color: var(--brass); }
-[data-site="arcade"] .cform .fail { color: var(--ember); flex-basis: 100%; }
+[data-site="arcade"] .cform .fail { color: var(--accent); flex-basis: 100%; }
 
 /* studio strip — the business, quiet, before the footer */
 [data-site="arcade"] .studio {
@@ -366,7 +366,7 @@
   border-bottom: 1px solid rgba(201, 164, 92, 0.35);
   padding-bottom: 3px;
 }
-[data-site="arcade"] .studio .cta:hover { color: var(--ember); border-bottom-color: var(--ember); }
+[data-site="arcade"] .studio .cta:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
 /* shareVerdict toast */
 .arc-toast {
@@ -393,7 +393,7 @@
 [data-site="arcade"] a:focus-visible,
 [data-site="arcade"] button:focus-visible,
 [data-site="arcade"] input:focus-visible {
-  outline: 2px solid var(--ember);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -414,7 +414,7 @@
   color: var(--dim);
   text-decoration: none;
 }
-[data-site="arcade"] .backrow:hover { color: var(--ember); }
+[data-site="arcade"] .backrow:hover { color: var(--accent); }
 
 @media (prefers-reduced-motion: reduce) {
   .arc-toast { transition: none; }
@@ -428,16 +428,16 @@
 }
 [data-site="arcade"] .machine-bar a { text-decoration: none; }
 [data-site="arcade"] .mb-back { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--dim); white-space: nowrap; }
-[data-site="arcade"] .mb-back:hover { color: var(--ember); }
+[data-site="arcade"] .mb-back:hover { color: var(--accent); }
 [data-site="arcade"] .mb-name { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; color: var(--brass); font-weight: 700; }
 [data-site="arcade"] .mb-coin { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--dim); }
-[data-site="arcade"] .mb-full { margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--ember); white-space: nowrap; }
+[data-site="arcade"] .mb-full { margin-left: auto; font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--accent); white-space: nowrap; }
 [data-site="arcade"] .mb-full:hover { text-decoration: underline; }
 [data-site="arcade"] .machine-frame { flex: 1; width: 100%; border: none; min-height: calc(100vh - 52px); display: block; background: var(--ink); }
 
 /* ---- /commission — the creator door ---- */
 [data-site="arcade"] .commission { max-width: 880px; margin: 0 auto; padding: 14vh 24px 90px; }
-[data-site="arcade"] .commission .ey { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--ember); text-transform: uppercase; }
+[data-site="arcade"] .commission .ey { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; color: var(--accent); text-transform: uppercase; }
 [data-site="arcade"] .commission h1 { font-size: clamp(38px, 6vw, 64px); font-weight: 600; line-height: 1.05; margin-top: 16px; color: var(--bone); }
 [data-site="arcade"] .commission .body { margin-top: 22px; font-size: 19px; line-height: 1.65; color: var(--dim); max-width: 56ch; }
 [data-site="arcade"] .commission .ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
@@ -445,16 +445,16 @@
   font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-decoration: none;
   padding: 14px 22px; border-radius: 2px; border: 1px solid var(--line); color: var(--bone); transition: 0.2s;
 }
-[data-site="arcade"] .commission .cta.hot { border-color: var(--ember); color: var(--ember); }
-[data-site="arcade"] .commission .cta.hot:hover { background: var(--ember); color: var(--ink); }
+[data-site="arcade"] .commission .cta.hot { border-color: var(--accent); color: var(--accent); }
+[data-site="arcade"] .commission .cta.hot:hover { background: var(--accent); color: var(--ink); }
 [data-site="arcade"] .commission .cta:hover { border-color: var(--faint); }
 [data-site="arcade"] .proofrow { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 54px; }
 [data-site="arcade"] .proofcard {
   border: 1px solid var(--line); background: var(--ink-2); border-radius: 4px; padding: 16px 18px;
   text-decoration: none; transition: border-color 0.2s;
 }
-[data-site="arcade"] .proofcard:hover { border-color: rgba(232, 93, 42, 0.45); }
+[data-site="arcade"] .proofcard:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
 [data-site="arcade"] .proofcard .pn { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; color: var(--brass); }
 [data-site="arcade"] .proofcard .pg { display: block; margin-top: 8px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--dim); }
 [data-site="arcade"] .below { display: inline-block; margin-top: 50px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--dim); text-decoration: none; border-bottom: 1px dotted var(--line); padding-bottom: 3px; }
-[data-site="arcade"] .below:hover { color: var(--ember); border-bottom-color: var(--ember); }
+[data-site="arcade"] .below:hover { color: var(--accent); border-bottom-color: var(--accent); }

@@ -6,13 +6,13 @@
 [data-site="antyodaya"] .hero .hindi { font-size: clamp(1.2rem, 2.4vw, 1.7rem); color: var(--brass); margin: 18px 0 4px; }
 [data-site="antyodaya"] .hero h1 { font-size: clamp(3.2rem, 9vw, 7.4rem); font-weight: 600; letter-spacing: 0.05em; line-height: 0.98; }
 [data-site="antyodaya"] .hero .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.26em; color: var(--faint); text-transform: uppercase; margin-top: 14px; }
-[data-site="antyodaya"] .hero .log { margin: 26px 0; padding: 16px 20px; border-left: 2px solid var(--ember); background: rgba(8, 6, 4, 0.55); font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--brass); max-width: 560px; }
+[data-site="antyodaya"] .hero .log { margin: 26px 0; padding: 16px 20px; border-left: 2px solid var(--accent); background: rgba(8, 6, 4, 0.55); font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: var(--brass); max-width: 560px; }
 [data-site="antyodaya"] .hero .log .id { display: block; color: var(--faint); font-size: 10px; letter-spacing: 0.18em; margin-bottom: 6px; }
 [data-site="antyodaya"] .hero .blurb { color: var(--dim); max-width: 60ch; }
 [data-site="antyodaya"] .hero .blurb b { color: var(--bone); font-weight: 600; }
 [data-site="antyodaya"] .btnrow { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
 [data-site="antyodaya"] .lampwrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-[data-site="antyodaya"] .lamp { width: min(300px, 70vw); height: 380px; display: block; filter: drop-shadow(0 0 34px rgba(232, 93, 42, 0.22)); }
+[data-site="antyodaya"] .lamp { width: min(300px, 70vw); height: 380px; display: block; filter: drop-shadow(0 0 34px color-mix(in srgb, var(--accent) 22%, transparent)); }
 [data-site="antyodaya"] .lampcap { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: var(--faint); text-align: center; min-height: 2.4em; transition: color 0.4s; }
 [data-site="antyodaya"] .lampcap.watched { color: #c9a45c; }
 @media (max-width: 900px) {
@@ -24,7 +24,7 @@
 /* dateline rail */
 [data-site="antyodaya"] .rail { margin: 6vh 0; border-top: 1px solid var(--soft); border-bottom: 1px solid var(--soft); padding: 22px 0; display: flex; gap: 14px; overflow-x: auto; scrollbar-width: thin; }
 [data-site="antyodaya"] .dl { flex: none; border: 1px solid var(--line); padding: 12px 16px; min-width: 170px; background: rgba(16, 14, 12, 0.7); text-decoration: none; color: inherit; display: block; }
-[data-site="antyodaya"] .dl .d { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--ember); }
+[data-site="antyodaya"] .dl .d { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--accent); }
 [data-site="antyodaya"] .dl .t { font-style: italic; font-size: 1.02rem; margin-top: 6px; }
 [data-site="antyodaya"] a.dl:hover .t { color: var(--brass); }
 [data-site="antyodaya"] .dl.sealed { opacity: 0.55; }
@@ -34,7 +34,7 @@
 /* excerpt */
 [data-site="antyodaya"] .excerpt { margin: 8vh auto; max-width: 680px; }
 [data-site="antyodaya"] .excerpt p { font-size: clamp(1.05rem, 1.6vw, 1.22rem); line-height: 1.85; color: var(--bone); }
-[data-site="antyodaya"] .excerpt p::first-letter { font-size: 3.4em; float: left; line-height: 0.85; padding: 4px 10px 0 0; color: var(--ember); font-weight: 600; }
+[data-site="antyodaya"] .excerpt p::first-letter { font-size: 3.4em; float: left; line-height: 0.85; padding: 4px 10px 0 0; color: var(--accent); font-weight: 600; }
 [data-site="antyodaya"] .excerpt .src { margin-top: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--faint); }
 
 /* dossiers */
@@ -49,10 +49,10 @@
 [data-site="antyodaya"] .dcard p { font-size: 0.93rem; color: var(--dim); font-style: italic; }
 [data-site="antyodaya"] .tier { margin-top: 16px; display: flex; gap: 8px; }
 [data-site="antyodaya"] .tc { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; border: 1px solid var(--line); padding: 5px 9px; color: var(--faint); }
-[data-site="antyodaya"] .tc.open { border-color: rgba(232, 93, 42, 0.5); color: var(--ember); }
+[data-site="antyodaya"] .tc.open { border-color: color-mix(in srgb, var(--accent) 50%, transparent); color: var(--accent); }
 
 /* how to read */
 [data-site="antyodaya"] .how { margin-top: 9vh; border: 1px solid var(--line); padding: clamp(24px, 4vw, 42px); background: rgba(8, 6, 4, 0.5); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 26px; }
-[data-site="antyodaya"] .how .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.24em; color: var(--ember); margin-bottom: 10px; }
+[data-site="antyodaya"] .how .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.24em; color: var(--accent); margin-bottom: 10px; }
 [data-site="antyodaya"] .how p { font-size: 0.95rem; color: var(--dim); }
 [data-site="antyodaya"] .how b { color: var(--bone); font-weight: 600; }

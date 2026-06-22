@@ -14,7 +14,7 @@
     from 195deg at 78% -10%,
     transparent 38%,
     rgba(236, 226, 211, 0.05) 47%,
-    rgba(232, 93, 42, 0.07) 50%,
+    color-mix(in srgb, var(--accent) 7%, transparent) 50%,
     rgba(236, 226, 211, 0.05) 53%,
     transparent 62%
   );
@@ -53,13 +53,13 @@
 }
 [data-site="watch"] .ch:hover { border-color: var(--brass); color: var(--brass); }
 [data-site="watch"] .ch.on {
-  border-color: var(--ember);
-  color: var(--ember);
-  background: rgba(232, 93, 42, 0.1);
-  box-shadow: 0 0 18px rgba(232, 93, 42, 0.18);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 [data-site="watch"] .ch .n { color: var(--faint); margin-right: 8px; }
-[data-site="watch"] .ch.on .n { color: var(--ember); }
+[data-site="watch"] .ch.on .n { color: var(--accent); }
 
 /* now playing */
 [data-site="watch"] .np {
@@ -132,7 +132,7 @@
 [data-site="watch"] .match .bar i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--brass), var(--ember));
+  background: linear-gradient(90deg, var(--brass), var(--accent));
 }
 [data-site="watch"] .np .footnote {
   margin-top: 24px;

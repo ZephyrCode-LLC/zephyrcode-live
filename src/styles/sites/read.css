@@ -63,7 +63,7 @@
   margin-bottom: 16px;
 }
 [data-site="read"] .dial .k .f {
-  color: var(--ember);
+  color: var(--accent);
 }
 [data-site="read"] .dial .k .s {
   color: var(--iris);
@@ -75,7 +75,7 @@
   height: 6px;
   border-radius: 3px;
   outline: none;
-  background: linear-gradient(90deg, var(--ember), var(--brass), var(--iris));
+  background: linear-gradient(90deg, var(--accent), var(--brass), var(--iris));
 }
 [data-site="read"] input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -117,7 +117,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(180deg, var(--ember), var(--brass) 50%, var(--iris));
+  background: linear-gradient(180deg, var(--accent), var(--brass) 50%, var(--iris));
   opacity: 0.8;
 }
 [data-site="read"] .book {
@@ -138,8 +138,8 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--c, #e85d2a);
-  box-shadow: 0 0 12px var(--c, #e85d2a);
+  background: var(--c, var(--accent));
+  box-shadow: 0 0 12px var(--c, var(--accent));
 }
 [data-site="read"] .book .no {
   font-family: var(--mono);
@@ -187,14 +187,14 @@
 [data-site="read"] .start {
   margin-top: 9vh;
   border: 1px solid var(--line);
-  background: linear-gradient(140deg, rgba(232, 93, 42, 0.08), rgba(13, 11, 9, 0.7));
+  background: linear-gradient(140deg, color-mix(in srgb, var(--accent) 8%, transparent), rgba(13, 11, 9, 0.7));
   padding: clamp(24px, 4vw, 42px);
 }
 [data-site="read"] .start .k {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.28em;
-  color: var(--ember);
+  color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 18px;
 }

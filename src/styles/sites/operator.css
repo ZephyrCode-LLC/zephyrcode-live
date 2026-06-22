@@ -37,13 +37,13 @@
   margin-bottom: 7vh;
   min-height: 200px;
 }
-[data-site="operator"] .boot .ok { color: var(--ember); }
+[data-site="operator"] .boot .ok { color: var(--accent); }
 [data-site="operator"] .boot .warn { color: var(--faint); font-style: italic; }
 [data-site="operator"] .boot .caret {
   display: inline-block;
   width: 8px;
   height: 14px;
-  background: var(--ember);
+  background: var(--accent);
   vertical-align: -2px;
   animation: zc-op-blink 1s steps(1) infinite;
 }
@@ -75,7 +75,7 @@
   opacity: 0.5;
   font-style: normal;
 }
-[data-site="operator"] .win .bar i.e { background: var(--ember); opacity: 1; }
+[data-site="operator"] .win .bar i.e { background: var(--accent); opacity: 1; }
 [data-site="operator"] .win .body { padding: 20px 22px; }
 [data-site="operator"] .win h3 {
   font-size: 1.45rem;
@@ -103,7 +103,7 @@
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.26em;
-  color: var(--ember);
+  color: var(--accent);
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -125,8 +125,8 @@
   border: 1px solid var(--line);
   border-radius: 2px;
   cursor: pointer;
-  background: rgba(232, 93, 42, 0.14);
-  border-color: rgba(232, 93, 42, 0.55);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   transition: 0.18s;
   position: relative;
 }
@@ -149,7 +149,7 @@
   font-size: 11px;
   letter-spacing: 0.14em;
 }
-[data-site="operator"] .readout .v { color: var(--ember); font-weight: 700; }
+[data-site="operator"] .readout .v { color: var(--accent); font-weight: 700; }
 [data-site="operator"] .readout .l { color: var(--faint); }
 [data-site="operator"] .readout .grade { color: var(--brass); }
 
@@ -178,7 +178,7 @@
   margin-top: 16px;
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--ember);
+  color: var(--accent);
   letter-spacing: 0.12em;
 }
 [data-site="operator"] .acts { margin-top: 8vh; }
@@ -193,7 +193,7 @@
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.22em;
-  color: var(--ember);
+  color: var(--accent);
 }
 [data-site="operator"] .act h3 {
   font-size: 1.3rem;
@@ -209,7 +209,7 @@
   line-height: 1.8;
   letter-spacing: 0.06em;
   color: var(--brass);
-  border-left: 2px solid var(--ember);
+  border-left: 2px solid var(--accent);
   padding-left: 16px;
   max-width: 62ch;
 }
