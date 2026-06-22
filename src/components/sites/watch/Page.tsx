@@ -2,6 +2,7 @@ import "@/styles/sites/watch.css";
 import { z } from "zod";
 import { dataOf, getBlocks, getSites, getWatchChannels } from "@/lib/content";
 import { ChannelTuner } from "@/components/engine/ChannelTuner";
+import { Signature } from "@/components/sites/watch/Signature";
 import { Constellation } from "@/components/system/Constellation";
 import { RevealManager } from "@/components/system/Reveal";
 import { TopBar } from "@/components/system/TopBar";
@@ -39,6 +40,7 @@ export default async function WatchPage() {
           <p className="eyebrow rv">{hero.eyebrow}</p>
           <h1 className="rv" dangerouslySetInnerHTML={{ __html: hero.h1 }} />
           <p className="lede rv" dangerouslySetInnerHTML={{ __html: hero.lede }} />
+          <Signature />
         </section>
 
         <ChannelTuner

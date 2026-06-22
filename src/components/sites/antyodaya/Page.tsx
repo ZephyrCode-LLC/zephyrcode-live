@@ -6,6 +6,7 @@ import { Constellation } from "@/components/system/Constellation";
 import { Vignette } from "@/components/system/Vignette";
 import { RevealManager } from "@/components/system/Reveal";
 import { DiyaFlame } from "@/components/engine/DiyaFlame";
+import { Signature } from "@/components/sites/antyodaya/Signature";
 
 const Chrome = z.object({ crumb: z.string() });
 const HeroHead = z.object({ eyebrow: z.string(), hindi: z.string(), h1: z.string(), tag: z.string() });
@@ -67,6 +68,10 @@ export default async function AntyodayaSite() {
             </div>
           </div>
           <DiyaFlame idleCaption={lamp.idle} watchedCaption={lamp.watched} />
+        </section>
+
+        <section className="sig" aria-label="Declassified dossier">
+          <Signature />
         </section>
 
         <section className="rail rv" id="read" aria-label="Chapters">

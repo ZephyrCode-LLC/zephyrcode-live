@@ -2,6 +2,7 @@ import "@/styles/sites/stories.css";
 import { z } from "zod";
 import { dataOf, getBlocks, getSites, getStoryShorts } from "@/lib/content";
 import { StoriesStage, type GalleryStory } from "@/components/sites/stories/StoriesStage";
+import { Signature } from "@/components/sites/stories/Signature";
 import { Constellation } from "@/components/system/Constellation";
 import { RevealManager } from "@/components/system/Reveal";
 import { TopBar } from "@/components/system/TopBar";
@@ -67,6 +68,8 @@ export default async function StoriesPage() {
           <h1 className="rv" dangerouslySetInnerHTML={{ __html: hero.h1Html }} />
           <p className="lede rv">{hero.lede}</p>
         </section>
+
+        <Signature />
 
         <StoriesStage stories={done} />
 

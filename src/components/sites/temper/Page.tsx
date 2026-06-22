@@ -8,6 +8,7 @@ import { RevealManager } from "@/components/system/Reveal";
 import { TemperBlade } from "@/components/engine/TemperBlade";
 import { InterruptionTax } from "@/components/engine/InterruptionTax";
 import { DayClock } from "@/components/engine/DayClock";
+import { Signature } from "@/components/sites/temper/Signature";
 
 /**
  * temper.zephyrcode.live — OS 02, the mind. DOM mirrors /_reference/temper.html
@@ -102,6 +103,9 @@ export default async function TemperPage() {
           <p className="eyebrow rv">{hero.eyebrow}</p>
           <h1 className="rv">{hero.h1}</h1>
           <p className="thesis rv">{hero.thesis}</p>
+          <div className="rv">
+            <Signature />
+          </div>
           <TemperBlade stops={hero.stops} grades={hero.grades} hint={hero.hint} />
           <div className="btnrow rv">
             {hero.ctas.map((cta, i) => (

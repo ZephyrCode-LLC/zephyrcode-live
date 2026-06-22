@@ -9,6 +9,7 @@ import { RevealManager } from "@/components/system/Reveal";
 import { SCREENS } from "./screens";
 import { Capture } from "./Capture";
 import { ArcadeRuntime } from "./Runtime";
+import { Signature } from "./Signature";
 
 /**
  * arcade.zephyrcode.live — DOM structure mirrors /_reference/arcade.html
@@ -70,6 +71,8 @@ export default async function ArcadePage() {
           <p className="sub" dangerouslySetInnerHTML={{ __html: marquee.sub }} />
         </section>
         <p className="lede rv" dangerouslySetInnerHTML={{ __html: lede.html }} />
+
+        <Signature />
 
         <section className="row5">
           {sims.map((sim) => (

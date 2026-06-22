@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { z } from "zod";
 import { dataOf, getBlocks, getListenProofs, getSites } from "@/lib/content";
 import { ProofWaveform } from "@/components/engine/ProofWaveform";
+import { Signature } from "@/components/sites/listen/Signature";
 import { Constellation } from "@/components/system/Constellation";
 import { RevealManager } from "@/components/system/Reveal";
 import { TopBar } from "@/components/system/TopBar";
@@ -66,6 +67,8 @@ export default async function ListenPage() {
           <h1 className="rv" dangerouslySetInnerHTML={{ __html: hero.h1 }} />
           <p className="lede rv" dangerouslySetInnerHTML={{ __html: hero.lede }} />
         </section>
+
+        <Signature />
 
         <ProofWaveform
           proofs={proofs}
