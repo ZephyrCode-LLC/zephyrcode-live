@@ -3,6 +3,7 @@ import "@/styles/sites/home.css";
 import { dataOf, getBlocks, getSite } from "@/lib/content";
 import { RevealManager } from "@/components/system/Reveal";
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
+import { FieldControl } from "@/components/sites/home/FieldControl";
 import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
 
 const Cta = z.object({ label: z.string(), href: z.string(), style: z.string().optional() });
@@ -129,6 +130,7 @@ export default async function HomeSite() {
           <p className="scrollcue rv">
             <span className="ln" /> {signal.scrollcue}
           </p>
+          <FieldControl />
         </section>
 
         <section className="scene" id="method" data-scene="1">

@@ -226,6 +226,16 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     }
     window.addEventListener("scroll", onScroll, { passive: true });
 
+    // External Disperse/Resolve control (the hub signature, on demand): sets the same
+    // fTarget the scroll drives, so the field eases to chaos (wind, 0) or architecture
+    // (lattice, 3) and recolours vermillion↔slate through the existing frame loop. A
+    // subsequent scroll naturally re-takes control.
+    const onField = (e: Event) => {
+      fTarget = (e as CustomEvent<string>).detail === "resolve" ? 3 : 0;
+      setRail(Math.round(fTarget));
+    };
+    window.addEventListener("zc-field", onField as EventListener);
+
     /* ---------- mouse parallax ---------- */
     let mx = 0.5,
       my = 0.5,
@@ -372,6 +382,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       cancelAnimationFrame(raf);
       clearTimeout(lateKeys);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("zc-field", onField as EventListener);
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("resize", onResize);
       geo.dispose();
