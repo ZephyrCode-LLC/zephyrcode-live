@@ -42,6 +42,7 @@
    PER-ROOM FOOTPRINTS — a colour no default would pick, per site.
    Each is chosen from the room's subject, none of them ember-orange.
    ============================================================ */
+[data-site="home"]      { --accent: oklch(0.62 0.20 30); --accent-2: oklch(0.64 0.09 232); --accent-soft: oklch(0.62 0.20 30 / 0.14); } /* HUB — raudra vermillion (fire) + slate (stillness); retires the ember-orange */
 [data-site="antyodaya"] { --accent: #cf5640; --accent-2: #5e8fa0; --accent-soft: rgba(207, 86, 64, 0.14); }  /* oxblood (lightened to clear WCAG AA 4.5:1 on antyodaya's dark ink, also fixes the CTA) + SETU-cyan */
 [data-site="stories"]   { --accent: #7fd6a8; --accent-2: #9b6bd6; --accent-soft: rgba(127, 214, 168, 0.16); } /* fridge-mint + cow-violet */
 [data-site="arcade"]    { --accent: #5be39a; --accent-2: #e85bc4; --accent-soft: rgba(91, 227, 154, 0.16); }  /* CRT phosphor + magenta */

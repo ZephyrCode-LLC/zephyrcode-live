@@ -1,7 +1,6 @@
 import "@/styles/sites/read.css";
 import { z } from "zod";
 import { dataOf, getBlocks, getBooks, getSites } from "@/lib/content";
-import { MoodDial } from "@/components/engine/MoodDial";
 import { Signature } from "@/components/sites/read/Signature";
 import { Constellation } from "@/components/system/Constellation";
 import { RevealManager } from "@/components/system/Reveal";
@@ -57,21 +56,9 @@ export default async function ReadPage() {
           <p className="lede rv" dangerouslySetInnerHTML={{ __html: hero.ledeHtml }} />
         </section>
 
-        <Signature ariaLabel={dial.ariaLabel} />
-
-        <MoodDial
-          fireLabel={dial.fire}
-          stillLabel={dial.still}
+        <Signature
           ariaLabel={dial.ariaLabel}
-          askLines={dial.askLines}
-          books={books.map((b) => ({
-            title: b.title,
-            author: b.author,
-            pos: b.pos,
-            register: b.register,
-            lang: b.lang,
-            note: b.note,
-          }))}
+          books={books.map((b) => ({ title: b.title, pos: b.pos }))}
         />
 
         <section className="start rv">

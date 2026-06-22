@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Spectral, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -7,6 +7,14 @@ const fraunces = Fraunces({
   weight: ["300", "400", "600", "700", "800"],
   style: ["normal", "italic"],
   variable: "--font-fraunces",
+  display: "swap",
+});
+// The hub's literary serif (Constellation Review). Scoped to [data-site="home"] via --serif.
+const spectral = Spectral({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  style: ["normal", "italic"],
+  variable: "--font-spectral",
   display: "swap",
 });
 const jbmono = JetBrains_Mono({
@@ -26,7 +34,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${jbmono.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${spectral.variable} ${jbmono.variable}`}>
       <body>{children}</body>
     </html>
   );

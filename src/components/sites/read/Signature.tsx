@@ -49,8 +49,11 @@ function stateFor(v: number): { label: string; tone: string } {
 
 export function Signature({
   ariaLabel = "Heat — drag from fire to stillness",
+  books = [],
 }: {
   ariaLabel?: string;
+  /** Real shelf, mapped along fire→stillness by `pos`; the nearest book to the slider shows. */
+  books?: { title: string; pos: number }[];
 }) {
   const [value, setValue] = useState(18);
   const reduced = usePrefersReducedMotion();
@@ -59,6 +62,25 @@ export function Signature({
   /* Which of the 6 bars the slider currently selects (0..5). */
   const active = Math.min(BARS - 1, Math.floor((value / 100) * BARS));
   const st = stateFor(value);
+  /* The nearest real book to the slider. `pos` is normalised to 0–100 so either a
+     0–1 or 0–100 source works; falls back to a generic volume label if no books. */
+  const activeTitle = (() => {
+    if (!books.length) return `Volume ${ROMAN[active]}`;
+    const ps = books.map((b) => b.pos);
+    const lo = Math.min(...ps);
+    const hi = Math.max(...ps);
+    const norm = (p: number) => (hi > lo ? ((p - lo) / (hi - lo)) * 100 : 50);
+    let best = books[0];
+    let bd = Infinity;
+    for (const b of books) {
+      const d = Math.abs(norm(b.pos) - value);
+      if (d < bd) {
+        bd = d;
+        best = b;
+      }
+    }
+    return best.title;
+  })();
 
   return (
     <section
@@ -223,7 +245,7 @@ export function Signature({
       </div>
 
       <p className="heat-title" aria-live="polite">
-        Volume {ROMAN[active]}
+        {activeTitle}
         <small>
           {st.label} · position {value}
         </small>
