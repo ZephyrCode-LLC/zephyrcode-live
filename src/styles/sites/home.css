@@ -46,9 +46,7 @@
 
 /* ---- scenes ---- */
 [data-site="home"] .scene { position: relative; z-index: 10; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-/* Scrim is tightened to a reading-width pool so the connected matrix reads around
-   the column; text-shadow + the label backdrops carry contrast (see §mobile note). */
-[data-site="home"] .scene::before { content: ""; position: absolute; inset: -6% -20%; z-index: 0; pointer-events: none; background: radial-gradient(64% 72% at 42% 50%, rgba(9, 7, 5, 0.9), rgba(9, 7, 5, 0.52) 56%, rgba(9, 7, 5, 0) 82%); }
+[data-site="home"] .scene::before { content: ""; position: absolute; inset: -6% -20%; z-index: 0; pointer-events: none; background: radial-gradient(82% 82% at 42% 50%, rgba(9, 7, 5, 0.95), rgba(9, 7, 5, 0.66) 58%, rgba(9, 7, 5, 0) 88%); }
 [data-site="home"] .scene > * { position: relative; z-index: 2; }
 /* Readability over the particle field: every scene text inherits a dark halo
    (text-shadow is inherited), so labels/captions that aren't headings are still

@@ -77,6 +77,10 @@ const Constel = z.object({
   map: z.array(z.object({ u: z.string(), what: z.string(), href: z.string() })),
   legal: z.array(z.string()),
 });
+const Field = z.object({
+  grades: z.array(z.tuple([z.array(z.number()), z.array(z.number()), z.number()])),
+});
+
 export default async function HomeSite() {
   const slug = "home";
   const [site, blocks] = await Promise.all([getSite(slug), getBlocks(slug)]);
@@ -90,10 +94,11 @@ export default async function HomeSite() {
   const library = dataOf(blocks, "library", Library)!;
   const operator = dataOf(blocks, "operator", Operator)!;
   const constel = dataOf(blocks, "constel", Constel)!;
+  const field = dataOf(blocks, "field", Field)!;
 
   return (
     <>
-      <ParticleFieldLoader />
+      <ParticleFieldLoader grades={field.grades} />
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
       <RevealManager />
