@@ -92,6 +92,47 @@
 @media (max-width: 880px) { [data-site="home"] .method-track { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 540px) { [data-site="home"] .method-track { grid-template-columns: 1fr; } }
 
+/* method — animated (designer: "each card performs its verb"). Motion is JS-driven
+   via refs; this is the static look + the relay/responsive scaffolding. */
+[data-site="home"] .ma-track { position: relative; }
+[data-site="home"] .ma-progress-track { position: relative; height: 2px; background: var(--line-soft); border-radius: 2px; margin-bottom: 1px; overflow: hidden; }
+[data-site="home"] .ma-progress { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, var(--accent), #e0673a); }
+[data-site="home"] .ma-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line-soft); border-top: none; }
+[data-site="home"] .ma-card { position: relative; padding: 30px 22px 34px; cursor: pointer; overflow: hidden; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+[data-site="home"] .ma-card + .ma-card { border-left: 1px solid var(--line-soft); }
+[data-site="home"] .ma-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), color-mix(in oklab, var(--accent) 15%, transparent)); }
+[data-site="home"] .ma-card:focus-visible { outline: 1px solid var(--accent); outline-offset: -3px; }
+[data-site="home"] .ma-dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.85; z-index: 0; }
+[data-site="home"] .ma-inner { position: relative; z-index: 2; }
+[data-site="home"] .ma-eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.24em; color: var(--bone-dim); text-transform: uppercase; margin-bottom: 14px; }
+[data-site="home"] .ma-title { font-family: var(--serif, var(--font-spectral)); font-style: italic; font-weight: 400; font-size: clamp(1.5rem, 2.3vw, 1.95rem); line-height: 1; margin-bottom: 18px; color: var(--bone); }
+[data-site="home"] .ma-title-tight { margin-bottom: 8px; }
+[data-site="home"] .ma-body, [data-site="home"] .ma-ln { font-size: 0.94rem; line-height: 1.62; color: var(--bone); text-shadow: 0 1px 16px rgba(6, 4, 3, 0.94), 0 0 3px rgba(6, 4, 3, 0.8); }
+[data-site="home"] .ma-ln { margin-bottom: 7px; }
+[data-site="home"] .ma-ln:last-child { margin-bottom: 0; }
+[data-site="home"] .ma-bracket { position: absolute; top: 84px; bottom: 30px; width: 2px; background: #e0673a; opacity: 0; z-index: 1; }
+[data-site="home"] .ma-bracket-l { left: 6px; }
+[data-site="home"] .ma-bracket-r { right: 6px; }
+[data-site="home"] .ma-wave { width: 100%; height: 22px; display: block; margin-bottom: 14px; overflow: visible; }
+[data-site="home"] .ma-streak { position: absolute; left: 0; top: 50%; height: 2px; width: 100%; background: linear-gradient(90deg, transparent, #e0673a, var(--bone)); transform: scaleX(0); transform-origin: left; opacity: 0; z-index: 1; }
+[data-site="home"] .ma-chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 9px; border: 1px solid var(--line-soft); border-radius: 5px; margin-bottom: 16px; opacity: 0; transform: translateY(4px); }
+[data-site="home"] .ma-dot { width: 7px; height: 7px; border-radius: 50%; background: #5f574d; flex: none; }
+[data-site="home"] .ma-addr { font-size: 11px; letter-spacing: 0.02em; color: var(--bone); }
+[data-site="home"] .ma-live { font-size: 9px; letter-spacing: 0.16em; color: #6fcf97; opacity: 0; }
+@keyframes ma-blink { 0%, 48% { opacity: 1; } 49%, 100% { opacity: 0; } }
+@media (max-width: 880px) {
+  [data-site="home"] .ma-grid { grid-template-columns: 1fr 1fr; }
+  [data-site="home"] .ma-card:nth-child(3) { border-left: none; }
+  [data-site="home"] .ma-card:nth-child(3), [data-site="home"] .ma-card:nth-child(4) { border-top: 1px solid var(--line-soft); }
+}
+@media (max-width: 540px) {
+  [data-site="home"] .ma-grid { grid-template-columns: 1fr; }
+  [data-site="home"] .ma-card + .ma-card { border-left: none; border-top: 1px solid var(--line-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] .ma-card { transition: none; }
+}
+
 /* stories — the Antyodaya feature panel */
 [data-site="home"] .feature { border: 1px solid var(--line); background: linear-gradient(135deg, rgba(28, 22, 16, 0.85), rgba(13, 11, 9, 0.78)); backdrop-filter: blur(3px); padding: clamp(28px, 4.5vw, 54px); position: relative; overflow: hidden; }
 [data-site="home"] .feature::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, var(--accent), color-mix(in srgb, var(--accent) 12%, transparent)); }

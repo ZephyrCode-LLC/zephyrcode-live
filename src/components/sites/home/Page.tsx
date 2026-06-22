@@ -4,6 +4,7 @@ import { dataOf, getBlocks, getSite } from "@/lib/content";
 import { RevealManager } from "@/components/system/Reveal";
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
 import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
+import { MethodTrack } from "@/components/sites/home/MethodTrack";
 
 const Cta = z.object({ label: z.string(), href: z.string(), style: z.string().optional() });
 const Chrome = z.object({
@@ -137,15 +138,7 @@ export default async function HomeSite() {
             <h2 dangerouslySetInnerHTML={{ __html: method.h2Html }} />
             <p className="sub">{method.sub}</p>
           </div>
-          <div className="method-track">
-            {method.moves.map((m) => (
-              <div className="move rv" key={m.k}>
-                <p className="k">{m.k}</p>
-                <h3>{m.h3}</h3>
-                <p>{m.p}</p>
-              </div>
-            ))}
-          </div>
+          <MethodTrack moves={method.moves} />
           <p className="laws rv">
             {method.lawsHtml.map((l) => (
               <span key={l} dangerouslySetInnerHTML={{ __html: l }} />
