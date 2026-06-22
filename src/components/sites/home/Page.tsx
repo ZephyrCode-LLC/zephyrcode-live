@@ -3,7 +3,6 @@ import "@/styles/sites/home.css";
 import { dataOf, getBlocks, getSite } from "@/lib/content";
 import { RevealManager } from "@/components/system/Reveal";
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
-import { FieldControl } from "@/components/sites/home/FieldControl";
 import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
 
 const Cta = z.object({ label: z.string(), href: z.string(), style: z.string().optional() });
@@ -78,10 +77,6 @@ const Constel = z.object({
   map: z.array(z.object({ u: z.string(), what: z.string(), href: z.string() })),
   legal: z.array(z.string()),
 });
-const Field = z.object({
-  grades: z.array(z.tuple([z.array(z.number()), z.array(z.number()), z.number()])),
-});
-
 export default async function HomeSite() {
   const slug = "home";
   const [site, blocks] = await Promise.all([getSite(slug), getBlocks(slug)]);
@@ -95,11 +90,10 @@ export default async function HomeSite() {
   const library = dataOf(blocks, "library", Library)!;
   const operator = dataOf(blocks, "operator", Operator)!;
   const constel = dataOf(blocks, "constel", Constel)!;
-  const field = dataOf(blocks, "field", Field)!;
 
   return (
     <>
-      <ParticleFieldLoader grades={field.grades} />
+      <ParticleFieldLoader />
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
       <RevealManager />
@@ -130,7 +124,6 @@ export default async function HomeSite() {
           <p className="scrollcue rv">
             <span className="ln" /> {signal.scrollcue}
           </p>
-          <FieldControl />
         </section>
 
         <section className="scene" id="method" data-scene="1">
