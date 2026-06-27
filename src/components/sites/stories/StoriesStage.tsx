@@ -21,6 +21,7 @@ export type GalleryStory = {
   title: string;
   slug: string;
   accent: string;
+  accent2?: string; // secondary highlight; falls back to accent
   k: string;
   dek: string;
   pullquote: string;
@@ -41,7 +42,7 @@ export function StoriesStage({ stories }: { stories: GalleryStory[] }) {
       <section
         className="fridge rv"
         aria-label="Evidence board"
-        style={{ "--iris": active.accent } as CSSProperties}
+        style={{ "--iris": active.accent, ...(active.accent2 ? { "--iris2": active.accent2 } : {}) } as CSSProperties}
       >
         <p className="k" style={{ color: active.accent }}>
           {active.board.k}
@@ -63,7 +64,7 @@ export function StoriesStage({ stories }: { stories: GalleryStory[] }) {
               <article
                 key={s.slug}
                 className={`scard${open ? " open" : ""}`}
-                style={{ "--sel": s.accent } as CSSProperties}
+                style={{ "--sel": s.accent, ...(s.accent2 ? { "--sel2": s.accent2 } : {}) } as CSSProperties}
               >
                 <button
                   type="button"

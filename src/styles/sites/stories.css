@@ -76,7 +76,7 @@
   transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.3);
 }
 [data-site="stories"] .mag.purple {
-  background: var(--iris);
+  background: var(--iris2, var(--iris)); /* the swappable word wears the story's secondary accent when set */
   color: #14101e;
 }
 [data-site="stories"] .mag.out {
@@ -147,8 +147,8 @@
 [data-site="stories"] .story .pq {
   font-size: clamp(1.1rem, 2vw, 1.35rem);
   font-style: italic;
-  color: var(--brass);
-  border-left: 2px solid var(--brass);
+  color: var(--iris2, var(--brass)); /* secondary accent when the story sets one, else house brass */
+  border-left: 2px solid var(--iris2, var(--brass));
   padding-left: 18px;
   margin: 22px 0;
   max-width: 46ch;
@@ -329,8 +329,8 @@
 [data-site="stories"] .detail .pq {
   font-size: clamp(1.05rem, 1.9vw, 1.3rem);
   font-style: italic;
-  color: var(--brass);
-  border-left: 2px solid var(--brass);
+  color: var(--sel2, var(--brass)); /* secondary accent when the story sets one, else house brass */
+  border-left: 2px solid var(--sel2, var(--brass));
   padding-left: 18px;
   margin: 0 0 20px;
   max-width: 46ch;

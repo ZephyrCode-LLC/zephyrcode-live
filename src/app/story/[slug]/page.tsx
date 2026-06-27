@@ -17,6 +17,9 @@ export async function generateStaticParams() {
 function accentOf(body: Record<string, unknown>): string {
   return typeof body.accent === "string" ? body.accent : "#8B7FD4";
 }
+function accent2Of(body: Record<string, unknown>): string | null {
+  return typeof body.accent2 === "string" ? body.accent2 : null;
+}
 function dekOf(body: Record<string, unknown>): string | null {
   return typeof body.dek === "string" ? body.dek : null;
 }
@@ -49,11 +52,12 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   if (!story) notFound();
 
   const accent = accentOf(story.body);
+  const accent2 = accent2Of(story.body);
   const dek = dekOf(story.body);
   const blocks = story.markdown.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean);
 
   return (
-    <div data-site="stories" style={{ "--iris": accent } as CSSProperties}>
+    <div data-site="stories" style={{ "--iris": accent, ...(accent2 ? { "--iris2": accent2 } : {}) } as CSSProperties}>
       <Vignette />
       <TopBar crumb="STORIES · SHORT FICTION" />
       <main>

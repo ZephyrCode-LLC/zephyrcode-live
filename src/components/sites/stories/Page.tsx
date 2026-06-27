@@ -21,6 +21,7 @@ const Dishwasher = z.object({ h3: z.string(), sub: z.string() });
 /** Everything a published short needs for the card + the fridge board it themes. */
 const StoryBody = z.object({
   accent: z.string(),
+  accent2: z.string().optional(), // secondary highlight (board magnets + pullquote); falls back to accent
   dek: z.string(),
   k: z.string(),
   pullquote: z.string(),
