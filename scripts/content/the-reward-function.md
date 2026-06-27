@@ -4,7 +4,6 @@
   "slug": "the-reward-function",
   "position": 5,
   "accent": "#cf6a4f",
-  "accent2": "#e0b53a",
   "dek": "Optimizer comedy · one fridge chart long",
   "k": "DOMESTIC TRAGICOMEDY · INCENTIVE-DESIGN GONE WRONG · ONE FRIDGE CHART LONG",
   "pullquote": "\"Pihu, can you help Mumma?\" he asks — and his plate-carrying miracle looks up and says, without malice, \"How many points?\"",

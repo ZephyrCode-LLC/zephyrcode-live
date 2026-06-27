@@ -4,7 +4,6 @@
   "slug": "load-shedding",
   "position": 6,
   "accent": "#5b86b8",
-  "accent2": "#e8b06a",
   "dek": "Domestic blackout comedy · one power cut long",
   "k": "DOMESTIC BLACKOUT COMEDY · ONE POWER CUT LONG",
   "pullquote": "\"Daddy, can we turn the lights off again tomorrow?\" In eight words, a four-year-old diagnosed the entire disease of my life.",

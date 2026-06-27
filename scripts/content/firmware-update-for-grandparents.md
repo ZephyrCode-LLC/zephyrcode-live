@@ -4,7 +4,7 @@
   "slug": "firmware-update-for-grandparents",
   "position": 4,
   "into": 12,
-  "accent": "#C49A5E",
+  "accent": "#34b87a",
   "dek": "Tech-support comedy · one phone call",
   "k": "FEATURED SHORT · TECH-SUPPORT COMEDY · ONE PHONE CALL LONG",
   "pullquote": "\"The WhatsApp is not working,\" he says, by way of hello. It was never about the WhatsApp.",
