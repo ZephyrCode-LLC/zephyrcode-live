@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<!--
+  ZEPHYRCODE — Engineering Audits (landing page mockup)
+  Placeholders to swap before publishing: founder name/credentials,
+  contact email, exact prices, any client logos. Everything else is live.
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ZephyrCode — Engineering Audits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#100E0C;
+    --ink-1:#16130E;
+    --ink-2:#1D1912;
+    --ink-3:#262017;
+    --bone:#ECE6D8;
+    --bone-dim:#A39B88;
+    --bone-faint:#6F6857;
+    --ember:#CB5E3A;
+    --ember-soft:#A94B2D;
+    --brass:#BB9A5C;
+    --line:rgba(236,230,216,.09);
+    --line-2:rgba(236,230,216,.16);
+    --line-3:rgba(236,230,216,.26);
+    --serif:'Fraunces',Georgia,serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --maxw:1140px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--bone);
+    font-family:var(--serif);
+    font-optical-sizing:auto;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  .mono{font-family:var(--mono)}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:.7rem;
+    font-weight:500;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    color:var(--brass);
+  }
+
+  /* ---------- nav ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(16,14,12,.78);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:600;letter-spacing:.04em;font-size:.92rem}
+  .brand .dot{width:9px;height:9px;background:var(--ember);border-radius:1px;transform:rotate(45deg)}
+  .brand b{color:var(--bone);font-weight:600}
+  .brand span{color:var(--bone-faint)}
+  .nav-links{display:flex;align-items:center;gap:30px}
+  .nav-links a{font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;color:var(--bone-dim);transition:color .2s}
+  .nav-links a:hover{color:var(--bone)}
+  .nav-cta{
+    font-family:var(--mono);font-size:.76rem;letter-spacing:.04em;
+    color:var(--ink);background:var(--bone);
+    padding:9px 16px;border-radius:3px;transition:background .2s,transform .2s
+  }
+  .nav-cta:hover{background:#fff;transform:translateY(-1px)}
+  @media(max-width:760px){.nav-links{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{padding:88px 0 76px;border-bottom:1px solid var(--line)}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+  .hero h1{
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(2.5rem,5.1vw,4.05rem);
+    line-height:1.02;letter-spacing:-.02em;
+    margin:22px 0 26px;
+  }
+  .hero h1 em{font-style:italic;color:var(--ember)}
+  .hero p.lede{font-size:1.12rem;color:var(--bone-dim);max-width:30em;line-height:1.62}
+  .hero-cta{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
+  .btn{
+    font-family:var(--mono);font-size:.82rem;letter-spacing:.03em;
+    padding:13px 22px;border-radius:4px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:9px;transition:transform .2s,background .2s,border-color .2s;
+    border:1px solid transparent;
+  }
+  .btn-primary{background:var(--ember);color:#1a0d07}
+  .btn-primary:hover{background:#dd6a44;transform:translateY(-2px)}
+  .btn-ghost{border-color:var(--line-3);color:var(--bone)}
+  .btn-ghost:hover{border-color:var(--bone-dim);transform:translateY(-2px)}
+  .hero-trust{margin-top:30px;font-family:var(--mono);font-size:.72rem;color:var(--bone-faint);letter-spacing:.02em;line-height:2}
+
+  /* spec card (signature) */
+  .spec{
+    background:linear-gradient(180deg,var(--ink-2),var(--ink-1));
+    border:1px solid var(--line-2);border-radius:10px;padding:24px;
+    position:relative;
+  }
+  .spec::before{
+    content:"SPEC SHEET";position:absolute;top:-9px;left:22px;
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.22em;color:var(--brass);
+    background:var(--ink);padding:0 9px;
+  }
+  .spec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:18px;border-bottom:1px dashed var(--line-2)}
+  .spec-head .sku{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;color:var(--ember);text-transform:uppercase}
+  .spec-head h3{font-family:var(--serif);font-weight:500;font-size:1.32rem;line-height:1.2;margin-top:7px}
+  .spec-row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+  .spec-row:last-child{border-bottom:none;padding-bottom:0}
+  .spec-row .k{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;color:var(--bone-faint);text-transform:uppercase}
+  .spec-row .v{font-family:var(--mono);font-size:.82rem;color:var(--bone)}
+  .spec-row .v.price{color:var(--brass);font-weight:500}
+  @media(max-width:860px){.hero-grid{grid-template-columns:1fr;gap:44px}.hero{padding:60px 0 56px}}
+
+  /* ---------- section frame ---------- */
+  section.block{padding:84px 0;border-bottom:1px solid var(--line)}
+  .sec-head{max-width:46em;margin-bottom:46px}
+  .sec-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.9rem,3.4vw,2.7rem);letter-spacing:-.015em;line-height:1.08;margin:14px 0 16px}
+  .sec-head p{color:var(--bone-dim);font-size:1.06rem;max-width:34em}
+
+  /* ---------- audits grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  @media(max-width:780px){.grid{grid-template-columns:1fr}}
+  .card{
+    background:var(--ink-1);border:1px solid var(--line);border-radius:9px;
+    padding:24px 24px 20px;position:relative;overflow:hidden;
+    transition:border-color .25s,transform .25s,background .25s;
+  }
+  .card::after{content:"";position:absolute;left:0;top:0;height:100%;width:2px;background:var(--ember);transform:scaleY(0);transform-origin:top;transition:transform .28s}
+  .card:hover{border-color:var(--line-2);transform:translateY(-3px);background:var(--ink-2)}
+  .card:hover::after{transform:scaleY(1)}
+  .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .tag{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;padding:4px 9px;border-radius:3px;border:1px solid var(--line-2);color:var(--bone-dim)}
+  .sku{font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;color:var(--bone-faint)}
+  .card h3{font-family:var(--serif);font-weight:500;font-size:1.34rem;line-height:1.18;letter-spacing:-.01em;margin-bottom:9px}
+  .card .desc{color:var(--bone-dim);font-size:.97rem;line-height:1.5;min-height:2.8em}
+  .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:15px;border-top:1px solid var(--line);font-family:var(--mono);font-size:.78rem}
+  .card-foot .time{color:var(--bone-dim)}
+  .card-foot .price{color:var(--brass);font-weight:500}
+  .expand{
+    grid-column:1/-1;background:linear-gradient(180deg,var(--ink-2),var(--ink-1));
+    border:1px solid var(--line-2);border-radius:9px;padding:22px 24px;
+    display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap
+  }
+  .expand .lab{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;color:var(--ember);text-transform:uppercase;margin-bottom:8px}
+  .expand h3{font-family:var(--serif);font-weight:500;font-size:1.4rem}
+  .expand p{color:var(--bone-dim);font-size:.97rem;margin-top:5px;max-width:42em}
+  .expand .price{font-family:var(--mono);color:var(--brass);font-size:1.1rem;white-space:nowrap}
+
+  /* ---------- process ---------- */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  @media(max-width:820px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.steps{grid-template-columns:1fr}}
+  .step{padding:28px 24px;border-right:1px solid var(--line);background:var(--ink-1)}
+  .step:last-child{border-right:none}
+  .step .num{font-family:var(--mono);font-size:.74rem;color:var(--ember);letter-spacing:.1em}
+  .step h4{font-family:var(--serif);font-weight:500;font-size:1.18rem;margin:14px 0 9px;line-height:1.2}
+  .step p{color:var(--bone-dim);font-size:.92rem;line-height:1.5}
+
+  /* ---------- teardown teaser ---------- */
+  .teardown{background:var(--ink-1);border:1px solid var(--line-2);border-radius:11px;overflow:hidden}
+  .td-bar{display:flex;align-items:center;gap:8px;padding:13px 20px;border-bottom:1px solid var(--line);background:var(--ink-2)}
+  .td-bar i{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .td-bar .fn{font-family:var(--mono);font-size:.72rem;color:var(--bone-faint);margin-left:8px;letter-spacing:.04em}
+  .td-body{padding:28px 30px}
+  .finding{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+  .sev{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:3px}
+  .sev.high{background:rgba(203,94,58,.16);color:#e8835f;border:1px solid rgba(203,94,58,.35)}
+  .finding .fid{font-family:var(--mono);font-size:.7rem;color:var(--bone-faint);letter-spacing:.08em}
+  .finding h4{font-family:var(--serif);font-weight:500;font-size:1.4rem;width:100%;letter-spacing:-.01em;line-height:1.2}
+  .td-body p{color:var(--bone-dim);font-size:1.02rem;margin-bottom:18px;max-width:54em}
+  .codeblk{background:var(--ink);border:1px solid var(--line);border-radius:6px;padding:16px 18px;font-family:var(--mono);font-size:.8rem;line-height:1.8;color:var(--bone-dim);overflow-x:auto;white-space:pre}
+  .codeblk .c{color:var(--bone-faint)}
+  .codeblk .e{color:#e8835f}
+  .codeblk .g{color:var(--brass)}
+  .fix{margin-top:20px;padding:16px 20px;border-left:2px solid var(--brass);background:var(--ink-2);border-radius:0 6px 6px 0}
+  .fix .lab{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;color:var(--brass);text-transform:uppercase}
+  .fix p{margin:8px 0 0;color:var(--bone);font-size:.98rem}
+
+  /* ---------- credibility ---------- */
+  .cred{display:grid;grid-template-columns:1.2fr 1fr;gap:54px;align-items:center}
+  @media(max-width:780px){.cred{grid-template-columns:1fr;gap:34px}}
+  .cred h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,3vw,2.3rem);line-height:1.18;letter-spacing:-.01em}
+  .cred h2 em{font-style:italic;color:var(--brass)}
+  .cred p{color:var(--bone-dim);margin-top:18px;font-size:1.04rem}
+  .stack{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{font-family:var(--mono);font-size:.74rem;letter-spacing:.03em;color:var(--bone-dim);border:1px solid var(--line-2);border-radius:4px;padding:8px 13px;background:var(--ink-1)}
+
+  /* ---------- final cta ---------- */
+  .final{padding:96px 0;text-align:center}
+  .final h2{font-family:var(--serif);font-weight:400;font-size:clamp(2.1rem,4.4vw,3.3rem);line-height:1.06;letter-spacing:-.02em;max-width:16em;margin:0 auto 22px}
+  .final h2 em{font-style:italic;color:var(--ember)}
+  .final p{color:var(--bone-dim);font-size:1.1rem;max-width:32em;margin:0 auto 34px}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);padding:40px 0}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .foot .tag-line{font-family:var(--mono);font-size:.74rem;color:var(--bone-faint);letter-spacing:.02em}
+  .foot-links{display:flex;gap:22px;font-family:var(--mono);font-size:.74rem;color:var(--bone-dim)}
+  .foot-links a:hover{color:var(--bone)}
+
+  /* reveal */
+  .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  .rv.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){
+    .rv{opacity:1;transform:none;transition:none}
+    html{scroll-behavior:auto}
+    *{transition:none!important}
+  }
+  :focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="dot"></span><b>ZEPHYRCODE</b><span>/ audits</span></div>
+    <nav class="nav-links">
+      <a href="#audits">Audits</a>
+      <a href="#process">Process</a>
+      <a href="#sample">Sample teardown</a>
+      <a href="#about">Who</a>
+    </nav>
+    <a href="#book" class="nav-cta">Book an audit</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="rv in">
+      <span class="eyebrow">Senior systems reviews · vendor-neutral</span>
+      <h1>Engineering audits with <em>the price on the door.</em></h1>
+      <p class="lede">Fixed-scope, fixed-price reviews of your hardest systems problems — streaming, reliability, AI inference, data, cloud. You see exactly what you get, what it costs, and how long it takes. No discovery call to find that out.</p>
+      <div class="hero-cta">
+        <a href="#audits" class="btn btn-primary">Browse the audits <span aria-hidden="true">↓</span></a>
+        <a href="#process" class="btn btn-ghost">How it works</a>
+      </div>
+      <div class="hero-trust">
+        2-week turnarounds · written deliverable + working call<br>
+        Built by an ex-Amazon Alexa engineer · IIT Kharagpur
+      </div>
+    </div>
+    <div class="spec rv in" aria-label="Example audit spec sheet">
+      <div class="spec-head">
+        <div>
+          <div class="sku">ZC·KAFKA — most requested</div>
+          <h3>Kafka &amp; event-streaming audit</h3>
+        </div>
+      </div>
+      <div class="spec-row"><span class="k">Scope</span><span class="v">Fixed · 9 areas</span></div>
+      <div class="spec-row"><span class="k">Timeline</span><span class="v">2 weeks</span></div>
+      <div class="spec-row"><span class="k">Deliverable</span><span class="v">Teardown + call</span></div>
+      <div class="spec-row"><span class="k">Access needed</span><span class="v">Read-only + 1 sync</span></div>
+      <div class="spec-row"><span class="k">Price</span><span class="v price">$6,000 – $9,000</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="audits">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">The catalogue · 10 audits</span>
+      <h2>Pick the review that matches your pain.</h2>
+      <p>Each is a self-contained engagement. Same transparency every time: a public scope, a flat price, a two-week clock, and a written teardown you keep.</p>
+    </div>
+    <div class="grid">
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Streaming</span><span class="sku">ZC·KAFKA</span></div>
+        <h3>Kafka &amp; event-streaming audit</h3>
+        <p class="desc">Partitioning, consumer-group design, exactly-once, backpressure, and lag — found before they page you.</p>
+        <div class="card-foot"><span class="time">2 weeks</span><span class="price">$6k – 9k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">AI / LLM</span><span class="sku">ZC·INFER</span></div>
+        <h3>AI inference cost &amp; latency teardown</h3>
+        <p class="desc">Vendor-neutral. Model routing, caching, batching, token economics, fallback tiers, self-host vs API.</p>
+        <div class="card-foot"><span class="time">2 weeks</span><span class="price">$6k – 10k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Reliability</span><span class="sku">ZC·RESIL</span></div>
+        <h3>Distributed-systems reliability review</h3>
+        <p class="desc">Single points of failure, retries, idempotency, circuit breakers, and blast-radius under partial outage.</p>
+        <div class="card-foot"><span class="time">2 weeks</span><span class="price">$7k – 10k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Pre-flight</span><span class="sku">ZC·SCALE</span></div>
+        <h3>Scale-readiness review</h3>
+        <p class="desc">Before a launch, a raise, or a first enterprise contract: capacity model, bottlenecks, an honest go / no-go.</p>
+        <div class="card-foot"><span class="time">1.5 weeks</span><span class="price">$5k – 8k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Cloud</span><span class="sku">ZC·AWS</span></div>
+        <h3>AWS architecture &amp; cost review</h3>
+        <p class="desc">EKS, MSK, right-sizing, spot strategy, egress, and the networking choices quietly inflating your bill.</p>
+        <div class="card-foot"><span class="time">2 weeks</span><span class="price">$5k – 9k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">AI / LLM</span><span class="sku">ZC·RAG</span></div>
+        <h3>RAG &amp; LLM application review</h3>
+        <p class="desc">Retrieval quality, chunking, an eval harness that means something, hallucination controls, cost and latency.</p>
+        <div class="card-foot"><span class="time">2 weeks</span><span class="price">$6k – 9k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Data</span><span class="sku">ZC·PSQL</span></div>
+        <h3>Postgres performance &amp; scaling audit</h3>
+        <p class="desc">Query plans, indexing, partitioning, connection pooling, and a replica strategy that survives growth.</p>
+        <div class="card-foot"><span class="time">1.5 weeks</span><span class="price">$5k – 8k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Observability</span><span class="sku">ZC·OTEL</span></div>
+        <h3>OpenTelemetry &amp; observability setup</h3>
+        <p class="desc">Tracing, metrics, logs, Grafana dashboards, and SLOs — so you stop debugging production blind.</p>
+        <div class="card-foot"><span class="time">2 – 3 weeks</span><span class="price">$7k – 12k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Architecture</span><span class="sku">ZC·BOUND</span></div>
+        <h3>Microservices boundary review</h3>
+        <p class="desc">Over-split diagnosis, service boundaries, monolith-vs-services, and the comms patterns causing the pain.</p>
+        <div class="card-foot"><span class="time">2 weeks</span><span class="price">$6k – 9k</span></div>
+      </div>
+
+      <div class="card rv">
+        <div class="card-top"><span class="tag">Migration</span><span class="sku">ZC·MIGR</span></div>
+        <h3>Migration de-risking review</h3>
+        <p class="desc">Monolith→services, database moves, on-prem→cloud: sequencing, rollback, and a dual-write plan that holds.</p>
+        <div class="card-foot"><span class="time">2 weeks</span><span class="price">$6k – 10k</span></div>
+      </div>
+
+      <div class="expand rv">
+        <div>
+          <div class="lab">Where it goes next</div>
+          <h3>Implementation follow-on</h3>
+          <p>Every audit ends with a scoped build proposal. The review is the wedge; fixing it together is the expansion — and the part that actually moves your roadmap.</p>
+        </div>
+        <div class="price">$15k – $50k+</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="block" id="process">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">How it works</span>
+      <h2>Transparent from the first click to the last commit.</h2>
+      <p>The whole point is that you never wonder what you're paying for. Four steps, no surprises.</p>
+    </div>
+    <div class="steps rv">
+      <div class="step">
+        <div class="num">01</div>
+        <h4>Pick an audit</h4>
+        <p>Scope and price are public. Choose the one that fits — or send your problem and I'll tell you which it is.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h4>Scoped kickoff</h4>
+        <p>One 45-minute sync to agree the exact question, plus read-only access to the systems in scope.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h4>Two weeks, deep</h4>
+        <p>I go through it the way I'd go through my own production stack. No status-meeting theatre.</p>
+      </div>
+      <div class="step">
+        <div class="num">04</div>
+        <h4>Teardown + call</h4>
+        <p>A written report — findings, severity, fixes, sequencing — and a working call to walk it through.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="sample">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="eyebrow">A real deliverable</span>
+      <h2>What a finding actually looks like.</h2>
+      <p>Not a slide deck of platitudes. Specific failure modes, the evidence, and the fix — at the depth that prevents the 3am page.</p>
+    </div>
+    <div class="teardown rv">
+      <div class="td-bar">
+        <i style="background:#e2604a"></i><i style="background:var(--brass)"></i><i style="background:#5d8a6a"></i>
+        <span class="fn">teardown · kafka-audit · acme-streaming.md</span>
+      </div>
+      <div class="td-body">
+        <div class="finding">
+          <span class="sev high">High severity</span>
+          <span class="fid">FINDING 03 / 11</span>
+          <h4>Rebalance storms on every deploy</h4>
+        </div>
+        <p>Consumers use the default <span class="mono">session.timeout.ms</span> with eager assignment, so each rolling deploy triggers a full group rebalance. Under your 14-partition topic and a 6-replica service, that's ~40s of stop-the-world per deploy — and it compounds during the autoscaling events that follow traffic spikes.</p>
+        <div class="codeblk"><span class="c"># current — eager, full stop-the-world on every member change</span>
+partition.assignment.strategy = <span class="e">RangeAssignor</span>
+session.timeout.ms            = <span class="e">10000</span>   <span class="c"># too tight for deploy windows</span>
+
+<span class="c"># observed impact</span>
+rebalance_duration_p95        = <span class="e">38.7s</span>
+consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
+        <div class="fix">
+          <div class="lab">Recommended fix</div>
+          <p>Move to <span class="mono">CooperativeStickyAssignor</span> for incremental rebalancing, raise the session timeout past your deploy window, and adopt static group membership (<span class="mono">group.instance.id</span>) so rolling restarts don't reshuffle ownership. Expected: rebalance impact drops from ~38s to sub-3s, lag peak roughly 10×.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="about">
+  <div class="wrap cred">
+    <div class="rv">
+      <span class="eyebrow">Who's behind it</span>
+      <h2>Built by one engineer who's <em>actually shipped this at scale</em> — not a firm renting you juniors.</h2>
+      <p>Distributed systems at Amazon Alexa. Head of Engineering at a health-tech startup. Java / Spring / Kafka, Go, AWS, and applied AI in production. You work directly with the person doing the work, start to finish — which is also why scope is fixed: focus is the product.</p>
+    </div>
+    <div class="rv">
+      <div class="stack">
+        <span class="chip">Kafka</span><span class="chip">Spring Boot</span><span class="chip">Go</span>
+        <span class="chip">PostgreSQL</span><span class="chip">AWS EKS</span><span class="chip">MSK</span>
+        <span class="chip">OpenTelemetry</span><span class="chip">Grafana</span><span class="chip">JVM tuning</span>
+        <span class="chip">RAG / LLM</span><span class="chip">gRPC</span><span class="chip">Redis</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="book">
+  <div class="wrap">
+    <h2 class="rv">Tell me your <em>hardest systems problem.</em></h2>
+    <p class="rv">Book an audit directly, or describe what's keeping you up and I'll point you to the right one — or tell you honestly if you don't need one.</p>
+    <div class="rv" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+      <a href="mailto:hello@zephyrcode.live" class="btn btn-primary">Book an audit <span aria-hidden="true">→</span></a>
+      <a href="mailto:hello@zephyrcode.live" class="btn btn-ghost">Ask which one I need</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand"><span class="dot"></span><b>ZEPHYRCODE</b></div>
+    <div class="tag-line">Build-once leverage for hard engineering problems.</div>
+    <div class="foot-links">
+      <a href="#audits">Audits</a><a href="#process">Process</a><a href="#book">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var els = document.querySelectorAll('.rv');
+    if(rm || !('IntersectionObserver' in window)){
+      els.forEach(function(e){e.classList.add('in')});
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}
+      });
+    },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
+    els.forEach(function(e){if(!e.classList.contains('in'))io.observe(e);});
+  })();
+</script>
+
+</body>
+</html>

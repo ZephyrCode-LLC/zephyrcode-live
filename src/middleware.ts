@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * Host → site slug. One app, eight hosts (BRIEF §2).
+ * Host → site slug. One app, many hosts (BRIEF §2). `audits` is special — a
+ * standalone static landing (public/audits.html), not a CMS-driven room.
  * Local dev: `home.localhost:3000`-style hosts AND a `?site=` fallback.
  * Unknown hosts → home. `/_sites` URLs are never exposed publicly.
  */
@@ -16,6 +17,7 @@ const HOSTS: Record<string, string> = {
   "read.zephyrcode.live": "read",
   "watch.zephyrcode.live": "watch",
   "listen.zephyrcode.live": "listen",
+  "audits.zephyrcode.live": "audits",
 };
 
 const SLUGS = new Set(Object.values(HOSTS));
@@ -51,7 +53,8 @@ export function middleware(req: NextRequest) {
   if (url.pathname === "/") {
     const slug = slugForHost(host, url);
     const rewritten = url.clone();
-    rewritten.pathname = `/sites/${slug}`;
+    // audits is a standalone static landing (public/audits.html), not a CMS room
+    rewritten.pathname = slug === "audits" ? "/audits.html" : `/sites/${slug}`;
     return NextResponse.rewrite(rewritten);
   }
   return NextResponse.next();
