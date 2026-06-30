@@ -6,6 +6,7 @@ import { SceneAccent } from "@/components/system/SceneAccent";
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
 import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
 import { MethodTrack } from "@/components/sites/home/MethodTrack";
+import { StoriesTabs } from "@/components/sites/home/StoriesTabs";
 
 const Cta = z.object({ label: z.string(), href: z.string(), style: z.string().optional() });
 const Chrome = z.object({
@@ -42,19 +43,25 @@ const Arena = z.object({
   capHtml: z.string(),
   cta: Cta,
 });
+const Feature = z.object({
+  key: z.string().optional(),
+  tabDeva: z.string().optional(),
+  tabName: z.string().optional(),
+  accent: z.string().optional(),
+  hindi: z.string(),
+  h3: z.string(),
+  tag: z.string(),
+  logId: z.string(),
+  logText: z.string(),
+  blurbHtml: z.string(),
+  chips: z.array(z.object({ label: z.string(), live: z.boolean() })),
+  ctas: z.array(Cta),
+});
 const Stories = z.object({
   eyebrowHtml: z.string(),
   h2Html: z.string(),
-  feature: z.object({
-    hindi: z.string(),
-    h3: z.string(),
-    tag: z.string(),
-    logId: z.string(),
-    logText: z.string(),
-    blurbHtml: z.string(),
-    chips: z.array(z.object({ label: z.string(), live: z.boolean() })),
-    ctas: z.array(Cta),
-  }),
+  feature: Feature.optional(), // legacy single feature (kept for no-break deploy)
+  features: z.array(Feature).optional(), // the two-novel deck
   shorts: z.object({ k: z.string(), h4: z.string(), p: z.string(), link: Cta }),
 });
 const Systems = z.object({
@@ -231,30 +238,7 @@ export default async function HomeSite() {
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: stories.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: stories.h2Html }} />
           </div>
-          <article className="feature rv">
-            <p className="hindi">{stories.feature.hindi}</p>
-            <h3>{stories.feature.h3}</h3>
-            <p className="tag">{stories.feature.tag}</p>
-            <div className="log">
-              <span className="id">{stories.feature.logId}</span>
-              {stories.feature.logText}
-            </div>
-            <p className="blurb" dangerouslySetInnerHTML={{ __html: stories.feature.blurbHtml }} />
-            <div className="chips">
-              {stories.feature.chips.map((c) => (
-                <span key={c.label} className={`chip${c.live ? " live" : ""}`}>
-                  {c.label}
-                </span>
-              ))}
-            </div>
-            <div className="btnrow">
-              {stories.feature.ctas.map((c) => (
-                <a key={c.label} className={`btn ${c.style}`} href={c.href}>
-                  {c.label}
-                </a>
-              ))}
-            </div>
-          </article>
+          <StoriesTabs features={stories.features ?? (stories.feature ? [stories.feature] : [])} />
           <div className="shorts rv">
             <div className="l">
               <p className="k">{stories.shorts.k}</p>
@@ -388,6 +372,29 @@ export default async function HomeSite() {
           ))}
         </div>
       </footer>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                "@id": `https://${site.host}/#org`,
+                name: "ZephyrCode",
+                url: `https://${site.host}`,
+                email: "priyanshu@zephyrcode.live",
+              },
+              {
+                "@type": "WebSite",
+                "@id": `https://${site.host}/#website`,
+                name: site.title,
+                url: `https://${site.host}`,
+              },
+            ],
+          }),
+        }}
+      />
     </>
   );
 }
