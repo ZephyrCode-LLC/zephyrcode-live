@@ -26,6 +26,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     urls.push({ url: `${base}/temper`, changeFrequency: "monthly", priority: 0.8 });
   }
 
+  // The operator domain has a /commission door beyond its root landing.
+  if (slug === "operator") {
+    urls.push({ url: `${base}/commission`, changeFrequency: "monthly", priority: 0.8 });
+  }
+
   // Content rooms list their sub-pages too. Best-effort — a content/CMS hiccup
   // must never fail the sitemap, so swallow and return at least the root.
   try {

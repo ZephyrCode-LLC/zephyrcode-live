@@ -15,7 +15,26 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   const isApex = host === "zephyrcode.live" || host === "www.zephyrcode.live";
 
   return {
-    rules: { userAgent: "*", allow: "/", disallow: "/sites/" },
+    rules: [
+      { userAgent: "*", allow: "/", disallow: "/sites/" },
+      // Explicitly welcome AI crawlers/answer engines (Bytespider deliberately omitted).
+      {
+        userAgent: [
+          "GPTBot",
+          "ChatGPT-User",
+          "OAI-SearchBot",
+          "ClaudeBot",
+          "anthropic-ai",
+          "Claude-Web",
+          "PerplexityBot",
+          "Google-Extended",
+          "Applebot-Extended",
+          "CCBot",
+        ],
+        allow: "/",
+        disallow: "/sites/",
+      },
+    ],
     sitemap: isApex ? [`${base}/sitemap.xml`, `${base}/sitemap_index.xml`] : `${base}/sitemap.xml`,
     host: base,
   };

@@ -19,6 +19,7 @@ export const revalidate = 86400;
 
 const HOSTS = [
   "zephyrcode.live", // hub
+  "audits.zephyrcode.live",
   "antyodaya.zephyrcode.live",
   "stories.zephyrcode.live",
   "operator.zephyrcode.live",

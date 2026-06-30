@@ -14,7 +14,21 @@
 <title>ZephyrCode — Engineering Audits</title>
 <meta name="description" content="Fixed-scope, fixed-price engineering audits — streaming, reliability, AI inference, data, cloud. The price is on the door." />
 <meta name="theme-color" content="#080A0E" />
+<meta name="robots" content="index,follow,max-image-preview:large" />
+<link rel="canonical" href="https://audits.zephyrcode.live/" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%230D1015'/%3E%3Cpath%20d='M5%2038%20H19%20L25%2038%20L30%2018%20L37%2048%20L42%2031%20H59'%20fill='none'%20stroke='%233FD8E6'%20stroke-width='3.4'%20stroke-linecap='round'%20stroke-linejoin='round'/%3E%3Ccircle%20cx='59'%20cy='31'%20r='3.4'%20fill='%233FD8E6'/%3E%3C/svg%3E" />
+<!-- OpenGraph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ZephyrCode" />
+<meta property="og:title" content="ZephyrCode — Engineering Audits" />
+<meta property="og:description" content="Fixed-scope, fixed-price engineering audits — streaming, reliability, AI inference, data, cloud. The price is on the door." />
+<meta property="og:url" content="https://audits.zephyrcode.live/" />
+<meta property="og:image" content="https://audits.zephyrcode.live/audits-og" />
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="ZephyrCode — Engineering Audits" />
+<meta name="twitter:description" content="Fixed-scope, fixed-price engineering audits — streaming, reliability, AI inference, data, cloud. The price is on the door." />
+<meta name="twitter:image" content="https://audits.zephyrcode.live/audits-og" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
@@ -375,6 +389,110 @@
   !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
   posthog.init('phc_rfwJUjF5WRoopdXRPeGzwM2Z3GaoPzJtY9oK7o9Q9rtf', { api_host: '/ingest', ui_host: 'https://eu.posthog.com' });
   posthog.register({ app: 'hub', site: 'audits' });
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://zephyrcode.live/#org",
+      "name": "ZephyrCode",
+      "url": "https://zephyrcode.live",
+      "email": "priyanshu@zephyrcode.live"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://audits.zephyrcode.live/#website",
+      "name": "ZephyrCode — Engineering Audits",
+      "url": "https://audits.zephyrcode.live"
+    },
+    {
+      "@type": "Service",
+      "@id": "https://audits.zephyrcode.live/#service",
+      "serviceType": "Engineering audit",
+      "url": "https://audits.zephyrcode.live",
+      "areaServed": "Worldwide",
+      "provider": { "@id": "https://zephyrcode.live/#org" },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Engineering audits",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "name": "Kafka & event-streaming audit",
+            "sku": "ZC·KAFKA",
+            "description": "Partitioning, consumer-group design, exactly-once, backpressure, and lag — found before they page you.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 6000, "maxPrice": 9000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "AI inference cost & latency teardown",
+            "sku": "ZC·INFER",
+            "description": "Vendor-neutral. Model routing, caching, batching, token economics, fallback tiers, self-host vs API.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 6000, "maxPrice": 10000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "Distributed-systems reliability review",
+            "sku": "ZC·RESIL",
+            "description": "Single points of failure, retries, idempotency, circuit breakers, and blast-radius under partial outage.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 7000, "maxPrice": 10000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "Scale-readiness review",
+            "sku": "ZC·SCALE",
+            "description": "Before a launch, a raise, or a first enterprise contract: capacity model, bottlenecks, an honest go / no-go.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 5000, "maxPrice": 8000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "AWS architecture & cost review",
+            "sku": "ZC·AWS",
+            "description": "EKS, MSK, right-sizing, spot strategy, egress, and the networking choices quietly inflating your bill.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 5000, "maxPrice": 9000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "RAG & LLM application review",
+            "sku": "ZC·RAG",
+            "description": "Retrieval quality, chunking, an eval harness that means something, hallucination controls, cost and latency.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 6000, "maxPrice": 9000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "Postgres performance & scaling audit",
+            "sku": "ZC·PSQL",
+            "description": "Query plans, indexing, partitioning, connection pooling, and a replica strategy that survives growth.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 5000, "maxPrice": 8000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "OpenTelemetry & observability setup",
+            "sku": "ZC·OTEL",
+            "description": "Tracing, metrics, logs, Grafana dashboards, and SLOs — so you stop debugging production blind.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 7000, "maxPrice": 12000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "Microservices boundary review",
+            "sku": "ZC·BOUND",
+            "description": "Over-split diagnosis, service boundaries, monolith-vs-services, and the comms patterns causing the pain.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 6000, "maxPrice": 9000 }
+          },
+          {
+            "@type": "Offer",
+            "name": "Migration de-risking review",
+            "sku": "ZC·MIGR",
+            "description": "Monolith→services, database moves, on-prem→cloud: sequencing, rollback, and a dual-write plan that holds.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "minPrice": 6000, "maxPrice": 10000 }
+          }
+        ]
+      }
+    }
+  ]
+}
 </script>
 </head>
 <body>
