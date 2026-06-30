@@ -53,8 +53,9 @@ export function middleware(req: NextRequest) {
   if (url.pathname === "/") {
     const slug = slugForHost(host, url);
     const rewritten = url.clone();
-    // audits is a standalone static landing (public/audits.html), not a CMS room
-    rewritten.pathname = slug === "audits" ? "/audits.html" : `/sites/${slug}`;
+    // audits is a standalone landing served from a route handler (src/app/audits),
+    // not a CMS room — rewriting to the public/*.html file 404s on Amplify.
+    rewritten.pathname = slug === "audits" ? "/audits" : `/sites/${slug}`;
     return NextResponse.rewrite(rewritten);
   }
   return NextResponse.next();
