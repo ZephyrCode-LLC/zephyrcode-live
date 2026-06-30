@@ -238,11 +238,27 @@
 [data-site="home"] .audit-card .ac-price { font-family: var(--mono); font-size: 0.82rem; color: var(--audit-accent); margin-top: 4px; font-variant-numeric: tabular-nums; }
 [data-site="home"] .audit-note { margin-top: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; color: var(--bone-dim); }
 [data-site="home"] #audits .btnrow { margin-top: 26px; }
-[data-site="home"] #audits .btn.solid { background: var(--audit-accent); color: #04181b; border-color: var(--audit-accent); }
-[data-site="home"] #audits .btn.solid:hover { background: color-mix(in oklab, var(--audit-accent) 86%, white); }
+[data-site="home"] #audits .btn.solid { background-color: var(--audit-accent); color: #04181b; border-color: var(--audit-accent); }
+[data-site="home"] #audits .btn.solid:hover { background-color: color-mix(in oklab, var(--audit-accent) 86%, white); }
 @media (prefers-reduced-motion: reduce) {
   [data-site="home"] .audit-trace { stroke-dashoffset: 0; animation: none; }
   [data-site="home"] .audit-card { transition: none; }
+}
+
+/* CTAs — kill the inherited .scene text-shadow halo that fuzzed the labels, and add
+   a sleek signal-sweep: the sheen rides the BACKGROUND (not an overlay), so the label
+   stays razor-sharp. One definition; every hub button (any section's --accent) inherits it. */
+[data-site="home"] .btn, [data-site="home"] .top-cta { text-shadow: none; }
+[data-site="home"] .btn { transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; }
+[data-site="home"] .btn:hover { transform: translateY(-2px); }
+[data-site="home"] .btn.solid { background-color: var(--accent); background-image: linear-gradient(100deg, transparent 34%, rgba(255, 255, 255, 0.5) 50%, transparent 66%); background-repeat: no-repeat; background-size: 250% 100%; background-position: 200% 0; }
+[data-site="home"] .btn.solid:hover { background-color: color-mix(in srgb, var(--accent) 90%, white); animation: zc-btn-sheen 0.7s ease; box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 30%, transparent); }
+@keyframes zc-btn-sheen { from { background-position: 200% 0; } to { background-position: -70% 0; } }
+[data-site="home"] .btn.ghost:hover { border-color: var(--accent); color: var(--accent); background-color: color-mix(in srgb, var(--accent) 9%, transparent); }
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] .btn { transition: none; }
+  [data-site="home"] .btn:hover { transform: none; }
+  [data-site="home"] .btn.solid:hover { animation: none; }
 }
 
 /* arena — the VOLTAGE band (gold #c6ff45 = the optimum). Its own electric life. */
@@ -262,8 +278,8 @@
 [data-site="home"] .ad-sc.gold { color: var(--arena); }
 [data-site="home"] .ad-cap { font-family: var(--serif); font-size: 0.98rem; color: var(--bone-dim); margin-top: 14px; line-height: 1.6; max-width: 60ch; }
 [data-site="home"] .ad-cap b { color: var(--arena); font-weight: 600; }
-[data-site="home"] #arena .btn.solid { background: var(--arena); color: #0b1400; border-color: var(--arena); }
-[data-site="home"] #arena .btn.solid:hover { background: color-mix(in oklab, var(--arena) 86%, white); }
+[data-site="home"] #arena .btn.solid { background-color: var(--arena); color: #0b1400; border-color: var(--arena); }
+[data-site="home"] #arena .btn.solid:hover { background-color: color-mix(in oklab, var(--arena) 86%, white); }
 @media (prefers-reduced-motion: reduce) { [data-site="home"] .ad-fill { transition: none; } }
 
 /* footer / constellation (home variant overrides the shared footer) */

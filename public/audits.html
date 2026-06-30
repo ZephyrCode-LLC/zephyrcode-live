@@ -114,8 +114,9 @@
   .hero p.lede{font-size:1.12rem;color:var(--dim);max-width:30em;line-height:1.62}
   .hero-cta{display:flex;gap:14px;margin-top:34px;flex-wrap:wrap}
   .btn{font-family:var(--mono);font-size:.82rem;letter-spacing:.03em;padding:13px 22px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:9px;transition:transform .2s,background .2s,border-color .2s,box-shadow .2s,color .2s;border:1px solid transparent}
-  .btn-primary{background:var(--signal);color:#04181b;font-weight:600}
-  .btn-primary:hover{background:var(--signal-hi);transform:translateY(-2px)}
+  .btn-primary{background-color:var(--signal);background-image:linear-gradient(100deg,transparent 34%,rgba(255,255,255,.5) 50%,transparent 66%);background-repeat:no-repeat;background-size:250% 100%;background-position:200% 0;color:#04181b;font-weight:600}
+  .btn-primary:hover{background-color:var(--signal-hi);transform:translateY(-2px);animation:zc-btn-sheen .7s ease}
+  @keyframes zc-btn-sheen{from{background-position:200% 0}to{background-position:-70% 0}}
   .btn-ghost{border-color:var(--line-3);color:var(--paper)}
   .btn-ghost:hover{border-color:var(--signal);color:var(--signal);transform:translateY(-2px)}
   .hero-trust{margin-top:30px;font-family:var(--mono);font-size:.72rem;color:var(--faint);letter-spacing:.02em;line-height:2}
