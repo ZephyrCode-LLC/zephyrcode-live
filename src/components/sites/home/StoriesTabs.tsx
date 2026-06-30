@@ -11,7 +11,7 @@ import { useState } from "react";
 type Cta = { label: string; href: string; style?: string };
 type Chip = { label: string; live: boolean };
 export type Feature = {
-  key: string;
+  key?: string;
   tabDeva?: string;
   tabName?: string;
   accent?: string;
@@ -37,7 +37,7 @@ export function StoriesTabs({ features }: { features: Feature[] }) {
         <div className="story-tabs" role="tablist" aria-label="The novels">
           {features.map((feat, i) => (
             <button
-              key={feat.key}
+              key={feat.key ?? i}
               type="button"
               role="tab"
               aria-selected={i === active}
@@ -52,7 +52,7 @@ export function StoriesTabs({ features }: { features: Feature[] }) {
         </div>
       )}
 
-      <article className="feature" style={accentStyle(f.accent)} key={f.key}>
+      <article className="feature" style={accentStyle(f.accent)} key={f.key ?? active}>
         <div className="feature-fade">
           <p className="hindi">{f.hindi}</p>
           <h3>{f.h3}</h3>
