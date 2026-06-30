@@ -22,6 +22,25 @@ export async function POST(req: Request) {
   if (error) {
     return NextResponse.json({ error: "Could not save. Try again." }, { status: 500 });
   }
+  // Mirror to PostHog (server-side truth for the lead funnel; best-effort, never
+  // blocks the response on failure). distinct_id = email stitches client + server.
+  const phKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+  if (phKey) {
+    try {
+      await fetch("https://eu.i.posthog.com/capture/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          api_key: phKey,
+          event: "lead_captured",
+          distinct_id: email,
+          properties: { app: "hub", source: body.source ?? null, $set: { email } },
+        }),
+      });
+    } catch {
+      /* analytics must never break the lead path */
+    }
+  }
   const res = NextResponse.json({ ok: true });
   res.cookies.set("zc_lead", "1", { maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
   return res;

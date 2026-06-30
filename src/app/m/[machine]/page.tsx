@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Script from "next/script";
 import "@/styles/sites/arcade.css";
 import { z } from "zod";
 import { dataOf, getBlocks, getSims } from "@/lib/content";
@@ -76,16 +75,6 @@ export default async function MachinePage({ params }: { params: Params }) {
         allow="clipboard-write"
       />
       <MachineRuntime machine={sim.slug} />
-      <Script
-        id="arcade-plausible-q"
-        strategy="afterInteractive"
-      >{`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}`}</Script>
-      <Script
-        defer
-        data-domain="arcade.zephyrcode.live"
-        src="https://plausible.io/js/script.js"
-        strategy="afterInteractive"
-      />
     </div>
   );
 }

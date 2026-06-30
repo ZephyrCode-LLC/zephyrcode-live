@@ -1,37 +1,23 @@
 "use client";
 
 import { useEffect } from "react";
+import { track } from "@/lib/posthog";
 
 /**
- * Per-machine page runtime: cookieless events.
+ * Per-machine page runtime: events.
  *  - machine_play{machine} once on mount (the user is inside the machine)
  *  - share_copy{machine} relayed from the iframed simulator via postMessage
  *    ({type:'zc-share', machine}) — the sims are standalone files and carry
  *    their own share button on the verdict screen.
  */
 
-declare global {
-  interface Window {
-    plausible?: (event: string, opts?: { props?: Record<string, unknown> }) => void;
-  }
-}
-
 export function MachineRuntime({ machine }: { machine: string }) {
   useEffect(() => {
-    // the effect can run before the afterInteractive queue shim — install it
-    // here idempotently so machine_play is never dropped by the race
-    if (!window.plausible) {
-      const q = function (...args: unknown[]) {
-        (q as unknown as { q: unknown[] }).q.push(args);
-      };
-      (q as unknown as { q: unknown[] }).q = [];
-      window.plausible = q as unknown as Window["plausible"];
-    }
-    window.plausible?.("machine_play", { props: { machine } });
+    track("machine_play", { machine });
     const onMsg = (e: MessageEvent) => {
       if (e.origin !== window.location.origin) return;
       if (e.data?.type === "zc-share") {
-        window.plausible?.("share_copy", { props: { machine: e.data.machine ?? machine } });
+        track("share_copy", { machine: e.data.machine ?? machine });
       }
     };
     window.addEventListener("message", onMsg);

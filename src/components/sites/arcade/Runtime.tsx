@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { track } from "@/lib/posthog";
 
 /**
  * Arcade page runtime: the global share helper + cookieless event wiring.
@@ -11,13 +12,12 @@ import { useEffect } from "react";
  *                       "https://arcade.zephyrcode.live/m/leap")
  * → clipboard: "My Leap verdict: TIGHT · crossover M14 — play it: …/m/leap"
  *
- * Events (Plausible, cookieless): play_click, email_submit (fired by
- * Capture), share_copy, commission_click.
+ * Events (PostHog): play_click, email_submit (fired by Capture), share_copy,
+ * commission_click.
  */
 
 declare global {
   interface Window {
-    plausible?: (event: string, opts?: { props?: Record<string, unknown> }) => void;
     shareVerdict?: (text: string, url: string) => Promise<void>;
   }
 }
@@ -42,7 +42,7 @@ export function ArcadeRuntime() {
       try {
         await navigator.clipboard.writeText(line);
         toast("Copied.");
-        window.plausible?.("share_copy");
+        track("share_copy");
       } catch {
         toast(line); // clipboard blocked: show the line so it can be copied by hand
       }
@@ -53,10 +53,10 @@ export function ArcadeRuntime() {
       const play = t.closest("a.play");
       if (play) {
         const machine = play.closest("[id]")?.id ?? "";
-        window.plausible?.("play_click", { props: { machine } });
+        track("play_click", { machine });
         return;
       }
-      if (t.closest(".studio a")) window.plausible?.("commission_click");
+      if (t.closest(".studio a")) track("commission_click");
     };
     document.addEventListener("click", onClick);
     return () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@/lib/posthog";
 
 /**
  * Email capture — "one new machine a month". All copy arrives as props from
@@ -12,12 +13,6 @@ import { useState } from "react";
  * Until then submissions succeed optimistically and log a console warning.
  */
 const ENDPOINT = ""; // TODO: Buttondown / Loops endpoint
-
-declare global {
-  interface Window {
-    plausible?: (event: string, opts?: { props?: Record<string, unknown> }) => void;
-  }
-}
 
 export function Capture({
   k,
@@ -41,7 +36,7 @@ export function Capture({
     e.preventDefault();
     if (state === "busy" || !email.includes("@")) return;
     setState("busy");
-    window.plausible?.("email_submit");
+    track("email_submit", { source: "arcade" });
     try {
       if (!ENDPOINT) {
         console.warn("[arcade] email capture endpoint not wired yet (see Capture.tsx TODO)");

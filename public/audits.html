@@ -265,6 +265,11 @@
   ::selection{background:var(--signal);color:var(--ink)}
   :focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:2px}
 </style>
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_rfwJUjF5WRoopdXRPeGzwM2Z3GaoPzJtY9oK7o9Q9rtf', { api_host: '/ingest', ui_host: 'https://eu.posthog.com' });
+  posthog.register({ app: 'hub', site: 'audits' });
+</script>
 </head>
 <body>
 <div class="scan" id="scan" aria-hidden="true"></div>
@@ -526,8 +531,8 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
     <h2 class="rv">Tell me your <em>hardest systems problem.</em></h2>
     <p class="rv">Book an audit directly, or describe what's keeping you up and I'll point you to the right one — or tell you honestly if you don't need one.</p>
     <div class="rv hero-cta">
-      <a href="mailto:priyanshu@zephyrcode.live" class="btn btn-primary">Book an audit <span aria-hidden="true">→</span></a>
-      <a href="mailto:priyanshu@zephyrcode.live" class="btn btn-ghost">Ask which one I need</a>
+      <a href="mailto:priyanshu@zephyrcode.live" class="btn btn-primary" onclick="window.posthog&&posthog.capture('audit_cta',{cta:'book'})">Book an audit <span aria-hidden="true">→</span></a>
+      <a href="mailto:priyanshu@zephyrcode.live" class="btn btn-ghost" onclick="window.posthog&&posthog.capture('audit_cta',{cta:'ask'})">Ask which one I need</a>
     </div>
   </div>
 </section>

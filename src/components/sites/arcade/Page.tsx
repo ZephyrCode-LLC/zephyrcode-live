@@ -1,5 +1,4 @@
 import "@/styles/sites/arcade.css";
-import Script from "next/script";
 import { z } from "zod";
 import { dataOf, getBlocks, getSims, getSites } from "@/lib/content";
 import { TopBar } from "@/components/system/TopBar";
@@ -119,18 +118,6 @@ export default async function ArcadePage() {
       <Constellation sites={sites} current="arcade" />
       <RevealManager threshold={0.12} />
       <ArcadeRuntime />
-      {/* cookieless analytics — create "arcade.zephyrcode.live" in Plausible
-          (or point src at a self-hosted Umami script) and events flow */}
-      <Script
-        id="arcade-plausible-q"
-        strategy="afterInteractive"
-      >{`window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)}`}</Script>
-      <Script
-        defer
-        data-domain="arcade.zephyrcode.live"
-        src="https://plausible.io/js/script.js"
-        strategy="afterInteractive"
-      />
     </>
   );
 }
