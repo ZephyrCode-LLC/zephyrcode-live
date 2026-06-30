@@ -12,7 +12,9 @@ frontend:
         # runtime. Write them to .env.production so the server (route handlers,
         # server components) can read REVALIDATE_SECRET etc. at runtime —
         # otherwise /api/revalidate 401s and the publish webhook silently fails.
-        - env | grep -E '^(REVALIDATE_SECRET|NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|NEXT_PUBLIC_ASSET_BASE|NEXT_PUBLIC_BOOK_URL)=' >> .env.production
+        # SES_* power the audit-booking emails (src/lib/booking-email.ts); without
+        # them the deployed runtime no-ops the send and the route still returns ok.
+        - env | grep -E '^(REVALIDATE_SECRET|NEXT_PUBLIC_SUPABASE_URL|NEXT_PUBLIC_SUPABASE_ANON_KEY|NEXT_PUBLIC_ASSET_BASE|NEXT_PUBLIC_BOOK_URL|SES_REGION|SES_ACCESS_KEY_ID|SES_SECRET_ACCESS_KEY)=' >> .env.production
         - pnpm run build
   artifacts:
     baseDirectory: .next
