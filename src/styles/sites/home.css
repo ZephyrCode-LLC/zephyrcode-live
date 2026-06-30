@@ -213,6 +213,31 @@
 [data-site="home"] .client-strip p { font-size: 0.96rem; color: var(--bone-dim); }
 @media (max-width: 880px) { [data-site="home"] .op-grid { grid-template-columns: 1fr; } }
 
+/* audits — the "for hire" band. Borrows the audits page's cyan telemetry accent
+   as a deliberate cool note against the hub's ember. */
+[data-site="home"] #audits { --audit-accent: #3de1e6; }
+[data-site="home"] #audits .shead h2 em { font-style: italic; color: var(--audit-accent); }
+[data-site="home"] .audit-trace { display: block; width: 100%; height: 44px; margin: 4px 0 30px; color: var(--audit-accent); opacity: 0.55; stroke-dasharray: 2200; stroke-dashoffset: 2200; }
+[data-site="home"] .audit-trace.in { animation: zc-audit-draw 2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes zc-audit-draw { to { stroke-dashoffset: 0; } }
+[data-site="home"] .audit-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 14px; max-width: 940px; }
+[data-site="home"] .audit-card { position: relative; display: flex; flex-direction: column; gap: 8px; padding: 22px 22px 20px; text-decoration: none; overflow: hidden; border: 1px solid var(--line-soft); background: rgba(13, 11, 9, 0.74); transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease; }
+[data-site="home"] .audit-card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--audit-accent), color-mix(in oklab, var(--audit-accent) 12%, transparent)); transform: scaleX(0); transform-origin: left; transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1); }
+[data-site="home"] .audit-card:hover { transform: translateY(-2px); background: rgba(18, 22, 28, 0.92); border-color: color-mix(in srgb, var(--audit-accent) 45%, transparent); }
+[data-site="home"] .audit-card:hover::before { transform: scaleX(1); }
+[data-site="home"] .audit-card .ac-sku { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--audit-accent); }
+[data-site="home"] .audit-card .ac-h { font-size: 1.22rem; line-height: 1.14; color: var(--bone); }
+[data-site="home"] .audit-card .ac-p { font-size: 0.85rem; line-height: 1.5; color: var(--bone-dim); flex: 1; }
+[data-site="home"] .audit-card .ac-price { font-family: var(--mono); font-size: 0.82rem; color: var(--audit-accent); margin-top: 4px; font-variant-numeric: tabular-nums; }
+[data-site="home"] .audit-note { margin-top: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; color: var(--bone-dim); }
+[data-site="home"] #audits .btnrow { margin-top: 26px; }
+[data-site="home"] #audits .btn.solid { background: var(--audit-accent); color: #04181b; border-color: var(--audit-accent); }
+[data-site="home"] #audits .btn.solid:hover { background: color-mix(in oklab, var(--audit-accent) 86%, white); }
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] .audit-trace { stroke-dashoffset: 0; animation: none; }
+  [data-site="home"] .audit-card { transition: none; }
+}
+
 /* footer / constellation (home variant overrides the shared footer) */
 [data-site="home"] footer { position: relative; z-index: 10; border-top: 1px solid var(--line-soft); margin-top: 8vh; padding: 64px var(--pad) 44px; background: linear-gradient(to bottom, rgba(13, 11, 9, 0), rgba(8, 6, 4, 0.85)); display: block; }
 [data-site="home"] .constel { max-width: var(--maxw); margin: 0 auto; }

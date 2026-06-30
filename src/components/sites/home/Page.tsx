@@ -26,6 +26,14 @@ const Method = z.object({
   lawsHtml: z.array(z.string()),
   asideHtml: z.string(),
 });
+const Audits = z.object({
+  eyebrowHtml: z.string(),
+  h2Html: z.string(),
+  subHtml: z.string(),
+  items: z.array(z.object({ sku: z.string(), h3: z.string(), p: z.string(), price: z.string() })),
+  note: z.string(),
+  cta: Cta,
+});
 const Stories = z.object({
   eyebrowHtml: z.string(),
   h2Html: z.string(),
@@ -90,6 +98,7 @@ export default async function HomeSite() {
   const chrome = dataOf(blocks, "chrome", Chrome)!;
   const signal = dataOf(blocks, "signal", Signal)!;
   const method = dataOf(blocks, "method", Method)!;
+  const audits = dataOf(blocks, "audits", Audits)!;
   const stories = dataOf(blocks, "stories", Stories)!;
   const systems = dataOf(blocks, "systems", Systems)!;
   const library = dataOf(blocks, "library", Library)!;
@@ -147,7 +156,41 @@ export default async function HomeSite() {
           <p className="aside-note rv" dangerouslySetInnerHTML={{ __html: method.asideHtml }} />
         </section>
 
-        <section className="scene" id="stories" data-scene="2">
+        <section className="scene" id="audits" data-scene="2">
+          <div className="shead rv">
+            <p className="eyebrow" dangerouslySetInnerHTML={{ __html: audits.eyebrowHtml }} />
+            <h2 dangerouslySetInnerHTML={{ __html: audits.h2Html }} />
+            <p className="sub" dangerouslySetInnerHTML={{ __html: audits.subHtml }} />
+          </div>
+          <svg className="audit-trace rv" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+            <path
+              d="M0 40 L120 40 L150 40 L168 14 L186 52 L206 40 L300 40 L360 38 L520 40 L760 40 L900 40 L930 40 L948 18 L966 50 L984 40 L1200 40"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <div className="audit-cards rv">
+            {audits.items.map((it) => (
+              <a key={it.sku} className="audit-card" href={audits.cta.href}>
+                <span className="ac-sku">{it.sku}</span>
+                <span className="ac-h">{it.h3}</span>
+                <span className="ac-p">{it.p}</span>
+                <span className="ac-price">{it.price}</span>
+              </a>
+            ))}
+          </div>
+          <p className="audit-note rv">{audits.note}</p>
+          <div className="btnrow rv">
+            <a className="btn solid" href={audits.cta.href}>
+              {audits.cta.label}
+            </a>
+          </div>
+        </section>
+
+        <section className="scene" id="stories" data-scene="3">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: stories.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: stories.h2Html }} />
@@ -188,7 +231,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="systems" data-scene="3">
+        <section className="scene" id="systems" data-scene="4">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: systems.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
@@ -234,7 +277,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="library" data-scene="4">
+        <section className="scene" id="library" data-scene="5">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: library.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: library.h2Html }} />
@@ -255,7 +298,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="operator" data-scene="5">
+        <section className="scene" id="operator" data-scene="6">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: operator.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: operator.h2Html }} />
