@@ -2,6 +2,7 @@ import { z } from "zod";
 import "@/styles/sites/home.css";
 import { dataOf, getBlocks, getSite } from "@/lib/content";
 import { RevealManager } from "@/components/system/Reveal";
+import { SceneAccent } from "@/components/system/SceneAccent";
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
 import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
 import { MethodTrack } from "@/components/sites/home/MethodTrack";
@@ -32,6 +33,13 @@ const Audits = z.object({
   subHtml: z.string(),
   items: z.array(z.object({ sku: z.string(), h3: z.string(), p: z.string(), price: z.string() })),
   note: z.string(),
+  cta: Cta,
+});
+const Arena = z.object({
+  eyebrowHtml: z.string(),
+  h2Html: z.string(),
+  subHtml: z.string(),
+  capHtml: z.string(),
   cta: Cta,
 });
 const Stories = z.object({
@@ -99,6 +107,7 @@ export default async function HomeSite() {
   const signal = dataOf(blocks, "signal", Signal)!;
   const method = dataOf(blocks, "method", Method)!;
   const audits = dataOf(blocks, "audits", Audits)!;
+  const arena = dataOf(blocks, "arena", Arena)!;
   const stories = dataOf(blocks, "stories", Stories)!;
   const systems = dataOf(blocks, "systems", Systems)!;
   const library = dataOf(blocks, "library", Library)!;
@@ -112,6 +121,7 @@ export default async function HomeSite() {
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
       <RevealManager />
+      <SceneAccent />
 
       <header className="top">
         <a className="wordmark" href="#signal">
@@ -132,7 +142,7 @@ export default async function HomeSite() {
       </nav>
 
       <main>
-        <section className="scene hero" id="signal" data-scene="0">
+        <section className="scene hero" id="signal" data-scene="0" data-accent="#e85d2a">
           <p className="eyebrow rv" dangerouslySetInnerHTML={{ __html: signal.eyebrowHtml }} />
           <h1 className="rv" dangerouslySetInnerHTML={{ __html: signal.h1Html }} />
           <p className="lede rv" dangerouslySetInnerHTML={{ __html: signal.ledeHtml }} />
@@ -141,7 +151,7 @@ export default async function HomeSite() {
           </p>
         </section>
 
-        <section className="scene" id="method" data-scene="1">
+        <section className="scene" id="method" data-scene="1" data-accent="#e85d2a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: method.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: method.h2Html }} />
@@ -156,7 +166,7 @@ export default async function HomeSite() {
           <p className="aside-note rv" dangerouslySetInnerHTML={{ __html: method.asideHtml }} />
         </section>
 
-        <section className="scene" id="audits" data-scene="2">
+        <section className="scene" id="audits" data-scene="2" data-accent="#3DE1E6">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: audits.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: audits.h2Html }} />
@@ -190,7 +200,33 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="stories" data-scene="3">
+        <section className="scene arena-scene" id="arena" data-scene="3" data-accent="#c6ff45">
+          <div className="shead rv">
+            <p className="eyebrow" dangerouslySetInnerHTML={{ __html: arena.eyebrowHtml }} />
+            <h2 dangerouslySetInnerHTML={{ __html: arena.h2Html }} />
+            <p className="sub" dangerouslySetInnerHTML={{ __html: arena.subHtml }} />
+          </div>
+          <div className="arena-demo rv">
+            <div className="ad-row">
+              <span className="ad-k">Greedy pack</span>
+              <div className="ad-bar"><span className="ad-fill greedy" /></div>
+              <span className="ad-sc">123</span>
+            </div>
+            <div className="ad-row">
+              <span className="ad-k">Optimal</span>
+              <div className="ad-bar"><span className="ad-fill opt" /></div>
+              <span className="ad-sc gold">162</span>
+            </div>
+            <p className="ad-cap" dangerouslySetInnerHTML={{ __html: arena.capHtml }} />
+          </div>
+          <div className="btnrow rv">
+            <a className="btn solid" href={arena.cta.href}>
+              {arena.cta.label}
+            </a>
+          </div>
+        </section>
+
+        <section className="scene" id="stories" data-scene="4" data-accent="#7fd6a8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: stories.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: stories.h2Html }} />
@@ -231,7 +267,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="systems" data-scene="4">
+        <section className="scene" id="systems" data-scene="5" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: systems.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
@@ -277,7 +313,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="library" data-scene="5">
+        <section className="scene" id="library" data-scene="6" data-accent="#8fb6e8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: library.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: library.h2Html }} />
@@ -298,7 +334,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="operator" data-scene="6">
+        <section className="scene" id="operator" data-scene="7" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: operator.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: operator.h2Html }} />

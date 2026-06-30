@@ -1,6 +1,13 @@
 /* zephyrcode.live (home) — page CSS, verbatim port, scoped */
 [data-site="home"] { --maxw: 1140px; --serif: var(--font-spectral), "Spectral", Georgia, serif; }
 
+/* Per-section identity: the hub accent transitions as each scene takes the
+   viewport (SceneAccent.tsx sets --accent per data-accent). @property makes the
+   custom property animatable; the transition lives on the home wrapper. */
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #e85d2a; }
+[data-site="home"] { transition: --accent 0.7s ease; }
+@media (prefers-reduced-motion: reduce) { [data-site="home"] { transition: none; } }
+
 /* ---- fixed layers ---- */
 /* translateZ promotes the canvas to its own layer — keeps the fixed WebGL bg
    painting on mobile Safari (fixed canvases behind scrolling content otherwise
@@ -237,6 +244,27 @@
   [data-site="home"] .audit-trace { stroke-dashoffset: 0; animation: none; }
   [data-site="home"] .audit-card { transition: none; }
 }
+
+/* arena — the VOLTAGE band (gold #c6ff45 = the optimum). Its own electric life. */
+[data-site="home"] #arena { --arena: #c6ff45; }
+[data-site="home"] #arena .shead h2 em { font-style: italic; color: var(--arena); }
+[data-site="home"] #arena .sub b { color: var(--arena); font-weight: 600; }
+[data-site="home"] .arena-demo { max-width: 680px; border: 1px solid var(--line); background: rgba(10, 11, 8, 0.62); backdrop-filter: blur(2px); padding: 26px 28px; font-family: var(--mono); }
+[data-site="home"] .ad-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+[data-site="home"] .ad-k { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-faint); width: 96px; flex: none; }
+[data-site="home"] .ad-bar { flex: 1; height: 12px; background: rgba(255, 255, 255, 0.045); border: 1px solid var(--line-soft); border-radius: 2px; position: relative; overflow: hidden; }
+[data-site="home"] .ad-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+[data-site="home"] .ad-fill.greedy { background: linear-gradient(90deg, #4d5a2a, #8aa83e); }
+[data-site="home"] .ad-fill.opt { background: linear-gradient(90deg, color-mix(in oklab, var(--arena) 55%, transparent), var(--arena)); box-shadow: 0 0 12px color-mix(in srgb, var(--arena) 45%, transparent); }
+[data-site="home"] .arena-demo.in .ad-fill.greedy { width: 76%; }
+[data-site="home"] .arena-demo.in .ad-fill.opt { width: 100%; }
+[data-site="home"] .ad-sc { font-size: 13px; color: var(--bone-dim); width: 36px; text-align: right; flex: none; }
+[data-site="home"] .ad-sc.gold { color: var(--arena); }
+[data-site="home"] .ad-cap { font-family: var(--serif); font-size: 0.98rem; color: var(--bone-dim); margin-top: 14px; line-height: 1.6; max-width: 60ch; }
+[data-site="home"] .ad-cap b { color: var(--arena); font-weight: 600; }
+[data-site="home"] #arena .btn.solid { background: var(--arena); color: #0b1400; border-color: var(--arena); }
+[data-site="home"] #arena .btn.solid:hover { background: color-mix(in oklab, var(--arena) 86%, white); }
+@media (prefers-reduced-motion: reduce) { [data-site="home"] .ad-fill { transition: none; } }
 
 /* footer / constellation (home variant overrides the shared footer) */
 [data-site="home"] footer { position: relative; z-index: 10; border-top: 1px solid var(--line-soft); margin-top: 8vh; padding: 64px var(--pad) 44px; background: linear-gradient(to bottom, rgba(13, 11, 9, 0), rgba(8, 6, 4, 0.85)); display: block; }

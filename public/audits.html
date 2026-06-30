@@ -103,9 +103,9 @@
 
   /* ---------- hero ---------- */
   .hero{position:relative;padding:96px 0 80px;border-bottom:1px solid var(--line);overflow:hidden}
-  .hero-trace{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.55;pointer-events:none}
-  #sigpath{filter:drop-shadow(0 0 3px var(--signal-glow))}
-  #sigdot{filter:drop-shadow(0 0 6px var(--signal-glow))}
+  .hero-trace{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.42;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+  #sigpath{filter:drop-shadow(0 0 4px var(--signal-glow))}
+  #sigdot{filter:drop-shadow(0 0 7px var(--signal-glow))}
   .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
   .hero h1{font-family:var(--serif);font-weight:400;font-size:clamp(2.05rem,6vw,4.05rem);line-height:1.04;letter-spacing:-.02em;margin:22px 0 26px}
   /* the cyan underline draws on AND wraps gracefully on narrow screens */
@@ -252,6 +252,91 @@
   .foot-links{display:flex;gap:22px;font-family:var(--mono);font-size:.74rem;color:var(--dim)}
   .foot-links a:hover{color:var(--signal)}
 
+  /* ---------- clickable cards + detail drawer ---------- */
+  .card{cursor:pointer}
+  .card .more{position:absolute;right:16px;bottom:16px;font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;display:flex;align-items:center;gap:6px;transition:color .25s}
+  .card .more b{font-size:.95rem;line-height:0;transition:transform .3s var(--ease)}
+  .card:hover .more{color:var(--signal)}
+  .card.active{border-color:var(--signal);background:var(--ink-2)}
+  .card.active::after{transform:scaleY(1)}
+  .card.active .more{color:var(--signal)}
+  .card.active .more b{transform:rotate(45deg)}
+  .card.active .tick{opacity:.6}
+  .card-foot{margin-right:78px} /* leave room for the "detail +" cue */
+  /* the drawer: smooth height via grid-template-rows 0fr -> 1fr */
+  .drawer{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s var(--ease),margin .5s var(--ease);margin-top:0}
+  .drawer.open{grid-template-rows:1fr;margin-top:18px}
+  .drawer-clip{overflow:hidden;min-height:0}
+  .drawer-inner{opacity:0;transform:translateY(8px);transition:opacity .45s var(--ease) .05s,transform .45s var(--ease) .05s;background:linear-gradient(180deg,var(--ink-2),var(--ink-1));border:1px solid var(--line-2);border-radius:12px;position:relative;overflow:hidden}
+  .drawer.open .drawer-inner{opacity:1;transform:none}
+  .drawer-inner::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--signal),var(--signal-deep))}
+  .dr-pad{padding:26px 30px 28px}
+  .dr-top{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:22px}
+  .dr-sku{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;color:var(--signal);text-transform:uppercase}
+  .dr-top h3{font-family:var(--serif);font-weight:500;font-size:1.5rem;line-height:1.15;margin:8px 0 0;max-width:18em}
+  .dr-thesis{color:var(--dim);font-size:1.02rem;line-height:1.62;margin-top:12px;max-width:54em}
+  .dr-thesis b{color:var(--paper);font-weight:500}
+  .dr-meta{font-family:var(--mono);font-size:.72rem;color:var(--faint);text-align:right;white-space:nowrap;line-height:1.9}
+  .dr-meta .price{color:var(--signal);font-size:.95rem;display:block}
+  .dr-cols{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:22px}
+  @media(max-width:760px){.dr-cols{grid-template-columns:1fr;gap:26px}.dr-pad{padding:22px 20px}}
+  .dr-lab{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--signal);margin-bottom:15px;display:flex;align-items:center;gap:8px}
+  .dr-lab::before{content:"";width:14px;height:1px;background:var(--signal);opacity:.6}
+  .examine{list-style:none;display:flex;flex-direction:column;gap:11px}
+  .examine li{position:relative;padding-left:20px;color:var(--paper);font-size:.9rem;line-height:1.5}
+  .examine li::before{content:"";position:absolute;left:0;top:.5em;width:6px;height:6px;border:1px solid var(--signal);transform:rotate(45deg)}
+  .phase{display:flex;gap:14px;margin-bottom:17px}
+  .phase:last-child{margin-bottom:0}
+  .phase .pn{flex:none;font-family:var(--mono);font-size:.68rem;color:var(--signal);width:26px;height:26px;border:1px solid var(--line-2);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--ink)}
+  .phase .pb b{display:block;font-family:var(--serif);font-weight:500;font-size:1.02rem;color:var(--paper);margin-bottom:3px}
+  .phase .pb span{color:var(--dim);font-size:.88rem;line-height:1.5}
+  .dr-band{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.dr-band{grid-template-columns:1fr}}
+  .dr-box{border:1px solid var(--line);border-radius:8px;padding:16px 18px;background:var(--ink)}
+  .dr-box.lens{border-left:2px solid var(--signal)}
+  .dr-box .t{font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+  .dr-box p{color:var(--dim);font-size:.89rem;line-height:1.55}
+  .dr-box.lens p{color:var(--paper)}
+  .signals{margin-top:26px}
+  .signals>.dr-lab{color:var(--alert)}
+  .signals>.dr-lab::before{background:var(--alert)}
+  .sig{display:flex;gap:12px;padding:13px 0;border-top:1px dashed var(--line-2)}
+  .sig:first-of-type{border-top:none;padding-top:4px}
+  .sig .sflag{flex:none;font-family:var(--mono);font-size:.54rem;letter-spacing:.12em;color:var(--alert);border:1px solid rgba(255,92,108,.4);background:var(--alert-soft);border-radius:3px;padding:4px 7px;height:fit-content;text-transform:uppercase}
+  .sig p{color:var(--dim);font-size:.89rem;line-height:1.5}
+  .dr-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+  .dr-foot .note{font-family:var(--mono);font-size:.72rem;color:var(--faint)}
+
+  /* ---------- booking modal ---------- */
+  .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;visibility:hidden;transition:opacity .3s var(--ease),visibility .3s}
+  .modal.open{opacity:1;visibility:visible}
+  .modal-bd{position:absolute;inset:0;background:rgba(5,7,10,.74);backdrop-filter:blur(6px)}
+  .modal-panel{position:relative;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;background:linear-gradient(180deg,var(--ink-2),var(--ink-1));border:1px solid var(--line-2);border-radius:14px;padding:30px 30px 28px;transform:translateY(16px) scale(.985);transition:transform .35s var(--ease)}
+  .modal.open .modal-panel{transform:none}
+  .modal-panel::before,.modal-panel::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--signal);opacity:.5}
+  .modal-panel::before{top:12px;left:12px;border-right:0;border-bottom:0}
+  .modal-panel::after{bottom:12px;right:12px;border-left:0;border-top:0}
+  .modal .x{position:absolute;top:15px;right:15px;width:30px;height:30px;border:1px solid var(--line-2);border-radius:50%;color:var(--dim);background:transparent;cursor:pointer;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s}
+  .modal .x:hover{border-color:var(--signal);color:var(--signal)}
+  .modal .eyebrow{margin-bottom:12px}
+  .modal h3{font-family:var(--serif);font-weight:500;font-size:1.5rem;line-height:1.2;margin-bottom:6px}
+  .modal .sub{color:var(--dim);font-size:.95rem;margin-bottom:22px;max-width:38em}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:7px}
+  .field input,.field select,.field textarea{width:100%;background:var(--ink);border:1px solid var(--line-2);border-radius:7px;padding:11px 13px;color:var(--paper);font-family:var(--body);font-size:.95rem;transition:border-color .2s}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--signal)}
+  .field textarea{resize:vertical;min-height:82px;line-height:1.5}
+  .field select{font-family:var(--mono);font-size:.84rem;cursor:pointer}
+  .modal .row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  @media(max-width:480px){.modal .row{grid-template-columns:1fr}.modal-panel{padding:26px 20px}}
+  .modal .submit{width:100%;margin-top:10px;justify-content:center;font-size:.9rem}
+  .modal .err{color:var(--alert);font-size:.82rem;margin-top:11px;font-family:var(--mono);min-height:1em}
+  .modal-ack{text-align:center;padding:14px 0 6px}
+  .modal-ack .ic{width:54px;height:54px;margin:0 auto 18px;border:1px solid var(--signal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--signal);box-shadow:0 0 0 6px var(--signal-soft)}
+  .modal-ack h3{margin-bottom:10px}
+  .modal-ack p{color:var(--dim);font-size:.98rem;line-height:1.6;max-width:34em;margin:0 auto}
+  [hidden]{display:none!important}
+
   /* reveal */
   .rv{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
   .rv.in{opacity:1;transform:none}
@@ -283,7 +368,7 @@
       <a href="#sample">Sample teardown</a>
       <a href="#about">Who</a>
     </nav>
-    <a href="#book" class="nav-cta">Book an audit</a>
+    <button class="nav-cta" type="button" data-book>Book an audit</button>
   </div>
 </header>
 
@@ -418,6 +503,8 @@
       </div>
 
     </div>
+
+    <div class="drawer" id="drawer" aria-live="polite"><div class="drawer-clip"><div class="drawer-inner" id="drawerInner"></div></div></div>
   </div>
 </section>
 
@@ -531,8 +618,8 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
     <h2 class="rv">Tell me your <em>hardest systems problem.</em></h2>
     <p class="rv">Book an audit directly, or describe what's keeping you up and I'll point you to the right one — or tell you honestly if you don't need one.</p>
     <div class="rv hero-cta">
-      <a href="mailto:priyanshu@zephyrcode.live" class="btn btn-primary" onclick="window.posthog&&posthog.capture('audit_cta',{cta:'book'})">Book an audit <span aria-hidden="true">→</span></a>
-      <a href="mailto:priyanshu@zephyrcode.live" class="btn btn-ghost" onclick="window.posthog&&posthog.capture('audit_cta',{cta:'ask'})">Ask which one I need</a>
+      <button class="btn btn-primary" type="button" data-book>Book an audit <span aria-hidden="true">→</span></button>
+      <button class="btn btn-ghost" type="button" data-book="ask">Ask which one I need</button>
     </div>
   </div>
 </section>
@@ -546,6 +633,36 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
     </div>
   </div>
 </footer>
+
+<div class="modal" id="bookModal" role="dialog" aria-modal="true" aria-labelledby="bookTitle" hidden>
+  <div class="modal-bd" data-close></div>
+  <div class="modal-panel">
+    <button class="x" type="button" aria-label="Close" data-close>×</button>
+    <div class="modal-form" id="modalForm">
+      <span class="eyebrow">Book an audit</span>
+      <h3 id="bookTitle">Tell me your hardest systems problem.</h3>
+      <p class="sub">A few details — I'll personally reply within one business day with which audit fits, or an honest "you don't need one."</p>
+      <form id="bookForm" novalidate>
+        <div class="row">
+          <div class="field"><label for="bk-name">Name</label><input id="bk-name" name="name" type="text" autocomplete="name" required /></div>
+          <div class="field"><label for="bk-email">Work email</label><input id="bk-email" name="email" type="email" autocomplete="email" required /></div>
+        </div>
+        <div class="field"><label for="bk-company">Company <span style="color:var(--faint)">· optional</span></label><input id="bk-company" name="company" type="text" autocomplete="organization" /></div>
+        <div class="field"><label for="bk-audit">Which audit</label>
+          <select id="bk-audit" name="audit"><option value="">Not sure yet — point me to the right one</option></select>
+        </div>
+        <div class="field"><label for="bk-msg">What's keeping you up?</label><textarea id="bk-msg" name="message" placeholder="The system, the symptom, the deadline. One paragraph is plenty."></textarea></div>
+        <button class="btn btn-primary submit" type="submit" id="bkSubmit">Send it <span aria-hidden="true">→</span></button>
+        <p class="err" id="bkErr" role="alert"></p>
+      </form>
+    </div>
+    <div class="modal-ack" id="modalAck" hidden>
+      <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <h3>Got it — message received.</h3>
+      <p id="ackMsg">I'll personally read this and reply within one business day, from priyanshu@zephyrcode.live. Talk soon.</p>
+    </div>
+  </div>
+</div>
 
 <script>
   (function(){
@@ -602,6 +719,15 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
     var path = document.getElementById('sigpath');
     var dot = document.getElementById('sigdot');
     if(path){
+      // refined: a smooth damped-oscillation telemetry trace (no jagged segments)
+      (function(){
+        var W=1200,B=206,pts=[];
+        for(var x=0;x<=W;x+=4){
+          var t=x/W, amp=80*Math.exp(-3.0*t), y=B-amp*Math.sin(t*20.5);
+          pts.push(x+' '+y.toFixed(1));
+        }
+        path.setAttribute('d','M'+pts.join(' L'));
+      })();
       var len = path.getTotalLength();
       path.style.strokeDasharray = len;
       if(reduce){
@@ -627,6 +753,104 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
       }
     }
   })();
+</script>
+
+<script>
+(function(){
+  // Per-audit methodology — written senior, grounded in real practice +
+  // "Software Architecture: The Hard Parts". Keyed by the card SKU.
+  var AUDITS = {
+   'ZC·KAFKA':{thesis:`Most Kafka pain is not a broker-tuning problem — it is a partitioning-key and consumer-group design problem wearing a throughput costume, and the failure surfaces as lag and reprocessing precisely where ordering guarantees collide with parallelism.`,examine:[`partition.assignment.strategy (range vs round-robin vs cooperative-sticky) and rebalance storms under deploy`,`partition key cardinality and hot-partition skew vs declared per-key ordering`,`exactly_once_v2, transactional.id stability across restarts, producer idempotence`,`lag topology: max.poll.records vs max.poll.interval.ms vs in-handler I/O latency`,`offset commit strategy (auto vs manual-after-sink) and the redelivery window into sinks`,`DLQ / retry-topic design, poison-pill handling, RF vs min.insync.replicas + acks=all math`],method:[['Topology + flow map',`Inventory topics, partition counts, RF/min.ISR, consumer groups and assignment strategy, and draw the real event flow including every place a topic is both sink and source.`],['Guarantee reconciliation',`Pin each pipeline's claimed delivery/ordering guarantee against config reality — acks, idempotence, EOS boundaries, and whether downstream writes are genuinely idempotent.`],['Lag + backpressure forensics',`Read per-partition lag over time, correlate p99 handler latency and poll-loop timing with rebalance/commit events to find skew vs slow sinks vs interval-driven eviction.`],['Failure-mode probing',`Trace blast radius of a broker loss, a poison message, and a rolling consumer deploy — what reprocesses, stalls, silently drops, and where ordering breaks mid-rebalance.`],['Findings + remediation',`Ranked defects with concrete config/key/topology changes, each tagged by risk, ordering impact, and a no-flag-day migration path.`]],hardparts:`Kafka topics are the dynamic-coupling substrate between services, so the audit applies Hard Parts lenses on event-driven contracts (strict vs loose schemas at topic boundaries), choreography-vs-orchestration, and the saga/transactional-outbox patterns where exactly-once across the broker and a database-per-service boundary is impossible and must be made idempotent instead.`,deliverable:`A ranked teardown of every partitioning, consumer-group, delivery-guarantee, and backpressure defect, each with the concrete config/key/topology change, its ordering and blast-radius impact, and a no-flag-day migration path.`,signals:[`A topic with a per-entity ordering guarantee partitioned on a low-cardinality or null-defaulting key — ordering is silently lost the moment two entities hash to one partition.`,`exactly_once set while a consumer commits offsets before the downstream write completes — a crash mid-sink replays and double-applies despite the EOS label.`,`max.poll.interval.ms left at default while in-handler I/O exceeds it under load — the broker evicts the consumer and manufactures the exact lag spike the team blamed on capacity.`]},
+   'ZC·INFER':{thesis:`Most inference bills are dominated not by price-per-token but by three hidden taxes — uncached prompt prefixes, synchronous one-at-a-time calls that strand throughput, and a router that sends easy requests to the expensive tier — and the latency people complain about is p99 tail from fallback retries, not the median.`,examine:[`Router logic: what drives model selection, per-request vs sticky, the measured win-rate of the cheap tier vs silent over-routing to the flagship`,`Prompt-cache hit rate + prefix discipline: static-vs-dynamic block ordering, TTL, per-1k-token billing delta on hit vs miss`,`Batching/concurrency: coalescing, max-tokens-in-flight, queue depth, TTFT vs total completion latency`,`Fallback + retry: timeout budgets, idempotency keys on retried completions, backoff+jitter, blast radius on a provider 429`,`Token ledger: input/output/cached split per route, p50/p95/p99 cost-per-successful-request, where tokens accrue (retries, reprompts, tool loops)`,`Self-host vs API: GPU utilization and cold-start tail vs per-token pricing at your real traffic shape`],method:[['Traffic & token forensics',`Replay 2-4 weeks of production logs to rebuild the real distribution and a per-route token ledger separating input, output and cached tokens — cost attributed to causes, not a monthly total.`],['Path & coupling trace',`Map every hop client→model→back (router, cache, queue, batcher, primary, fallback), treating the inference call as its own architectural quantum and marking where retries/tool loops multiply spend.`],['Tail & failure probing',`Drive load to expose p99, force provider 429/timeout to observe fallback blast radius and retry amplification, and verify idempotency so a retried completion is never double-billed.`],['Counterfactual modeling',`Re-cost real traffic against alternative routing thresholds, prefix-cache ordering, batch sizes, and a self-host-vs-API break-even curve — assumptions stated explicitly.`],['Sequenced remediation',`A ranked change list, cheap reversible wins (cache reorder, batch tuning) before structural moves (router rewrite, partial self-host), each with expected $/latency delta and rollback.`]],hardparts:`Treats the inference call as a distinct architectural quantum and applies static-vs-dynamic coupling to the routing/fallback fabric — the router and fallback tiers are a distributed transaction across providers, evaluated as choreography-vs-orchestration with idempotency keys and saga-style compensation; any self-host move is staged strangler-fig, not a flag-day rewrite.`,deliverable:`A teardown with a per-route token-and-cost ledger, a p50/p95/p99 latency and cost-per-successful-request breakdown, the self-host-vs-API break-even curve for your traffic, and a ranked remediation list — each item with an expected $/latency delta, effort, and rollback path.`,signals:[`Prompt-cache hit rate near zero because dynamic content (timestamps, IDs, retrieved chunks) sits above the static system block, defeating prefix caching on every call.`,`A router confidence threshold that almost never fires, so >80% of traffic silently lands on the flagship while dashboards still claim a cheap default.`,`Fallback retries with no idempotency key and no jitter — a single 429 triggers a synchronized retry storm that doubles spend and pushes p99 past the client timeout.`]},
+   'ZC·RESIL':{thesis:`Most "high-availability" systems are independently-correct services wired together by hopeful synchronous calls, so they fail not where you added redundancy but at the shared dependency, the unbounded retry, and the non-idempotent write nobody mapped under partial outage.`,examine:[`Synchronous call graph + dependency fan-out to find shared SPOFs (one Postgres primary, one Redis, one auth service) every path quietly depends on`,`Retry config end-to-end: timeout budgets, backoff+jitter, where naive retries stack into retry storms / metastable overload`,`Write paths for idempotency: keys, dedup windows, whether at-least-once delivery lands on non-idempotent handlers`,`Circuit breakers + bulkheads: thresholds, half-open probes, per-dependency pool isolation vs one pool saturating`,`Cross-service consistency: distributed transactions, saga choreography vs orchestration, compensating actions when step N fails after N-1 committed`,`Blast radius under partial outage: cell/AZ boundaries, consumer rebalance behavior, p99 tail amplification across hops`],method:[['Topology & quanta map',`Reconstruct the real runtime call graph from traces and config (not the diagram) to identify each architectural quantum, its hard coupling edges, and every shared dependency that is a latent SPOF.`],['Failure-mode injection review',`Walk each dependency edge against latency, partial failure, and full outage — timeout budgets, backoff+jitter, breaker thresholds, bulkhead isolation, and whether degradation is graceful or metastable.`],['Write-path & consistency audit',`Trace every mutating path for idempotency under at-least-once delivery, evaluate cross-service workflows as sagas, and confirm compensating transactions exist and contracts match the coupling actually needed.`],['Blast-radius modeling',`Quantify what dies when one cell/AZ/partition/pool goes down, model p99 tail amplification across call depth, and rank remediations by reduction in correlated-failure surface.`]],hardparts:`Applies architectural quanta and static-vs-dynamic coupling to locate where synchronous coupling forces shared fate, then evaluates cross-service workflows through database-per-service ownership and the saga patterns (choreography vs orchestration) with contract strictness chosen to match — not exceed — the coupling each interaction genuinely requires.`,deliverable:`A ranked teardown of concrete failure modes — each tied to the exact dependency edge, config value, or write path that causes it — with the blast radius it implies and a specific remediation (timeout/backoff, breaker, bulkhead, idempotency key, saga compensation, or cell boundary).`,signals:[`A single Postgres primary or one Redis behind a pool shared by every service — one slow query saturates the pool and the whole fleet stalls, past where you thought you had redundancy.`,`Retries with no jitter and no global timeout budget into an already-degraded downstream — a brief blip becomes a self-sustaining retry storm that doesn't recover after the trigger clears.`,`At-least-once consumers calling non-idempotent handlers — a rebalance or redelivery double-charges, double-ships, or double-writes because there is no idempotency key.`]},
+   'ZC·SCALE':{thesis:`Most systems don't fail at scale because of slow code — they fail because an undefined capacity ceiling, a shared coupling point, or a transactional boundary that was fine at 1x silently becomes the single thing that takes everything down at 10x.`,examine:[`The load-bearing path under realistic burst, not steady-state averages: p99/p999 tail, head-of-line blocking, where the curve goes non-linear`,`Connection- and thread-pool saturation: pool sizes vs DB max_connections, pgbouncer/HikariCP limits, queue depth, timeout cascades`,`Hottest queries under EXPLAIN ANALYZE: seq scans, missing indexes, lock contention, replication lag under write load`,`Service + data boundaries: shared databases, synchronous chains, the true architectural quanta (what must scale and deploy as one unit)`,`Stateful limits: Kafka partition count vs consumer parallelism, single-leader write ceilings, cache stampede behavior`,`Failure/recovery semantics: retry/timeout/backoff, idempotency keys, blast radius of one dependency, cold-start and failover behavior`],method:[['Capacity model first',`Build a defensible model from real traffic shape — RPS, fan-out, payload size, read/write ratio — and derive the theoretical ceiling per tier before touching a profiler, so we know what to look for.`],['Boundary & coupling map',`Trace synchronous chains and data ownership to find the architectural quanta and the coupling points that force the whole system to scale together rather than independently.`],['Bottleneck instrumentation',`Pull p99/p999 tails, EXPLAIN ANALYZE on hot queries, pool-saturation and queue-depth metrics, and partition/lag data to locate the first real ceiling — and the second one behind it.`],['Failure-mode probing',`Examine retries, timeouts, idempotency, and blast radius (injecting load/latency on a staging quantum where feasible) to see how the system degrades, not just how fast it runs.`],['Go/no-go writeup',`A ranked bottleneck list with the projected headroom multiple, the cheapest credible fix for each, and an explicit honest verdict tied to your specific launch, raise, or contract.`]],hardparts:`Applies architectural quanta and static-vs-dynamic coupling to find what must scale as one unit, with database-per-service / data ownership and the saga patterns (with idempotency keys) used to assess whether write paths and distributed transactions survive decomposition under load.`,deliverable:`A ranked bottleneck inventory with a defensible capacity model, projected headroom to the next ceiling, the cheapest credible remediation per bottleneck, and a one-line honest go/no-go verdict scoped to the specific launch, raise, or first enterprise contract.`,signals:[`A single shared database behind several "services" — no real data ownership, so the database-per-service line is the actual scaling ceiling and the path out is non-trivial.`,`Synchronous orchestration across boundaries with no idempotency keys and naive retries — a distributed transaction that turns a transient blip into a duplicate-write or stampede amplifier.`,`Kafka partition count fixed below peak consumer parallelism (or a hot key) — lag and rebalance storms that cap throughput no matter how many consumers you add.`]},
+   'ZC·AWS':{thesis:`Most AWS bills aren't a pricing problem, they're an architecture problem — the line items are just where unowned data boundaries, chatty service topologies, and AZ-oblivious placement show up as dollars.`,examine:[`EKS node groups + pod requests/limits vs actual usage — CPU/mem at p50 and p99, bin-packing density, Karpenter config, nodes that exist only to satisfy over-stated requests`,`MSK topology — broker type/count, partitions + assignment strategy, RF, retention, producer batching, consumer-lag churn driving over-provisioning`,`Cross-AZ data flow — inter-AZ traffic on EKS↔MSK↔RDS, NAT Gateway processing charges, VPC-endpoint coverage vs traffic still on NAT`,`Right-sizing posture — on-demand vs Spot vs Savings Plans coverage, Spot interruption handling + PDBs, Graviton eligibility, gp2→gp3`,`Data ownership + chattiness — which services share a database, synchronous fan-out, pool sizing vs RDS max_connections, N+1 via EXPLAIN ANALYZE`,`Reliability cost coupling — blast radius of node/AZ loss, whether HA spend buys real isolation or just duplicates one failure domain`],method:[['Evidence intake',`Pull the Cost & Usage Report at resource granularity, CloudWatch/Container Insights + MSK metrics, VPC Flow Logs, and EKS/Karpenter config — no estimates, only measured utilization over a representative 30-day window.`],['Topology + boundary map',`Reconstruct the actual call and data-flow graph (who talks to whom, across which AZ, through which NAT/endpoint) and mark where service boundaries don't match data ownership.`],['Quantified findings',`Convert each issue into a dollar figure with the mechanism behind it — cross-AZ chatter, over-stated requests, idle broker headroom — ranked by annualized saving against implementation risk.`],['Remediation with blast radius',`Each change (right-size, Spot/Graviton, VPC endpoints, partition/retention tuning) with its rollback path, blast radius, and a strangler-fig sequence for anything touching boundaries.`],['Verification handoff',`A before/after metric for every recommendation (utilization target, p99, inter-AZ bytes, monthly run-rate) so savings are provable post-change, not asserted.`]],hardparts:`The lens is static-vs-dynamic coupling and data ownership: a bill inflated by cross-AZ chatter and shared-database fan-out is usually a symptom of services whose runtime communication and data boundaries violate database-per-service ownership — so cost is read as a coupling diagnostic, not just a procurement one.`,deliverable:`A line-item teardown mapping every material cost driver across EKS, MSK, right-sizing, Spot, and egress to its underlying architectural cause, each with a quantified annual saving, a sequenced remediation, and a rollback/blast-radius note.`,signals:[`NAT Gateway + inter-AZ transfer rival compute spend because services in different AZs chat synchronously and there are no S3/ECR/STS VPC endpoints — bytes paying a tax an endpoint would zero out.`,`EKS nodes sized to requests, not usage: requests 3-4x above measured p99, so the cluster runs double the nodes it needs while Spot/Graviton sit untouched.`,`MSK over-provisioned around a partition count + assignment strategy that triggers frequent rebalances, with retention set generously "to be safe" — paying for headroom lag never required.`]},
+   'ZC·RAG':{thesis:`Most RAG systems fail at retrieval and evaluation, not at the LLM — teams ship a vector index with no ground-truth eval set, no measured grounding, and a cost/latency profile that collapses under the p99 tail nobody benchmarked.`,examine:[`Chunking: token window, overlap, whether splits respect document structure (headings, tables, code) vs naive fixed-size that severs claims from evidence`,`Retrieval recall@k / MRR against a labeled query→passage gold set, reranker presence, embedding-model-to-distance-metric match`,`Eval harness: faithfulness/grounding + answer-relevance scoring, regression gating on a frozen set, whether the LLM-judge is calibrated to human labels`,`Hallucination controls: citation-back-to-source, abstention on low retrieval confidence, lost-in-the-middle context crowding`,`Cost/latency per request: embed + ANN + rerank + generation, token accounting, prompt-cache hit rate, TTFT vs total p99`,`Index freshness: re-embedding on source change, ingestion idempotency, data ownership between source-of-truth and vector store`],method:[['Ground-truth & retrieval audit',`Build or inspect a labeled query→passage set, then measure recall@k, MRR, and reranker lift on real traffic queries — isolating retrieval failure from generation failure.`],['Chunking & index inspection',`Replay representative documents through the chunker to find severed claims and bad window sizes, and verify the embedding model, distance metric, and ANN params are mutually consistent.`],['Eval harness & grounding',`Stand up or stress the offline gate — faithfulness, answer relevance, abstention rate — and check the LLM-judge is calibrated against a human-labeled slice so the numbers mean something.`],['Cost, latency & tail',`Decompose per-stage latency and token cost, load-test to expose p99 and vector-store pool saturation, and quantify prompt-cache + streaming TTFT under concurrency.`],['Boundary & freshness review',`Trace data ownership and the re-embedding pipeline for idempotency and staleness, mapping the blast radius when source-of-truth and vector store drift apart.`]],hardparts:`Applies data ownership and contracts: the vector store and the source-of-truth database are separate architectural quanta whose ingestion path is a distributed write needing idempotency keys and a strangler-friendly, eventually-consistent contract — not an assumed transactional one.`,deliverable:`A teardown ranking retrieval, chunking, eval, hallucination, and cost/latency defects by severity, each with the measured number behind it (recall@k, grounding rate, per-stage p99, token cost) and a concrete remediation.`,signals:[`No frozen eval set — quality is judged by eyeballing demos, so every prompt or model change is an unmeasured regression with no gate to catch it.`,`Retrieval recall is the real bottleneck but the team is tuning the generation prompt; the right passage never enters the context window in the first place.`,`Cost and latency reported at the mean while the p99 tail is 4-6x worse, driven by reranker calls and vector-store pool saturation under concurrency.`]},
+   'ZC·PSQL':{thesis:`Most Postgres scaling pain is not "the database is slow" — it's a small set of unindexed hot paths, an unbounded connection model, and a replica/partition strategy bolted on after the data model calcified, so growth multiplies cost instead of capacity.`,examine:[`EXPLAIN (ANALYZE, BUFFERS) on the top-N from pg_stat_statements, ranked by total_time and by p99, not by mean`,`Index reality: pg_stat_user_indexes for unused/duplicate indexes, missing composite/covering indexes, bloat via pgstattuple`,`Connection model: pooler topology (PgBouncer/RDS Proxy), transaction vs session pooling, max_connections vs actual concurrency, saturation under load`,`Partitioning candidates + key choice (time-range vs hash), constraint exclusion / pruning actually firing in plans`,`Replica strategy: replication-lag distribution, read-after-write hazards on replicas, failover blast radius`,`Lock + transaction hygiene: long-running and idle-in-transaction, autovacuum vs churn, XID wraparound headroom`],method:[['Workload baseline',`Capture pg_stat_statements, autovacuum/bloat state, lock waits, and replication lag over a representative window so the audit targets the real hot path and p99 tail, not synthetic averages.`],['Plan & index forensics',`Run EXPLAIN (ANALYZE, BUFFERS) on the ranked offenders, separate planner mis-estimates from genuinely missing/duplicate/bloated indexes, and validate proposed indexes change the plan rather than just adding write cost.`],['Concurrency & pooling',`Map the pooler topology and mode against true concurrency to find saturation, then size pool / work_mem / statement_timeout to the workload instead of the default.`],['Partition & scale design',`Decide whether partitioning earns its complexity, pick a key that yields real pruning, and validate detach/retention as an online operation — applied incrementally, strangler-fig, never a big-bang.`],['Replica & failover',`Design the read/write split around read-after-write consistency, lag SLOs, and failover blast radius, then hand over runbook, monitoring thresholds, and a prioritized backlog tied to measured impact.`]],hardparts:`Read-replica routing forces an explicit contract decision (strict vs loose consistency) at the read/write boundary: stale-tolerant paths stay loose, read-after-write paths need strict (route to primary or carry a freshness token) — and partition-key choice is the data-decomposition decision that fixes the table's quantum, so getting it wrong is expensive to undo.`,deliverable:`A prioritized findings document: ranked query-plan fixes with before/after EXPLAIN ANALYZE evidence, an index change set (add/drop/rebuild), a pooling and partitioning plan, and a replica/failover design with lag SLOs, thresholds, and a runbook.`,signals:[`A single unindexed predicate or N+1 pattern accounting for the majority of total_time in pg_stat_statements while CPU graphs look "fine" on average.`,`max_connections set far above what the box can serve, with no transaction-mode pooler — a spike causes saturation and cascading timeouts instead of graceful queueing.`,`Read replicas serving read-after-write paths with no lag awareness, producing intermittent "my save disappeared" bugs that never reproduce in staging.`]},
+   'ZC·OTEL':{thesis:`Most OTel rollouts produce expensive telemetry nobody can act on: traces broken at every async/queue boundary, cardinality bombs that quietly drop metrics, and SLOs that measure the load balancer instead of what the user actually feels.`,examine:[`Context propagation across processes — W3C traceparent survival through HTTP, gRPC, and Kafka headers; where spans orphan at async handoffs`,`Span semantics — span.kind correctness, error status vs swallowed exceptions, semantic-convention adherence vs ad-hoc attributes that break dashboards on upgrade`,`Metric cardinality — unbounded labels (user_id, full URL, request_id) that drive TSDB memory and silent series-limit drops`,`Collector topology — agent vs gateway tiering, tail-sampling placement, memory_limiter/batch config, queue/retry on export, single-pipeline blast radius`,`SLO definitions — whether SLIs come from real user-facing latency/error events with honest p99 math, plus burn-rate windows vs static thresholds`,`Cost + retention — head vs tail sampling, log-to-trace correlation via trace_id, per-signal retention against the observability bill`],method:[['Inventory & boundary map',`Enumerate every service, runtime, and async hop (HTTP, gRPC, queues, cron, edge), then mark where context propagation must survive and where instrumentation is auto vs manual.`],['Trace integrity probe',`Drive representative flows end-to-end and verify single connected traces with correct parent/child and span.kind, isolating every point where the trace fractures at a coupling boundary.`],['Signal correctness audit',`Check metric cardinality against series budgets, validate semantic-convention conformance, and confirm logs carry trace_id/span_id so the three signals actually correlate.`],['Pipeline & sampling review',`Inspect Collector config, sampling placement, backpressure handling, and export reliability to size the blast radius when the telemetry backend degrades.`],['SLO & alerting validation',`Trace each SLI back to a real user-facing event, pressure-test the p99 math, and convert static thresholds to multi-window burn-rate alerts with honest error budgets.`]],hardparts:`Telemetry is itself a distributed system, so it's audited through dynamic coupling at architectural-quantum boundaries — every async/queue handoff is where context propagation breaks and where loose vs strict contracts on span attributes decide whether traces stay legible after the next service split.`,deliverable:`A teardown of your instrumentation pinpointing every trace-fracture boundary, cardinality and semantic-convention defect, Collector/sampling reliability gap, and SLO that doesn't measure user-felt behavior — each with the specific config or code fix and its priority.`,signals:[`Traces dead-end at the queue: a producer span exists, the consumer starts a fresh root because traceparent was never injected into message headers — every async workflow unobservable end-to-end.`,`A metric labeled with user_id or raw URL path blows up cardinality until the TSDB silently drops it or OOMs the Collector — the dashboard looks fine because the data quietly stopped arriving.`,`The "p99 latency" SLO is read off the load balancer with no tail sampling, so the slow traces that actually breach budget are exactly the ones sampled away.`]},
+   'ZC·BOUND':{thesis:`Most "microservices pain" is not too few services but services split on the wrong axis — boundaries drawn around nouns/CRUD tables instead of independently deployable architectural quanta, so every change fans out across the fleet and one slow synchronous dependency becomes a fleet-wide p99 collapse.`,examine:[`Service-to-service call graph and synchronous fan-out depth (chains crossing 4+ hops before returning)`,`Static vs dynamic coupling: who shares a database/schema vs who actually calls whom at runtime, and where one write spans multiple services`,`Data ownership and foreign-key reach across boundaries — joins, shared tables, dual-writes masquerading as independence`,`Transaction semantics across boundaries: distributed writes, missing idempotency keys, choreography sagas with no compensation`,`Comms patterns: sync REST/gRPC where async events belong, plus Kafka key choice and rebalance behavior`,`Tail-latency + failure propagation: p99 contributors, pool saturation, retry storms, absent timeouts/breakers defining blast radius`],method:[['Map the quanta',`Reconstruct the real topology from traces, deploy manifests, and schema grants — not the wiki diagram — to find each true architectural quantum and where shared DB/schema contradicts claimed independence.`],['Trace the hot paths',`Follow the top revenue/volume paths end to end, measuring synchronous fan-out depth and p99 contribution per hop, and isolating where pool saturation or retry amplification makes one slow node fail the whole call.`],['Probe data & transactions',`Audit data ownership against database-per-service, hunt cross-boundary joins/dual-writes, EXPLAIN ANALYZE the queries that secretly couple services, and map every multi-service write to its (often missing) saga.`],['Judge granularity',`Score each boundary against disintegrator drivers (independent change, scaling, fault isolation) vs integrator drivers (data relationships, chatty workflows, shared transactions) — over-split, correct, or a fragment to recombine.`],['Sequence the fix',`A prioritized recombine/re-cut plan with strangler-fig migration order, contract changes (strict vs loose) per seam, and the comms pattern (orchestration vs choreography, sync vs event) each boundary should use.`]],hardparts:`Applied straight from The Hard Parts — boundaries judged as architectural quanta via static-vs-dynamic coupling and the granularity disintegrator/integrator forces, then data ownership (database-per-service), saga choice, contract strictness, and a strangler-fig sequence drive the recommendation.`,deliverable:`A teardown of your service boundaries: an evidence-backed map of which services are over-split or mis-cut, the specific comms and data-ownership patterns causing your latency and reliability pain, and a sequenced recombine/re-cut plan with per-seam contract and saga decisions.`,signals:[`A synchronous chain 5+ services deep where one dependency's p99 becomes the whole path's p99 — and no timeouts or breakers, so a single slow node triggers retry storms and pool saturation across callers.`,`Two "independent" services writing the same tables (shared schema, cross-boundary FKs, dual-writes with no saga) — static coupling that means they deploy together and corrupt data together: one quantum wearing two names.`,`A swarm of single-table CRUD services that always change and deploy in lockstep within one workflow — classic over-split fragments to recombine before any further decomposition.`]},
+   'ZC·MIGR':{thesis:`Most migrations fail not at the code cut but at the data: teams move services while two systems silently disagree on the same row, and the rollback that looked clean on a slide doesn't exist once writes have diverged.`,examine:[`The proposed seam — whether it's a real quantum (independently deployable, own data, own failure domain) or a fake split still sharing a transaction boundary`,`Read/write paths to every table the migrating service touches: who else writes it, what FKs and triggers cross the seam, what ETL reads it out-of-band`,`The dual-write design: ordering, idempotency keys, partial-failure behavior, whether reconciliation can actually detect and repair drift`,`Transaction scope the split breaks — every place one ACID commit becomes a distributed workflow needing a saga, and whether compensation is even possible`,`Rollback mechanics per step: config flip vs redeploy vs data-restore — and what the recovery point/time actually is once new writes exist`,`Tail behavior under the new topology: added hops, pool sizing across the seam, p99 and timeout budgets, blast radius when the new service is down`],method:[['Seam validation',`Map static and dynamic coupling across the boundary to confirm the new service is a true quantum, not a distributed monolith sharing a database or a synchronous chain that fans out on every call.`],['Data ownership audit',`Trace every reader and writer of the affected tables to establish single-writer ownership, expose cross-seam FKs and shared transactions, and decide what physically moves vs what is replicated or exposed by contract.`],['Dual-write & reconciliation review',`Stress the dual-write plan for ordering, idempotency, and partial failure, plus a backfill + continuous reconciliation job that proves the two stores converge before any read traffic shifts.`],['Sequencing & rollback design',`Lay out the strangler-fig cutover as small reversible steps gated by metrics, and pressure-test rollback at each — distinguishing config-flip reversibility from points where divergent writes make rollback a data-recovery problem.`],['Failure & load modeling',`Model the new topology under load and partial outage — pools, retry/timeout budgets, saga compensation, p99, blast radius — to find where the cutover degrades or stalls under real traffic.`]],hardparts:`Applied through data decomposition and the architectural quantum: the center of gravity is data ownership and the dual-write/saga problem (choreography vs orchestration, strict vs loose contracts, compensating transactions) rather than service code, executed as a strangler-fig sequence rather than a big-bang rewrite.`,deliverable:`A migration de-risking dossier: an annotated seam map, a per-table data-ownership and movement plan, a dual-write/reconciliation spec, and a step-by-step cutover-and-rollback runbook with the recovery point/time and blast radius stated for each step.`,signals:[`Dual-write with no reconciliation job — the system can drift between stores and nothing detects it until a customer does, with no defined repair path.`,`Rollback described as "flip the flag" past the point where the new service has taken writes the old store never saw — meaning rollback is silently a lossy data-restore.`,`A "service" split that still shares one database (or wraps a cross-seam call in one transaction) — billed as independent deployment but a distributed monolith with worse tail latency and no real isolation.`]}
+  };
+
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  var cards=[].slice.call(document.querySelectorAll('#audits .grid .card'));
+  var sel=document.getElementById('bk-audit');
+  var info={};
+  cards.forEach(function(card){
+    var skuEl=card.querySelector('.sku'); if(!skuEl) return;
+    var sku=skuEl.textContent.trim(); if(!AUDITS[sku]) return;
+    var title=(card.querySelector('h3')||{}).textContent ? card.querySelector('h3').textContent.trim() : sku;
+    var time=(card.querySelector('.card-foot .time')||{}).textContent ? card.querySelector('.card-foot .time').textContent.trim() : '';
+    var price=(card.querySelector('.card-foot .price')||{}).textContent ? card.querySelector('.card-foot .price').textContent.trim() : '';
+    var tag=(card.querySelector('.tag')||{}).textContent ? card.querySelector('.tag').textContent.trim() : '';
+    info[sku]={title:title,time:time,price:price,tag:tag};
+    var o=document.createElement('option'); o.value=sku; o.textContent=sku+' — '+title; sel.appendChild(o);
+    card.setAttribute('role','button'); card.setAttribute('tabindex','0'); card.setAttribute('aria-expanded','false');
+    var more=document.createElement('span'); more.className='more'; more.innerHTML='Detail <b>+</b>'; card.appendChild(more);
+    card.addEventListener('click',function(){toggle(sku,card);});
+    card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(sku,card);}});
+  });
+
+  var drawer=document.getElementById('drawer'), inner=document.getElementById('drawerInner'), openSku=null;
+  function render(sku){
+    var a=AUDITS[sku], c=info[sku]||{};
+    var ex=a.examine.map(function(x){return '<li>'+esc(x)+'</li>';}).join('');
+    var me=a.method.map(function(m,i){return '<div class="phase"><span class="pn">'+(i+1)+'</span><span class="pb"><b>'+esc(m[0])+'</b><span>'+esc(m[1])+'</span></span></div>';}).join('');
+    var si=a.signals.map(function(s){return '<div class="sig"><span class="sflag">flag</span><p>'+esc(s)+'</p></div>';}).join('');
+    inner.innerHTML='<div class="dr-pad"><div class="dr-top"><div><div class="dr-sku">'+esc(sku)+(c.tag?' · '+esc(c.tag):'')+'</div><h3>'+esc(c.title||'')+'</h3><p class="dr-thesis">'+esc(a.thesis)+'</p></div><div class="dr-meta">'+esc(c.time||'')+'<span class="price">'+esc(c.price||'')+'</span></div></div>'
+      +'<div class="dr-cols"><div><div class="dr-lab">What I examine</div><ul class="examine">'+ex+'</ul></div><div><div class="dr-lab">How the audit runs</div>'+me+'</div></div>'
+      +'<div class="dr-band"><div class="dr-box lens"><div class="t">The architectural lens</div><p>'+esc(a.hardparts)+'</p></div><div class="dr-box"><div class="t">What you get</div><p>'+esc(a.deliverable)+'</p></div></div>'
+      +'<div class="signals"><div class="dr-lab">Representative findings I surface</div>'+si+'</div>'
+      +'<div class="dr-foot"><span class="note">Fixed scope · fixed price · a two-week clock · a written teardown you keep.</span><button class="btn btn-primary" type="button" data-book="'+esc(sku)+'">Book this audit <span aria-hidden="true">→</span></button></div></div>';
+  }
+  function activate(card){ cards.forEach(function(c){c.classList.remove('active');c.setAttribute('aria-expanded','false');}); card.classList.add('active'); card.setAttribute('aria-expanded','true'); }
+  function scrollToDrawer(delay){ setTimeout(function(){ var y=drawer.getBoundingClientRect().top+window.scrollY-90; window.scrollTo({top:y,behavior:'smooth'}); }, delay); }
+  function toggle(sku,card){
+    if(openSku===sku){ drawer.classList.remove('open'); openSku=null; card.classList.remove('active'); card.setAttribute('aria-expanded','false'); return; }
+    render(sku); activate(card); var was=!!openSku; openSku=sku;
+    if(!was){ drawer.classList.add('open'); }
+    if(window.posthog) posthog.capture('audit_expand',{sku:sku});
+    scrollToDrawer(was?60:230);
+  }
+
+  // ---- booking modal ----
+  var modal=document.getElementById('bookModal'), form=document.getElementById('bookForm');
+  var errEl=document.getElementById('bkErr'), modalForm=document.getElementById('modalForm'), ack=document.getElementById('modalAck'), lastFocus=null;
+  function openModal(presetSku){
+    modalForm.hidden=false; ack.hidden=true; errEl.textContent='';
+    if(presetSku && AUDITS[presetSku]) sel.value=presetSku;
+    lastFocus=document.activeElement; modal.hidden=false;
+    requestAnimationFrame(function(){ modal.classList.add('open'); });
+    document.body.style.overflow='hidden';
+    setTimeout(function(){ (presetSku?sel:document.getElementById('bk-name')).focus(); },140);
+    if(window.posthog) posthog.capture('audit_cta',{sku:presetSku||null});
+  }
+  function closeModal(){ modal.classList.remove('open'); document.body.style.overflow=''; setTimeout(function(){modal.hidden=true;},300); if(lastFocus&&lastFocus.focus)lastFocus.focus(); }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-book]');
+    if(b){ e.preventDefault(); var v=b.getAttribute('data-book'); openModal(v&&v!=='ask'&&v!==''?v:null); return; }
+    if(e.target.closest('[data-close]')) closeModal();
+  });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&modal.classList.contains('open')) closeModal(); });
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault(); errEl.textContent='';
+    var name=document.getElementById('bk-name').value.trim();
+    var email=document.getElementById('bk-email').value.trim();
+    if(!name){ errEl.textContent='Your name, please.'; return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errEl.textContent='That email doesn’t look right.'; return; }
+    var sku=sel.value;
+    var payload={ name:name, email:email, company:document.getElementById('bk-company').value.trim(),
+      audit_sku:sku||null, audit_title:(sku&&info[sku])?info[sku].title:null,
+      message:document.getElementById('bk-msg').value.trim(), source:'audits' };
+    var btn=document.getElementById('bkSubmit'), label=btn.innerHTML; btn.disabled=true; btn.textContent='Sending…';
+    fetch('/api/audit-booking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
+      .then(function(){ modalForm.hidden=true; ack.hidden=false; if(window.posthog) posthog.capture('audit_booking',{sku:sku||null}); })
+      .catch(function(){ errEl.textContent='Couldn’t send — email me directly at priyanshu@zephyrcode.live.'; btn.disabled=false; btn.innerHTML=label; });
+  });
+})();
 </script>
 
 </body>
