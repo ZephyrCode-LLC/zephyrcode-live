@@ -5,7 +5,8 @@ import { sendBookingEmails } from "@/lib/booking-email";
 /**
  * Audit booking intake (audits.zephyrcode.live form). Validates, writes to
  * public.audit_bookings, fires owner-notify + reader-ack emails (best-effort,
- * gated on RESEND_API_KEY), and mirrors the conversion to PostHog server-side.
+ * via Amazon SES — see src/lib/booking-email.ts), and mirrors the conversion
+ * to PostHog server-side.
  */
 export async function POST(req: Request) {
   let body: Record<string, unknown>;

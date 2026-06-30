@@ -1,14 +1,12 @@
 import "server-only";
+import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 
 /**
- * Audit-booking emails — an owner notification + a reader acknowledgement.
- * Resend REST (no SDK). GATED on RESEND_API_KEY: with no key set this is a silent
- * no-op, so the booking still saves and the on-screen ack still shows; email turns
- * on the moment the key is configured. A send failure NEVER affects the request.
- *
- * To go live (operator): set RESEND_API_KEY in the Amplify env and verify
- * zephyrcode.live as a sending domain in Resend (keeps Google MX for inbound;
- * Resend adds its own SPF/DKIM). Optional: EMAIL_FROM, OWNER_EMAIL.
+ * Audit-booking emails via Amazon SES (sesv2) — owner notification + reader ack.
+ * Sent from the DKIM-verified zephyrcode.live identity (ap-south-1) using a dedicated
+ * least-privilege IAM user (zc-ses-mailer, ses:SendEmail on that identity only).
+ * Best-effort: a send failure NEVER fails the booking. No-op if creds are absent
+ * (e.g. local without env). Creds: SES_REGION / SES_ACCESS_KEY_ID / SES_SECRET_ACCESS_KEY.
  */
 type Booking = {
   name: string;
@@ -21,21 +19,45 @@ type Booking = {
 
 const FROM = process.env.EMAIL_FROM || "ZephyrCode Audits <audits@zephyrcode.live>";
 const OWNER = process.env.OWNER_EMAIL || "priyanshu@zephyrcode.live";
+const REGION = process.env.SES_REGION || "ap-south-1";
 
 const esc = (s: string) =>
   String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-async function send(key: string, payload: Record<string, unknown>) {
-  return fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+let _client: SESv2Client | null = null;
+function client(): SESv2Client | null {
+  const accessKeyId = process.env.SES_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.SES_SECRET_ACCESS_KEY;
+  if (!accessKeyId || !secretAccessKey) return null; // not configured → silent no-op
+  if (!_client) _client = new SESv2Client({ region: REGION, credentials: { accessKeyId, secretAccessKey } });
+  return _client;
+}
+
+function send(
+  c: SESv2Client,
+  opts: { to: string; replyTo?: string; subject: string; text: string; html?: string }
+) {
+  return c.send(
+    new SendEmailCommand({
+      FromEmailAddress: FROM,
+      Destination: { ToAddresses: [opts.to] },
+      ReplyToAddresses: opts.replyTo ? [opts.replyTo] : undefined,
+      Content: {
+        Simple: {
+          Subject: { Data: opts.subject, Charset: "UTF-8" },
+          Body: {
+            Text: { Data: opts.text, Charset: "UTF-8" },
+            ...(opts.html ? { Html: { Data: opts.html, Charset: "UTF-8" } } : {}),
+          },
+        },
+      },
+    })
+  );
 }
 
 export async function sendBookingEmails(b: Booking): Promise<{ sent: boolean; reason?: string }> {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) return { sent: false, reason: "no_api_key" }; // not configured yet — silent no-op
+  const c = client();
+  if (!c) return { sent: false, reason: "no_ses_creds" };
 
   const audit = b.audit_title
     ? `${b.audit_title}${b.audit_sku ? ` (${b.audit_sku})` : ""}`
@@ -43,11 +65,10 @@ export async function sendBookingEmails(b: Booking): Promise<{ sent: boolean; re
   const first = (b.name || "").split(" ")[0] || b.name;
 
   try {
-    // 1) owner notification (reply-to the prospect so a reply goes straight to them)
-    await send(key, {
-      from: FROM,
-      to: [OWNER],
-      reply_to: b.email,
+    // 1) owner notification — reply-to the prospect so a reply goes straight to them
+    await send(c, {
+      to: OWNER,
+      replyTo: b.email,
       subject: `New audit booking — ${audit} · ${b.name}`,
       text: [
         `New booking from the audits page.`,
@@ -63,10 +84,9 @@ export async function sendBookingEmails(b: Booking): Promise<{ sent: boolean; re
     });
 
     // 2) reader acknowledgement
-    await send(key, {
-      from: FROM,
-      to: [b.email],
-      reply_to: OWNER,
+    await send(c, {
+      to: b.email,
+      replyTo: OWNER,
       subject: `Got your audit request — I'll revert within a business day`,
       text: [
         `Hi ${first},`,

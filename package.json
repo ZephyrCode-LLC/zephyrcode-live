@@ -10,6 +10,7 @@
     "publish-story": "node scripts/publish-story.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1076.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.1",
     "next": "15.5.19",
