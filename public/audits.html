@@ -247,6 +247,10 @@
   .cred h2{font-family:var(--serif);font-weight:400;font-size:clamp(1.7rem,3vw,2.3rem);line-height:1.18;letter-spacing:-.01em}
   .cred h2 em{font-style:italic;color:var(--signal)}
   .cred p{color:var(--dim);margin-top:18px;font-size:1.04rem}
+  .who-links{margin-top:22px;font-family:var(--mono);font-size:.8rem;color:var(--faint);display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline}
+  .who-links b{color:var(--paper);font-weight:600;letter-spacing:.03em}
+  .who-links a{color:var(--signal);text-decoration:none;border-bottom:1px solid var(--signal-soft);transition:border-color .2s}
+  .who-links a:hover{border-color:var(--signal)}
   .stack{display:flex;flex-wrap:wrap;gap:9px}
   .chip{font-family:var(--mono);font-size:.74rem;letter-spacing:.03em;color:var(--dim);border:1px solid var(--line-2);border-radius:4px;padding:8px 13px;background:var(--ink-1);transition:border-color .2s,color .2s,transform .2s}
   .chip:hover{border-color:var(--signal);color:var(--signal);transform:translateY(-2px)}
@@ -269,7 +273,7 @@
 
   /* ---------- clickable cards + detail drawer ---------- */
   .card{cursor:pointer}
-  .card .more{position:absolute;right:16px;bottom:16px;font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;color:var(--faint);text-transform:uppercase;display:flex;align-items:center;gap:6px;transition:color .25s}
+  .card .more{position:absolute;right:16px;bottom:14px;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;display:flex;align-items:center;gap:6px;transition:color .25s}
   .card .more b{font-size:.95rem;line-height:0;transition:transform .3s var(--ease)}
   .card:hover .more{color:var(--signal)}
   .card.active{border-color:var(--signal);background:var(--ink-2)}
@@ -345,8 +349,8 @@
   /* ---------- booking modal ---------- */
   .modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;visibility:hidden;transition:opacity .3s var(--ease),visibility .3s}
   .modal.open{opacity:1;visibility:visible}
-  .modal-bd{position:absolute;inset:0;background:rgba(5,7,10,.74);backdrop-filter:blur(6px)}
-  .modal-panel{position:relative;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;background:linear-gradient(180deg,var(--ink-2),var(--ink-1));border:1px solid var(--line-2);border-radius:14px;padding:30px 30px 28px;transform:translateY(16px) scale(.985);transition:transform .35s var(--ease)}
+  .modal-bd{position:absolute;inset:0;background:rgba(5,7,10,.86);backdrop-filter:blur(6px)}
+  .modal-panel{position:relative;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;background-color:var(--ink-1);background-image:linear-gradient(180deg,var(--ink-2),var(--ink-1));border:1px solid var(--line-2);border-radius:14px;padding:30px 30px 28px;transform:translateY(16px) scale(.985);transition:transform .35s var(--ease)}
   .modal.open .modal-panel{transform:none}
   .modal-panel::before,.modal-panel::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--signal);opacity:.5}
   .modal-panel::before{top:12px;left:12px;border-right:0;border-bottom:0}
@@ -366,6 +370,7 @@
   @media(max-width:480px){.modal .row{grid-template-columns:1fr}.modal-panel{padding:26px 20px}}
   .modal .submit{width:100%;margin-top:10px;justify-content:center;font-size:.9rem}
   .modal .err{color:var(--alert);font-size:.82rem;margin-top:11px;font-family:var(--mono);min-height:1em}
+  .modal .err a{color:inherit;text-decoration:underline}
   .modal-ack{text-align:center;padding:14px 0 6px}
   .modal-ack .ic{width:54px;height:54px;margin:0 auto 18px;border:1px solid var(--signal);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--signal);box-shadow:0 0 0 6px var(--signal-soft)}
   .modal-ack h3{margin-bottom:10px}
@@ -399,7 +404,13 @@
       "@id": "https://zephyrcode.live/#org",
       "name": "ZephyrCode",
       "url": "https://zephyrcode.live",
-      "email": "priyanshu@zephyrcode.live"
+      "email": "priyanshu@zephyrcode.live",
+      "founder": {
+        "@type": "Person",
+        "name": "Priyanshu Sekhar Patra",
+        "email": "priyanshu@zephyrcode.live",
+        "sameAs": ["https://github.com/priyanshu-sekhar"]
+      }
     },
     {
       "@type": "WebSite",
@@ -536,7 +547,7 @@
       <span class="sweep" aria-hidden="true"></span>
       <div class="p-head">
         <div>
-          <div class="sku">ZC·KAFKA — most requested</div>
+          <div class="sku">ZC·KAFKA — streaming</div>
           <h3>Kafka &amp; event-streaming audit</h3>
         </div>
         <svg class="spark" viewBox="0 0 84 34" aria-hidden="true">
@@ -688,14 +699,14 @@
 <section class="block" id="sample">
   <div class="wrap">
     <div class="sec-head rv">
-      <span class="eyebrow">A real deliverable</span>
+      <span class="eyebrow">The deliverable — illustrated</span>
       <h2>What a finding actually looks like.</h2>
-      <p>Not a slide deck of platitudes. Specific failure modes, the evidence, and the fix — at the depth that prevents the 3am page.</p>
+      <p>Not a slide deck of platitudes. Specific failure modes, the evidence, and the fix — at the depth that prevents the 3am page. This one is a representative sample — the format is exactly what you receive.</p>
     </div>
     <div class="teardown rv">
       <div class="td-bar">
         <i style="background:var(--alert)"></i><i style="background:var(--signal)"></i><i style="background:var(--ok)"></i>
-        <span class="fn">teardown · kafka-audit · acme-streaming.md</span><span class="cur" aria-hidden="true"></span>
+        <span class="fn">teardown · kafka-audit · sample-finding.md</span><span class="cur" aria-hidden="true"></span>
       </div>
       <div class="td-body">
         <div class="finding">
@@ -742,6 +753,11 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
       <span class="eyebrow">Who's behind it</span>
       <h2>Built by one engineer who's <em>actually shipped this at scale</em> — not a firm renting you juniors.</h2>
       <p>Distributed systems at Amazon Alexa. Head of Engineering at a health-tech startup. Java / Spring / Kafka, Go, AWS, and applied AI in production. You work directly with the person doing the work, start to finish — which is also why scope is fixed: focus is the product.</p>
+      <div class="who-links">
+        <b>Priyanshu Sekhar Patra</b>
+        <a href="https://github.com/priyanshu-sekhar" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="mailto:priyanshu@zephyrcode.live">priyanshu@zephyrcode.live</a>
+      </div>
     </div>
     <div class="rv">
       <div class="stack">
@@ -852,11 +868,14 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
       rv.forEach(fire);
       document.querySelectorAll('[data-to]').forEach(countUp);
     } else {
+      // fire a little BEFORE elements enter the viewport (positive bottom margin) —
+      // with the old -8% inset, fast scrolling landed on fully blank sections while
+      // the reveal lagged behind.
       var io = new IntersectionObserver(function(entries){
         entries.forEach(function(en){
           if(en.isIntersecting){ fire(en.target); io.unobserve(en.target); }
         });
-      }, {threshold:.16, rootMargin:'0px 0px -8% 0px'});
+      }, {threshold:.01, rootMargin:'0px 0px 18% 0px'});
       rv.forEach(function(e){ io.observe(e); });
     }
 
@@ -976,8 +995,9 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
   // ---- booking modal ----
   var modal=document.getElementById('bookModal'), form=document.getElementById('bookForm');
   var errEl=document.getElementById('bkErr'), modalForm=document.getElementById('modalForm'), ack=document.getElementById('modalAck'), lastFocus=null;
+  var formStarted=false; // audit_form_start fires once per modal open
   function openModal(presetSku){
-    modalForm.hidden=false; ack.hidden=true; errEl.textContent='';
+    modalForm.hidden=false; ack.hidden=true; errEl.textContent=''; formStarted=false;
     if(presetSku && AUDITS[presetSku]) sel.value=presetSku;
     lastFocus=document.activeElement; modal.hidden=false;
     requestAnimationFrame(function(){ modal.classList.add('open'); });
@@ -991,7 +1011,25 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
     if(b){ e.preventDefault(); var v=b.getAttribute('data-book'); openModal(v&&v!=='ask'&&v!==''?v:null); return; }
     if(e.target.closest('[data-close]')) closeModal();
   });
-  document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&modal.classList.contains('open')) closeModal(); });
+  document.addEventListener('keydown',function(e){
+    if(!modal.classList.contains('open')) return;
+    if(e.key==='Escape'){ closeModal(); return; }
+    // focus trap: Tab cycles inside the panel — without this, Tab walks into the
+    // scroll-locked page behind the dialog (aria-modal asserted but unenforced).
+    if(e.key==='Tab'){
+      var f=modal.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+      var vis=[].filter.call(f,function(el){return el.offsetParent!==null&&!el.disabled;});
+      if(!vis.length) return;
+      var first=vis[0], last=vis[vis.length-1];
+      if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+    }
+  });
+  // funnel: distinguish "modal looked scary" from "form abandoned mid-fill"
+  form.addEventListener('focusin',function(){
+    if(formStarted) return; formStarted=true;
+    if(window.posthog) posthog.capture('audit_form_start',{sku:sel.value||null});
+  });
 
   form.addEventListener('submit',function(e){
     e.preventDefault(); errEl.textContent='';
@@ -1006,8 +1044,17 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
     var btn=document.getElementById('bkSubmit'), label=btn.innerHTML; btn.disabled=true; btn.textContent='Sending…';
     fetch('/api/audit-booking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
       .then(function(r){ if(!r.ok) throw new Error('bad'); return r.json(); })
-      .then(function(){ modalForm.hidden=true; ack.hidden=false; if(window.posthog) posthog.capture('audit_booking',{sku:sku||null}); })
-      .catch(function(){ errEl.textContent='Couldn’t send — email me directly at priyanshu@zephyrcode.live.'; btn.disabled=false; btn.innerHTML=label; });
+      .then(function(){
+        modalForm.hidden=true; ack.hidden=false;
+        // join the anonymous session to the conversion — the server event keys on
+        // this email, so identify() is what makes the funnel joinable end-to-end
+        if(window.posthog){ posthog.identify(email); posthog.capture('audit_booking',{sku:sku||null}); }
+      })
+      .catch(function(){
+        if(window.posthog) posthog.capture('audit_booking_fail',{sku:sku||null});
+        errEl.innerHTML='Couldn’t send — email me directly at <a href="mailto:priyanshu@zephyrcode.live?subject=Audit%20booking">priyanshu@zephyrcode.live</a>.';
+        btn.disabled=false; btn.innerHTML=label;
+      });
   });
 })();
 </script>

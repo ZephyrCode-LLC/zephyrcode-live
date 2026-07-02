@@ -44,27 +44,34 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Could not save. Try again." }, { status: 500 });
   }
 
-  // Emails — best-effort; a send failure must never fail the booking.
+  // Emails — best-effort; a send failure must never fail the booking. But a
+  // failure must never be SILENT either: the lead is in the table with the owner
+  // unaware, so log it and mirror a booking_email_failed event to PostHog.
+  let emailFail: string | null = null;
   try {
-    await sendBookingEmails(row);
-  } catch {
-    /* ignore */
+    const r = await sendBookingEmails(row);
+    if (!r.sent) emailFail = r.reason ?? "unknown";
+  } catch (e) {
+    emailFail = e instanceof Error ? e.message : "threw";
+  }
+  if (emailFail) {
+    console.error(`[audit-booking] EMAIL NOT SENT (${emailFail}) — lead only in audit_bookings:`, email);
   }
 
   // Mirror the conversion to PostHog (server-side truth for the audits funnel).
   const phKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   if (phKey) {
-    try {
-      await fetch("https://eu.i.posthog.com/capture/", {
+    const capture = (event: string, properties: Record<string, unknown>) =>
+      fetch("https://eu.i.posthog.com/capture/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          api_key: phKey,
-          event: "audit_booking_server",
-          distinct_id: email,
-          properties: { app: "hub", site: "audits", audit_sku: row.audit_sku, $set: { email } },
-        }),
-      });
+        body: JSON.stringify({ api_key: phKey, event, distinct_id: email, properties }),
+      }).catch(() => {});
+    try {
+      await capture("audit_booking_server", { app: "hub", site: "audits", audit_sku: row.audit_sku, $set: { email } });
+      if (emailFail) {
+        await capture("booking_email_failed", { app: "hub", site: "audits", audit_sku: row.audit_sku, reason: emailFail });
+      }
     } catch {
       /* ignore */
     }
