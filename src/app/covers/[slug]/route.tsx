@@ -49,7 +49,7 @@ export async function GET(
 
   // Fonts are a hard requirement for the brand — but never 500 a live route
   // over a font read; satori falls back to its default face.
-  let fonts: ConstructorParameters<typeof ImageResponse>[1]["fonts"];
+  let fonts: NonNullable<ConstructorParameters<typeof ImageResponse>[1]>["fonts"];
   try {
     const [f, fi, m] = await loadFonts();
     fonts = [
