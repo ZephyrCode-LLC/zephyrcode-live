@@ -31,4 +31,10 @@ export const COVERS: Record<string, CoverSpec> = {
     accent: "at 3am.",
     chips: ["8 findings", "every default sourced", "Kafka 4.1 baseline"],
   },
+  "postgres-pools": {
+    eyebrow: "ZEPHYRCODE TEARDOWN · DATABASES · NO. 02",
+    title: "The Postgres connection pool",
+    accent: "that isn't one.",
+    chips: ["8 findings", "every default sourced", "current Postgres docs"],
+  },
 };

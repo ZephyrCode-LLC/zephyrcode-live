@@ -34,6 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Audits publishes its public teardowns (the report-as-proof pattern).
   if (slug === "audits") {
     urls.push({ url: `${base}/teardowns/kafka-defaults`, changeFrequency: "monthly", priority: 0.9 });
+    urls.push({ url: `${base}/teardowns/postgres-pools`, changeFrequency: "monthly", priority: 0.9 });
   }
 
   // Content rooms list their sub-pages too. Best-effort — a content/CMS hiccup
