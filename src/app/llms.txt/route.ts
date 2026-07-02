@@ -11,6 +11,7 @@ export function GET() {
     "## Audits",
     "",
     "- [Engineering Audits](https://audits.zephyrcode.live): Fixed-scope, fixed-price engineering reviews — the price is on the door. Two-week turnaround, written teardown + working call. Contact priyanshu@zephyrcode.live.",
+    "  - ZC·TRIAGE — 48-hour triage: one system, three ranked findings, an honest fit-verdict ($1,200 fixed, credited toward any audit within 30 days)",
     "  - ZC·KAFKA — Kafka & event-streaming audit ($6k–9k)",
     "  - ZC·INFER — AI inference cost & latency teardown ($6k–10k)",
     "  - ZC·RESIL — Distributed-systems reliability review ($7k–10k)",

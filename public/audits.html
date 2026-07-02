@@ -190,6 +190,10 @@
   .expand .lab{font-family:var(--mono);font-size:.64rem;letter-spacing:.16em;color:var(--signal);text-transform:uppercase;margin-bottom:8px}
   .expand h3{font-family:var(--serif);font-weight:500;font-size:1.4rem}
   .expand p{color:var(--dim);font-size:.97rem;margin-top:5px;max-width:42em}
+  #triage::before{background:linear-gradient(var(--ok),var(--signal))}
+  #triage .triage-cta{display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0}
+  #triage .triage-cta .price{font-family:var(--mono);font-size:1.05rem;color:var(--signal)}
+  @media(max-width:640px){#triage .triage-cta{align-items:flex-start}}
   .expand .price{font-family:var(--mono);color:var(--signal);font-size:1.1rem;white-space:nowrap}
 
   /* ---------- process ---------- */
@@ -431,6 +435,13 @@
         "itemListElement": [
           {
             "@type": "Offer",
+            "name": "48-hour triage",
+            "sku": "ZC·TRIAGE",
+            "description": "One system, async: send read-only artifacts, get three ranked findings and an honest verdict on which audit fits within 48 hours. Credited toward any audit booked within 30 days.",
+            "priceSpecification": { "@type": "PriceSpecification", "priceCurrency": "USD", "price": 1200 }
+          },
+          {
+            "@type": "Offer",
             "name": "Kafka & event-streaming audit",
             "sku": "ZC·KAFKA",
             "description": "Partitioning, consumer-group design, exactly-once, backpressure, and lag — found before they page you.",
@@ -578,6 +589,18 @@
       <p>Each is a self-contained engagement. Same transparency every time: a public scope, a flat price, a two-week clock, and a written teardown you keep.</p>
     </div>
     <div class="grid">
+
+      <div class="expand rv" id="triage">
+        <div>
+          <div class="lab">Where it starts</div>
+          <h3>48-hour triage</h3>
+          <p>Not sure an audit is worth it? Send read-only artifacts from one system — configs, a dashboard export, a schema — and within 48 hours you get three ranked findings and an honest verdict on which audit fits, or "you don't need one." Credited in full toward any audit booked within 30 days.</p>
+        </div>
+        <div class="triage-cta">
+          <div class="price">$1,200 · fixed</div>
+          <button class="btn btn-primary" type="button" data-book="ZC·TRIAGE">Start the triage <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
 
       <div class="card rv"><span class="tick tr"></span><span class="tick bl"></span>
         <div class="card-top"><span class="tag">Streaming</span><span class="sku">ZC·KAFKA</span></div>
@@ -811,7 +834,7 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
         </div>
         <div class="field"><label for="bk-company">Company <span style="color:var(--faint)">· optional</span></label><input id="bk-company" name="company" type="text" autocomplete="organization" /></div>
         <div class="field"><label for="bk-audit">Which audit</label>
-          <select id="bk-audit" name="audit"><option value="">Not sure yet — point me to the right one</option></select>
+          <select id="bk-audit" name="audit"><option value="">Not sure yet — point me to the right one</option><option value="ZC·TRIAGE">ZC·TRIAGE — 48-hour triage ($1,200)</option></select>
         </div>
         <div class="field"><label for="bk-msg">What's keeping you up?</label><textarea id="bk-msg" name="message" placeholder="The system, the symptom, the deadline. One paragraph is plenty."></textarea></div>
         <button class="btn btn-primary submit" type="submit" id="bkSubmit">Send it <span aria-hidden="true">→</span></button>
@@ -971,6 +994,10 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
     card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(sku,card);}});
   });
 
+  // The triage starter has no drawer — it's fully explained by its band — but the
+  // modal needs its title/price for the booking payload and preselect.
+  info['ZC·TRIAGE']={title:'48-hour triage',time:'48 hours',price:'$1,200',tag:'Triage'};
+
   var drawer=document.getElementById('drawer'), inner=document.getElementById('drawerInner'), openSku=null;
   function render(sku){
     var a=AUDITS[sku], c=info[sku]||{};
@@ -999,7 +1026,7 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
   var formStarted=false; // audit_form_start fires once per modal open
   function openModal(presetSku){
     modalForm.hidden=false; ack.hidden=true; errEl.textContent=''; formStarted=false;
-    if(presetSku && AUDITS[presetSku]) sel.value=presetSku;
+    if(presetSku && (AUDITS[presetSku] || info[presetSku])) sel.value=presetSku;
     lastFocus=document.activeElement; modal.hidden=false;
     requestAnimationFrame(function(){ modal.classList.add('open'); });
     document.body.style.overflow='hidden';
