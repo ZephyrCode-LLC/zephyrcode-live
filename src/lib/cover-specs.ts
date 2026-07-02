@@ -37,4 +37,10 @@ export const COVERS: Record<string, CoverSpec> = {
     accent: "that isn't one.",
     chips: ["8 findings", "every default sourced", "current Postgres docs"],
   },
+  "eks-defaults": {
+    eyebrow: "ZEPHYRCODE TEARDOWN · KUBERNETES · NO. 03",
+    title: "The EKS cluster you inherited",
+    accent: "runs on defaults.",
+    chips: ["8 findings", "every claim sourced", "AWS docs · kubernetes.io"],
+  },
 };
