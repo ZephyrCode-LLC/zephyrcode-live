@@ -212,6 +212,8 @@
 
   /* ---------- teardown teaser ---------- */
   .teardown{background:var(--ink-1);border:1px solid var(--line-2);border-radius:12px;overflow:hidden}
+  .td-more{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:28px}
+  .td-more-note{font-family:var(--mono);font-size:.78rem;color:var(--faint);letter-spacing:.02em;max-width:52ch;line-height:1.6}
   .td-bar{display:flex;align-items:center;gap:8px;padding:13px 20px;border-bottom:1px solid var(--line);background:var(--ink-2)}
   .td-bar i{width:11px;height:11px;border-radius:50%;display:inline-block;opacity:.9}
   .td-bar .fn{font-family:var(--mono);font-size:.72rem;color:var(--faint);margin-left:8px;letter-spacing:.04em}
@@ -766,6 +768,10 @@ consumer_lag_peak             = <span class="e">2.1M msgs</span></div>
           <p>Move to <span class="mono">CooperativeStickyAssignor</span> for incremental rebalancing, raise the session timeout past your deploy window, and adopt static group membership (<span class="mono">group.instance.id</span>) so rolling restarts don't reshuffle ownership. Expected: rebalance impact drops from ~38s to sub-3s, lag peak roughly 10×.</p>
         </div>
       </div>
+    </div>
+    <div class="td-more rv">
+      <a class="btn btn-primary" href="/teardowns/kafka-defaults">Read a full public teardown <span aria-hidden="true">→</span></a>
+      <span class="td-more-note">№ 01 · The Kafka defaults that page you at 3am — eight findings, every default sourced, Kafka 4.1 baseline.</span>
     </div>
   </div>
 </section>

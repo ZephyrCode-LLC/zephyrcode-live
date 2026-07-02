@@ -31,6 +31,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     urls.push({ url: `${base}/commission`, changeFrequency: "monthly", priority: 0.8 });
   }
 
+  // Audits publishes its public teardowns (the report-as-proof pattern).
+  if (slug === "audits") {
+    urls.push({ url: `${base}/teardowns/kafka-defaults`, changeFrequency: "monthly", priority: 0.9 });
+  }
+
   // Content rooms list their sub-pages too. Best-effort — a content/CMS hiccup
   // must never fail the sitemap, so swallow and return at least the root.
   try {

@@ -6,9 +6,8 @@ import type { Metadata } from "next";
  * widely-copied single-broker example configs — never any team's private prod.
  * Every default is sourced; version-gated per the research fairness checklist.
  *
- * SHIPS AS A NOINDEX PREVIEW (robots index:false, not linked, not in sitemap)
- * until the owner approves. Flip robots + link from audits #sample + add to
- * sitemap to promote.
+ * PROMOTED 2026-07-02: indexed, linked from the audits #sample section, and in
+ * the audits-subdomain sitemap.
  */
 
 const CANON = "https://audits.zephyrcode.live/teardowns/kafka-defaults";
@@ -18,7 +17,7 @@ export const metadata: Metadata = {
   description:
     "Apache Kafka's own docs say these defaults must be tuned before production — yet they ship in the quickstarts and compose files teams paste in and forget. Eight, each with the exact key, the mechanism, and the one-line fix.",
   alternates: { canonical: CANON },
-  robots: { index: false, follow: false }, // preview — flip when approved
+  robots: { index: true, follow: true },
   openGraph: {
     type: "article",
     url: CANON,
