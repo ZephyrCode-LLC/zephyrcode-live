@@ -43,4 +43,47 @@ export const COVERS: Record<string, CoverSpec> = {
     accent: "runs on defaults.",
     chips: ["8 findings", "every claim sourced", "AWS docs · kubernetes.io"],
   },
+  // ---- Field Reports (production AI agent series) ------------------------
+  "fr01-redis-only-trap": {
+    eyebrow: "ZEPHYRCODE FIELD REPORT · PRODUCTION AGENTS · NO. 01",
+    title: "The Redis-only trap",
+    accent: "one store, silently wrong.",
+    chips: ["a production field report", "CQRS · outbox · pgvector", "WhatsApp pharmacy agent"],
+    domain: "zephyrcode.live",
+  },
+  "fr02-context-engineering": {
+    eyebrow: "ZEPHYRCODE FIELD REPORT · PRODUCTION AGENTS · NO. 02",
+    title: "Context engineering, in production",
+    accent: "44.7k → 2.8k.",
+    chips: ["a production field report", "turn slicing · intent routing", "WhatsApp pharmacy agent"],
+    domain: "zephyrcode.live",
+  },
+  "fr03-cant-improve-cant-see": {
+    eyebrow: "ZEPHYRCODE FIELD REPORT · PRODUCTION AGENTS · NO. 03",
+    title: "You can't improve",
+    accent: "what you can't see.",
+    chips: ["a production field report", "Langfuse · LLM-as-judge · CI gate", "WhatsApp pharmacy agent"],
+    domain: "zephyrcode.live",
+  },
+  "fr04-hitl-throughput": {
+    eyebrow: "ZEPHYRCODE FIELD REPORT · PRODUCTION AGENTS · NO. 04",
+    title: "Human-in-the-loop",
+    accent: "without killing throughput.",
+    chips: ["a production field report", "queues · locks · escalation", "WhatsApp pharmacy agent"],
+    domain: "zephyrcode.live",
+  },
+  "fr05-learning-loop": {
+    eyebrow: "ZEPHYRCODE FIELD REPORT · PRODUCTION AGENTS · NO. 05",
+    title: "The learning loop",
+    accent: "that haunts every AI team.",
+    chips: ["a production field report", "corrections → evals → fine-tune", "WhatsApp pharmacy agent"],
+    domain: "zephyrcode.live",
+  },
+  "fr06-one-agent-or-many": {
+    eyebrow: "ZEPHYRCODE FIELD REPORT · PRODUCTION AGENTS · NO. 06",
+    title: "One agent",
+    accent: "or many?",
+    chips: ["a production field report", "sub-agents · topology", "WhatsApp pharmacy agent"],
+    domain: "zephyrcode.live",
+  },
 };
