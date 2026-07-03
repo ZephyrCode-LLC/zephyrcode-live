@@ -275,14 +275,25 @@ export default async function HomeSite() {
               <path d="M0 18 C 45 18 65 50 118 50" />
               <path d="M0 50 C 50 50 70 50 118 50" />
               <path d="M0 82 C 45 82 65 50 118 50" />
+              {["M0 18 C 45 18 65 50 118 50", "M0 50 C 50 50 70 50 118 50", "M0 82 C 45 82 65 50 118 50"].map((d, i) => (
+                <circle key={i} className="sf-dot" r="2.4">
+                  <animateMotion dur="2.7s" begin={`${i * 0.9}s`} repeatCount="indefinite" path={d} />
+                </circle>
+              ))}
             </svg>
             <div className="sf-node">
+              <span className="sf-ring" />
               <span className="sf-leaf">SAGE</span>
             </div>
             <svg className="sf-paths" viewBox="0 0 120 100" preserveAspectRatio="none">
               <path d="M2 50 C 55 50 75 18 120 18" />
               <path d="M2 50 C 50 50 70 50 120 50" />
               <path d="M2 50 C 55 50 75 82 120 82" />
+              {["M2 50 C 55 50 75 18 120 18", "M2 50 C 50 50 70 50 120 50", "M2 50 C 55 50 75 82 120 82"].map((d, i) => (
+                <circle key={i} className="sf-dot" r="2.4">
+                  <animateMotion dur="2.7s" begin={`${0.45 + i * 0.9}s`} repeatCount="indefinite" path={d} />
+                </circle>
+              ))}
             </svg>
             <div className="sf-col">
               {sage.flowOut.map((t, i) => (
