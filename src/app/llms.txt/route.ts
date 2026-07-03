@@ -32,7 +32,7 @@ export function GET() {
     "## Rooms",
     "",
     "- [Operator](https://operator.zephyrcode.live): The studio — Personal Operating Systems and commissioned builds.",
-    "- [Temper](https://zephyrcode.live/temper): DeepWork — a consequence engine for focus.",
+    "- [Temper](https://temper.zephyrcode.live): DeepWork — a consequence engine for focus.",
     "- [Arcade](https://arcade.zephyrcode.live): Playable simulations of hard systems ideas.",
     "- [Read](https://read.zephyrcode.live): A reading shelf indexed by mood.",
     "- [Watch](https://watch.zephyrcode.live): A watching shelf indexed by mood.",

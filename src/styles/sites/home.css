@@ -367,3 +367,34 @@
   [data-site="home"] .sage-flow { grid-template-columns: 1fr 40px 90px 40px 1fr; }
   [data-site="home"] .sage-points { grid-template-columns: 1fr; }
 }
+
+/* ─── SAMHITA — prose as code (the indigo room) ─────────────────────────── */
+[data-site="home"] #samhita { --sam: #6f8bff; }
+
+/* the pipeline track: four stations on one rule */
+[data-site="home"] .sam-pipe { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 18px; max-width: 1040px; }
+[data-site="home"] .sam-step { position: relative; padding-top: 26px; }
+[data-site="home"] .sam-step::before { content: ""; position: absolute; top: 4px; left: 16px; right: -18px; height: 1px; background: color-mix(in srgb, var(--sam) 32%, transparent); }
+[data-site="home"] .sam-step:last-child::before { display: none; }
+[data-site="home"] .ss-dot { position: absolute; top: 0; left: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--sam); box-shadow: 0 0 14px color-mix(in srgb, var(--sam) 65%, transparent); }
+[data-site="home"] .ss-k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: color-mix(in srgb, var(--sam) 78%, var(--bone)); }
+[data-site="home"] .ss-h { display: block; margin-top: 6px; font-family: var(--mono); font-size: 0.95rem; letter-spacing: 0.14em; color: var(--bone); }
+[data-site="home"] .ss-p { display: block; margin-top: 8px; font-size: 0.85rem; line-height: 1.55; color: var(--bone-dim); max-width: 26ch; }
+
+/* the reviewer's verdicts — colored like the review room itself */
+[data-site="home"] .sam-verdicts { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 34px; max-width: 940px; }
+[data-site="home"] .sam-chip { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; padding: 5px 11px; border-radius: 3px; color: var(--chip); border: 1px solid color-mix(in srgb, var(--chip) 50%, transparent); background: color-mix(in srgb, var(--chip) 8%, transparent); }
+[data-site="home"] .sam-chip-cap { font-family: var(--mono); font-size: 11px; letter-spacing: 0.03em; color: var(--bone-dim); flex-basis: 100%; margin-top: 4px; }
+
+[data-site="home"] .sam-note { margin-top: 22px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; color: var(--bone-dim); }
+[data-site="home"] #samhita .btnrow { margin-top: 26px; }
+[data-site="home"] #samhita .btn.solid { background-color: var(--sam); color: #0b0f16; border-color: var(--sam); }
+[data-site="home"] #samhita .btn.solid:hover { background-color: color-mix(in oklab, var(--sam) 84%, white); }
+
+@media (max-width: 760px) {
+  [data-site="home"] .sam-pipe { grid-template-columns: 1fr; gap: 26px; }
+  [data-site="home"] .sam-step { padding-top: 0; padding-left: 26px; }
+  [data-site="home"] .sam-step::before { top: 16px; bottom: -26px; left: 4px; right: auto; width: 1px; height: auto; }
+  [data-site="home"] .ss-dot { top: 4px; }
+  [data-site="home"] .ss-p { max-width: none; }
+}

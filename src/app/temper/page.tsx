@@ -15,7 +15,7 @@ const BLADE_FAVICON =
 
 export async function generateMetadata(): Promise<Metadata> {
   const row = await getSite("temper").catch(() => null);
-  const url = "https://zephyrcode.live/temper";
+  const url = "https://temper.zephyrcode.live";
   if (!row) return { title: "TEMPER · ZephyrCode", icons: { icon: BLADE_FAVICON } };
   return {
     title: row.title,

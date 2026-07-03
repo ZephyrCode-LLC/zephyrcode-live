@@ -105,6 +105,16 @@ const Operator = z.object({
   timetable: z.array(z.object({ h: z.string(), w: z.string() })),
   client: z.object({ k: z.string(), pHtml: z.string(), cta: Cta }),
 });
+const Samhita = z.object({
+  eyebrowHtml: z.string(),
+  h2Html: z.string(),
+  subHtml: z.string(),
+  steps: z.array(z.object({ k: z.string(), h3: z.string(), p: z.string() })),
+  chips: z.array(z.object({ t: z.string(), c: z.string() })),
+  chipCap: z.string(),
+  note: z.string(),
+  cta: Cta,
+});
 const Constel = z.object({
   k: z.string(),
   map: z.array(z.object({ u: z.string(), what: z.string(), href: z.string() })),
@@ -113,6 +123,9 @@ const Constel = z.object({
 const Field = z.object({
   grades: z.array(z.tuple([z.array(z.number()), z.array(z.number()), z.number()])),
 });
+
+/** Outbound property links leave the page — open them in a new tab; anchors/mailto stay put. */
+const ext = (href: string) => (href.startsWith("http") ? { target: "_blank", rel: "noopener" } : {});
 
 export default async function HomeSite() {
   const slug = "home";
@@ -126,6 +139,7 @@ export default async function HomeSite() {
   const arena = dataOf(blocks, "arena", Arena)!;
   const sage = dataOf(blocks, "sage", Sage)!;
   const stories = dataOf(blocks, "stories", Stories)!;
+  const samhita = dataOf(blocks, "samhita", Samhita); // optional: no-break deploy while the CMS row propagates
   const systems = dataOf(blocks, "systems", Systems)!;
   const library = dataOf(blocks, "library", Library)!;
   const operator = dataOf(blocks, "operator", Operator)!;
@@ -201,7 +215,7 @@ export default async function HomeSite() {
           </svg>
           <div className="audit-cards rv">
             {audits.items.map((it) => (
-              <a key={it.sku} className="audit-card" href={audits.cta.href}>
+              <a key={it.sku} className="audit-card" href={audits.cta.href} {...ext(audits.cta.href)}>
                 <span className="ac-sku">{it.sku}</span>
                 <span className="ac-h">{it.h3}</span>
                 <span className="ac-p">{it.p}</span>
@@ -211,7 +225,7 @@ export default async function HomeSite() {
           </div>
           <p className="audit-note rv">{audits.note}</p>
           <div className="btnrow rv">
-            <a className="btn solid" href={audits.cta.href}>
+            <a className="btn solid" href={audits.cta.href} {...ext(audits.cta.href)}>
               {audits.cta.label}
             </a>
           </div>
@@ -237,7 +251,7 @@ export default async function HomeSite() {
             <p className="ad-cap" dangerouslySetInnerHTML={{ __html: arena.capHtml }} />
           </div>
           <div className="btnrow rv">
-            <a className="btn solid" href={arena.cta.href}>
+            <a className="btn solid" href={arena.cta.href} {...ext(arena.cta.href)}>
               {arena.cta.label}
             </a>
           </div>
@@ -287,7 +301,7 @@ export default async function HomeSite() {
             ))}
           </div>
           <div className="btnrow rv">
-            <a className="btn solid" href={sage.cta.href}>{sage.cta.label}</a>
+            <a className="btn solid" href={sage.cta.href} {...ext(sage.cta.href)}>{sage.cta.label}</a>
           </div>
         </section>
 
@@ -303,13 +317,51 @@ export default async function HomeSite() {
               <h4>{stories.shorts.h4}</h4>
               <p>{stories.shorts.p}</p>
             </div>
-            <a className="alink" href={stories.shorts.link.href}>
+            <a className="alink" href={stories.shorts.link.href} {...ext(stories.shorts.link.href)}>
               {stories.shorts.link.label}
             </a>
           </div>
         </section>
 
-        <section className="scene" id="systems" data-scene="6" data-accent="#54d38a">
+        {samhita && (
+        <section className="scene" id="samhita" data-scene="6" data-accent="#6f8bff">
+          <div className="shead rv">
+            <p className="eyebrow" dangerouslySetInnerHTML={{ __html: samhita.eyebrowHtml }} />
+            <h2 dangerouslySetInnerHTML={{ __html: samhita.h2Html }} />
+            <p className="sub" dangerouslySetInnerHTML={{ __html: samhita.subHtml }} />
+          </div>
+
+          {/* the pipeline, drawn — Commit → Review → Approve → Live */}
+          <div className="sam-pipe rv">
+            {samhita.steps.map((s, i) => (
+              <div className="sam-step" key={s.h3} style={{ transitionDelay: `${i * 0.12}s` }}>
+                <span className="ss-dot" />
+                <span className="ss-k">{s.k}</span>
+                <span className="ss-h">{s.h3}</span>
+                <span className="ss-p">{s.p}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="sam-verdicts rv">
+            {samhita.chips.map((c) => (
+              <span key={c.t} className="sam-chip" style={{ ["--chip" as string]: c.c }}>
+                {c.t}
+              </span>
+            ))}
+            <span className="sam-chip-cap">{samhita.chipCap}</span>
+          </div>
+
+          <p className="sam-note rv">{samhita.note}</p>
+          <div className="btnrow rv">
+            <a className="btn solid" href={samhita.cta.href} {...ext(samhita.cta.href)}>
+              {samhita.cta.label}
+            </a>
+          </div>
+        </section>
+        )}
+
+        <section className="scene" id="systems" data-scene="7" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: systems.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
@@ -318,7 +370,7 @@ export default async function HomeSite() {
           {systems.osCards ? (
             <div className="os-cards rv">
               {systems.osCards.map((c) => (
-                <a key={c.h3} className={`os-card${c.live ? " live" : ""}`} href={c.link.href}>
+                <a key={c.h3} className={`os-card${c.live ? " live" : ""}`} href={c.link.href} {...ext(c.link.href)}>
                   <span className="os-k">
                     {c.k}
                     {c.live && <span className="os-live">LIVE</span>}
@@ -348,14 +400,14 @@ export default async function HomeSite() {
           </div>
           <div className="btnrow rv">
             {systems.ctas.map((c) => (
-              <a key={c.label} className={`btn ${c.style}`} href={c.href}>
+              <a key={c.label} className={`btn ${c.style}`} href={c.href} {...ext(c.href)}>
                 {c.label}
               </a>
             ))}
           </div>
         </section>
 
-        <section className="scene" id="library" data-scene="7" data-accent="#8fb6e8">
+        <section className="scene" id="library" data-scene="8" data-accent="#8fb6e8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: library.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: library.h2Html }} />
@@ -368,7 +420,7 @@ export default async function HomeSite() {
                 <h3>{s.h3}</h3>
                 <p className="axis">{s.axis}</p>
                 <p dangerouslySetInnerHTML={{ __html: s.pHtml }} />
-                <a className="alink" href={s.link.href}>
+                <a className="alink" href={s.link.href} {...ext(s.link.href)}>
                   {s.link.label}
                 </a>
               </div>
@@ -376,7 +428,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="operator" data-scene="8" data-accent="#54d38a">
+        <section className="scene" id="operator" data-scene="9" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: operator.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: operator.h2Html }} />
@@ -405,7 +457,7 @@ export default async function HomeSite() {
               <p className="k">{operator.client.k}</p>
               <p dangerouslySetInnerHTML={{ __html: operator.client.pHtml }} />
             </div>
-            <a className="btn solid" href={operator.client.cta.href}>
+            <a className="btn solid" href={operator.client.cta.href} {...ext(operator.client.cta.href)}>
               {operator.client.cta.label}
             </a>
           </div>
@@ -417,7 +469,7 @@ export default async function HomeSite() {
           <p className="k">{constel.k}</p>
           <div className="cmap">
             {constel.map.map((m) => (
-              <a key={m.u} href={m.href}>
+              <a key={m.u} href={m.href} {...ext(m.href)}>
                 <span className="u">{m.u}</span>
                 <span className="what">{m.what}</span>
               </a>

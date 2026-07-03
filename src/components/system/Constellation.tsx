@@ -10,7 +10,7 @@ export function Constellation({ sites, current }: { sites: Site[]; current: stri
             {label(s)}
           </a>
         ) : (
-          <a key={s.slug} href={s.slug === "temper" ? "/temper" : `https://${s.host}`}>
+          <a key={s.slug} href={s.slug === "temper" ? "https://temper.zephyrcode.live" : `https://${s.host}`} target="_blank" rel="noopener">
             {label(s)}
           </a>
         )

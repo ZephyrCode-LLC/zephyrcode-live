@@ -71,7 +71,7 @@ export function StoriesTabs({ features }: { features: Feature[] }) {
           </div>
           <div className="btnrow">
             {f.ctas.map((c) => (
-              <a key={c.label} className={`btn ${c.style ?? ""}`} href={c.href}>
+              <a key={c.label} className={`btn ${c.style ?? ""}`} href={c.href} {...(c.href.startsWith("http") ? { target: "_blank", rel: "noopener" } : {})}>
                 {c.label}
               </a>
             ))}
