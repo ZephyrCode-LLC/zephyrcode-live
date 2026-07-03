@@ -20,6 +20,19 @@ const Signal = z.object({
   ledeHtml: z.string(),
   scrollcue: z.string(),
 });
+const Doors = z.object({
+  eyebrowHtml: z.string(),
+  h2Html: z.string(),
+  sub: z.string(),
+  doors: z.array(
+    z.object({
+      who: z.string(),
+      vibe: z.string(),
+      accent: z.string(),
+      links: z.array(Cta),
+    })
+  ),
+});
 const Method = z.object({
   eyebrowHtml: z.string(),
   h2Html: z.string(),
@@ -134,6 +147,7 @@ export default async function HomeSite() {
 
   const chrome = dataOf(blocks, "chrome", Chrome)!;
   const signal = dataOf(blocks, "signal", Signal)!;
+  const doors = dataOf(blocks, "doors", Doors); // optional: no-break deploy while the CMS row propagates
   const method = dataOf(blocks, "method", Method)!;
   const audits = dataOf(blocks, "audits", Audits)!;
   const arena = dataOf(blocks, "arena", Arena)!;
@@ -182,7 +196,33 @@ export default async function HomeSite() {
           </p>
         </section>
 
-        <section className="scene" id="method" data-scene="1" data-accent="#e85d2a">
+        {doors && (
+          <section className="scene" id="doors" data-scene="1" data-accent="#e85d2a">
+            <div className="shead rv">
+              <p className="eyebrow" dangerouslySetInnerHTML={{ __html: doors.eyebrowHtml }} />
+              <h2 dangerouslySetInnerHTML={{ __html: doors.h2Html }} />
+              <p className="sub">{doors.sub}</p>
+            </div>
+            <div className="doors rv">
+              {doors.doors.map((d) => (
+                <div className="door" key={d.who} style={{ ["--dc" as string]: d.accent }}>
+                  <p className="door-who">{d.who}</p>
+                  <p className="door-vibe">{d.vibe}</p>
+                  <div className="door-links">
+                    {d.links.map((l) => (
+                      <a key={l.href} href={l.href} {...ext(l.href)}>
+                        <span>{l.label}</span>
+                        <span className="door-arrow">→</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="scene" id="method" data-scene="2" data-accent="#e85d2a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: method.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: method.h2Html }} />
@@ -197,7 +237,7 @@ export default async function HomeSite() {
           <p className="aside-note rv" dangerouslySetInnerHTML={{ __html: method.asideHtml }} />
         </section>
 
-        <section className="scene" id="audits" data-scene="2" data-accent="#3DE1E6">
+        <section className="scene" id="audits" data-scene="3" data-accent="#3DE1E6">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: audits.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: audits.h2Html }} />
@@ -231,7 +271,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene arena-scene" id="arena" data-scene="3" data-accent="#c6ff45">
+        <section className="scene arena-scene" id="arena" data-scene="4" data-accent="#c6ff45">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: arena.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: arena.h2Html }} />
@@ -257,7 +297,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="sage" data-scene="4" data-accent="#8fd694">
+        <section className="scene" id="sage" data-scene="5" data-accent="#8fd694">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: sage.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: sage.h2Html }} />
@@ -316,7 +356,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="stories" data-scene="5" data-accent="#7fd6a8">
+        <section className="scene" id="stories" data-scene="6" data-accent="#7fd6a8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: stories.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: stories.h2Html }} />
@@ -335,7 +375,7 @@ export default async function HomeSite() {
         </section>
 
         {samhita && (
-        <section className="scene" id="samhita" data-scene="6" data-accent="#6f8bff">
+        <section className="scene" id="samhita" data-scene="7" data-accent="#6f8bff">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: samhita.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: samhita.h2Html }} />
@@ -372,7 +412,7 @@ export default async function HomeSite() {
         </section>
         )}
 
-        <section className="scene" id="systems" data-scene="7" data-accent="#54d38a">
+        <section className="scene" id="systems" data-scene="8" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: systems.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
@@ -418,7 +458,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="library" data-scene="8" data-accent="#8fb6e8">
+        <section className="scene" id="library" data-scene="9" data-accent="#8fb6e8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: library.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: library.h2Html }} />
@@ -439,7 +479,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="operator" data-scene="9" data-accent="#54d38a">
+        <section className="scene" id="operator" data-scene="10" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: operator.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: operator.h2Html }} />
