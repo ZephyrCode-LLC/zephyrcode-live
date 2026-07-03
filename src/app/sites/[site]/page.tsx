@@ -10,6 +10,7 @@ import ArcadeSite from "@/components/sites/arcade/Page";
 import ReadSite from "@/components/sites/read/Page";
 import WatchSite from "@/components/sites/watch/Page";
 import ListenSite from "@/components/sites/listen/Page";
+import WispSite from "@/components/sites/wisp/Page";
 
 export const revalidate = 300; // edge TTL: author edits live in ≤5 min (CloudFront can't be purged on demand); origin busts instantly via /api/revalidate
 
@@ -23,6 +24,7 @@ const PAGES: Record<string, React.ComponentType> = {
   read: ReadSite,
   watch: WatchSite,
   listen: ListenSite,
+  wisp: WispSite,
 };
 
 /** Inline-SVG favicons, verbatim from the source pages (design, not copy). */
@@ -36,6 +38,7 @@ const FAVICONS: Record<string, string> = {
   read: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='12' y='10' width='10' height='44' fill='%23E85D2A'/%3E%3Crect x='27' y='10' width='10' height='44' fill='%23C9A45C'/%3E%3Crect x='42' y='10' width='10' height='44' fill='%238B7FD4'/%3E%3C/svg%3E",
   watch: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='14' width='48' height='32' rx='4' fill='none' stroke='%23C9A45C' stroke-width='3'/%3E%3Ccircle cx='32' cy='30' r='6' fill='%23E85D2A'/%3E%3Cpath d='M22 52h20' stroke='%23C9A45C' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E",
   listen: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M8 32h8l6-14 8 28 8-22 6 8h12' fill='none' stroke='%23E85D2A' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E",
+  wisp: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%237CC7E8' stroke-width='4' stroke-linecap='round'%3E%3Cpath d='M10 22h30a6 6 0 1 0-6-6'/%3E%3Cpath d='M10 34h36a7 7 0 1 1-7 7'/%3E%3Cpath d='M10 46h22a5 5 0 1 0-5-5'/%3E%3C/g%3E%3C/svg%3E",
 };
 
 export function generateStaticParams() {
@@ -50,7 +53,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { site } = await params;
   const row = await getSite(site).catch(() => null);
-  if (!row) return {};
+  if (!row) {
+    // Wisp's copy is inline (not DB-managed), so give it real metadata here.
+    if (site === "wisp") {
+      return {
+        title: "Wisp — the featherweight macOS browser",
+        description:
+          "Same WebKit engine as Safari, a fraction of the footprint. A native, private, lightweight macOS browser with real tab suspension and ad-blocking on by default.",
+        icons: { icon: FAVICONS.wisp },
+      };
+    }
+    return {};
+  }
   const url = `https://${row.host}`;
   const assetBase = process.env.NEXT_PUBLIC_ASSET_BASE;
   return {

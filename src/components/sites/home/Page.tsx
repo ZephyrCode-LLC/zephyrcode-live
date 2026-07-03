@@ -43,6 +43,15 @@ const Arena = z.object({
   capHtml: z.string(),
   cta: Cta,
 });
+const Sage = z.object({
+  eyebrowHtml: z.string(),
+  h2Html: z.string(),
+  subHtml: z.string(),
+  flowIn: z.array(z.string()),
+  flowOut: z.array(z.string()),
+  points: z.array(z.object({ k: z.string(), h3: z.string(), p: z.string() })),
+  cta: Cta,
+});
 const Feature = z.object({
   key: z.string().optional(),
   tabDeva: z.string().optional(),
@@ -115,6 +124,7 @@ export default async function HomeSite() {
   const method = dataOf(blocks, "method", Method)!;
   const audits = dataOf(blocks, "audits", Audits)!;
   const arena = dataOf(blocks, "arena", Arena)!;
+  const sage = dataOf(blocks, "sage", Sage)!;
   const stories = dataOf(blocks, "stories", Stories)!;
   const systems = dataOf(blocks, "systems", Systems)!;
   const library = dataOf(blocks, "library", Library)!;
@@ -233,7 +243,55 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="stories" data-scene="4" data-accent="#7fd6a8">
+        <section className="scene" id="sage" data-scene="4" data-accent="#8fd694">
+          <div className="shead rv">
+            <p className="eyebrow" dangerouslySetInnerHTML={{ __html: sage.eyebrowHtml }} />
+            <h2 dangerouslySetInnerHTML={{ __html: sage.h2Html }} />
+            <p className="sub" dangerouslySetInnerHTML={{ __html: sage.subHtml }} />
+          </div>
+
+          {/* the explainer: everything you capture flows through the brain onto the calendar */}
+          <div className="sage-flow rv" aria-hidden>
+            <div className="sf-col">
+              {sage.flowIn.map((t, i) => (
+                <span key={t} className="sf-chip in" style={{ animationDelay: `${i * 0.9}s` }}>{t}</span>
+              ))}
+            </div>
+            <svg className="sf-paths" viewBox="0 0 120 100" preserveAspectRatio="none">
+              <path d="M0 18 C 45 18 65 50 118 50" />
+              <path d="M0 50 C 50 50 70 50 118 50" />
+              <path d="M0 82 C 45 82 65 50 118 50" />
+            </svg>
+            <div className="sf-node">
+              <span className="sf-leaf">SAGE</span>
+            </div>
+            <svg className="sf-paths" viewBox="0 0 120 100" preserveAspectRatio="none">
+              <path d="M2 50 C 55 50 75 18 120 18" />
+              <path d="M2 50 C 50 50 70 50 120 50" />
+              <path d="M2 50 C 55 50 75 82 120 82" />
+            </svg>
+            <div className="sf-col">
+              {sage.flowOut.map((t, i) => (
+                <span key={t} className="sf-chip out" style={{ animationDelay: `${0.5 + i * 0.9}s` }}>{t}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="sage-points rv">
+            {sage.points.map((p) => (
+              <div className="sage-point" key={p.k}>
+                <p className="k">{p.k}</p>
+                <h3>{p.h3}</h3>
+                <p>{p.p}</p>
+              </div>
+            ))}
+          </div>
+          <div className="btnrow rv">
+            <a className="btn solid" href={sage.cta.href}>{sage.cta.label}</a>
+          </div>
+        </section>
+
+        <section className="scene" id="stories" data-scene="5" data-accent="#7fd6a8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: stories.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: stories.h2Html }} />
@@ -251,7 +309,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="systems" data-scene="5" data-accent="#54d38a">
+        <section className="scene" id="systems" data-scene="6" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: systems.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
@@ -297,7 +355,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="library" data-scene="6" data-accent="#8fb6e8">
+        <section className="scene" id="library" data-scene="7" data-accent="#8fb6e8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: library.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: library.h2Html }} />
@@ -318,7 +376,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="operator" data-scene="7" data-accent="#54d38a">
+        <section className="scene" id="operator" data-scene="8" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: operator.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: operator.h2Html }} />

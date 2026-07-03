@@ -51,6 +51,7 @@
 [data-site="temper"]    { --accent: #9d8cf0; --accent-2: #6bc2d6; --accent-soft: rgba(157, 140, 240, 0.16); } /* focus-violet */
 [data-site="read"]      { --accent: #e85d2a; --accent-2: #4e7bc0; --accent-soft: rgba(232, 93, 42, 0.14); }   /* fire -> stillness poles */
 [data-site="watch"]     { --accent: #a9c2e8; --accent-2: #c75566; --accent-soft: rgba(169, 194, 232, 0.16); } /* projector-blue + curtain-rose (--accent-2 raised from #7a2d3a so .alink links stay legible) */
+[data-site="wisp"]      { --accent: #7cc7e8; --accent-2: #8ea2ff; --accent-soft: rgba(124, 199, 232, 0.16); } /* breeze-cyan + sky (air/wind, matches the app icon) */
 
 /* ============================================================
    REFACTOR existing motion onto the system.

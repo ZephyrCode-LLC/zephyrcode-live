@@ -321,3 +321,49 @@
     background: radial-gradient(82% 54% at 50% 50%, rgba(9, 7, 5, 0.8), rgba(9, 7, 5, 0.42) 62%, rgba(9, 7, 5, 0) 86%);
   }
 }
+
+/* ---- SAGE scene (creator ops brain, quiet garden green) ---- */
+[data-site="home"] #sage { --sage: #8fd694; }
+[data-site="home"] .sage-flow {
+  display: grid; grid-template-columns: 1fr 90px 120px 90px 1fr;
+  align-items: center; gap: 0; max-width: 760px; margin: 34px auto 8px;
+}
+[data-site="home"] .sf-col { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+[data-site="home"] .sf-chip {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
+  border: 1px solid rgba(143, 214, 148, 0.32); border-radius: 7px;
+  padding: 8px 10px; color: var(--bone-dim); background: rgba(143, 214, 148, 0.05);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  animation: sage-glow 2.7s ease-in-out infinite;
+}
+[data-site="home"] .sf-paths { width: 100%; height: 96px; overflow: visible; }
+[data-site="home"] .sf-paths path {
+  fill: none; stroke: rgba(143, 214, 148, 0.35); stroke-width: 1.4;
+  stroke-dasharray: 6 7; animation: sage-dash 2.4s linear infinite;
+}
+[data-site="home"] .sf-node { display: grid; place-items: center; }
+[data-site="home"] .sf-leaf {
+  font-family: var(--mono); font-weight: 700; font-size: 13px; letter-spacing: 0.22em;
+  color: #0c110d; background: var(--sage); border-radius: 999px; padding: 14px 18px;
+  box-shadow: 0 0 34px -8px var(--sage);
+  animation: sage-breathe 2.7s ease-in-out infinite;
+}
+[data-site="home"] .sage-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 30px; }
+[data-site="home"] .sage-point {
+  border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 16px;
+  background: rgba(12, 17, 13, 0.5); border-top: 2px solid rgba(143, 214, 148, 0.55);
+}
+[data-site="home"] .sage-point .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--sage); text-transform: uppercase; margin: 0 0 8px; }
+[data-site="home"] .sage-point h3 { margin: 0 0 8px; font-size: 17px; }
+[data-site="home"] .sage-point p:last-child { margin: 0; color: var(--bone-dim); font-size: 13.5px; line-height: 1.6; }
+[data-site="home"] #sage .btnrow { margin-top: 28px; }
+@keyframes sage-dash { to { stroke-dashoffset: -13; } }
+@keyframes sage-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes sage-glow { 0%, 100% { border-color: rgba(143,214,148,0.22); color: var(--bone-dim); } 50% { border-color: rgba(143,214,148,0.6); color: var(--bone); } }
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] .sf-paths path, [data-site="home"] .sf-leaf, [data-site="home"] .sf-chip { animation: none; }
+}
+@media (max-width: 760px) {
+  [data-site="home"] .sage-flow { grid-template-columns: 1fr 40px 90px 40px 1fr; }
+  [data-site="home"] .sage-points { grid-template-columns: 1fr; }
+}
