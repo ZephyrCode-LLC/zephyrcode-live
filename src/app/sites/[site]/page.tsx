@@ -89,7 +89,9 @@ export default async function SitePage({ params }: { params: Promise<{ site: str
   const Page = PAGES[site];
   if (!Page) notFound();
   return (
-    <div data-site={site}>
+    // the home door-gate boot script stamps data-door/--door-accent/gate-boot
+    // on this node before hydration; suppress the expected attribute diff
+    <div data-site={site} suppressHydrationWarning>
       <Page />
     </div>
   );

@@ -52,6 +52,7 @@ export function SceneAccent() {
       let active: HTMLElement | null = null;
       for (const s of scenes) {
         const r = s.getBoundingClientRect();
+        if (r.height === 0) continue; // collapsed by a door gate — skip
         if (r.top <= mid && r.bottom >= mid) { active = s; break; }
         if (r.top > mid) break; // scenes are in document order — none further can contain mid
       }

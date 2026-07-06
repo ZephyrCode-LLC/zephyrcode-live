@@ -53,7 +53,11 @@
 
 /* ---- scenes ---- */
 [data-site="home"] .scene { position: relative; z-index: 10; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-[data-site="home"] .scene::before { content: ""; position: absolute; inset: -6% -20%; z-index: 0; pointer-events: none; background: radial-gradient(82% 82% at 42% 50%, rgba(9, 7, 5, 0.95), rgba(9, 7, 5, 0.66) 58%, rgba(9, 7, 5, 0) 88%); }
+/* inset top/bottom = 0 so a scene's dark vignette never bleeds vertically onto
+   its neighbours (the old -6% top reached up and shadowed the previous scene's
+   bottom content — "check and fix all"). Horizontal -20% still darkens the side
+   margins over the particle field; the radial fades out by 90% so edges stay soft. */
+[data-site="home"] .scene::before { content: ""; position: absolute; inset: 0 -20%; z-index: 0; pointer-events: none; background: radial-gradient(86% 96% at 42% 50%, rgba(9, 7, 5, 0.95), rgba(9, 7, 5, 0.66) 60%, rgba(9, 7, 5, 0) 90%); }
 [data-site="home"] .scene > * { position: relative; z-index: 2; }
 /* Readability over the particle field: every scene text inherits a dark halo
    (text-shadow is inherited), so labels/captions that aren't headings are still
@@ -474,3 +478,103 @@
 [data-site="home"] .door-links a:hover { color: var(--dc); padding-left: 6px; }
 [data-site="home"] .door-arrow { color: var(--dc); opacity: 0.7; }
 @media (prefers-reduced-motion: reduce) { [data-site="home"] .door { transition: none; } }
+
+/* ============================================================
+   DOOR-GATE — audience-filtered homepage
+   SSR renders all scenes; a single [data-door] on the root drives static CSS
+   keyed off each scene/rail's data-doors token list. __all + no-attr show all.
+   ============================================================ */
+
+/* --- hide any scene not in the active door (and not always-on "*") --- */
+[data-site="home"][data-door="engineers"] main .scene:not([data-doors~="engineers"]):not([data-doors~="*"]),
+[data-site="home"][data-door="teams"]     main .scene:not([data-doors~="teams"]):not([data-doors~="*"]),
+[data-site="home"][data-door="creators"]  main .scene:not([data-doors~="creators"]):not([data-doors~="*"]),
+[data-site="home"][data-door="body"]      main .scene:not([data-doors~="body"]):not([data-doors~="*"]),
+[data-site="home"][data-door="readers"]   main .scene:not([data-doors~="readers"]):not([data-doors~="*"]) { display: none; }
+
+/* --- surviving scenes glide in when a door lands (never on the boot stamp) --- */
+@keyframes zc-gate-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+[data-site="home"][data-door]:not([data-door="__all"]) main .scene { animation: zc-gate-in .5s cubic-bezier(.16,1,.3,1) both; }
+[data-site="home"].gate-boot main .scene { animation: none !important; }
+
+/* --- gated scenes: tighten the vignette so it can't wash the seam between two survivors --- */
+[data-site="home"][data-door]:not([data-door="__all"]) main .scene::before { inset: 0; }
+
+/* --- first visit (no data-door), JS on: below-fold scenes are a sealed teaser behind the gate scrim. No-JS gets zero dimming. --- */
+@media (scripting: enabled) {
+  [data-site="home"]:not([data-door]) main .scene:not([data-doors~="*"]) {
+    filter: saturate(.4) brightness(.5); pointer-events: none;
+    -webkit-mask-image: linear-gradient(#000, rgba(0,0,0,.5)); mask-image: linear-gradient(#000, rgba(0,0,0,.5));
+    transition: filter .5s ease;
+  }
+}
+
+/* --- the fullscreen chooser (promoted over the live particle field) --- */
+[data-site="home"] .gate {
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 32px 20px;
+  background: color-mix(in srgb, #060403 74%, transparent); backdrop-filter: blur(14px) saturate(1.1);
+  opacity: 0; visibility: hidden; transition: opacity .6s ease, visibility 0s linear .6s;
+}
+[data-site="home"] .gate.show { opacity: 1; visibility: visible; transition: opacity .5s ease; }
+[data-site="home"] .gate[hidden] { display: none; }
+[data-site="home"] .gate-inner { max-width: min(960px, 92vw); text-align: center; }
+[data-site="home"] .gate-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--bone-dim); margin: 0 0 14px; }
+[data-site="home"] .gate-h2 { font-family: var(--serif, Fraunces), serif; font-weight: 700; font-size: clamp(1.9rem, 4.5vw, 3rem); letter-spacing: -.02em; margin: 0 0 10px; }
+[data-site="home"] .gate-sub { max-width: 56ch; margin: 0 auto 30px; color: var(--bone-dim); font-size: 15px; line-height: 1.6; }
+[data-site="home"] .gate-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); text-align: left; }
+[data-site="home"] .gate .door { animation: zc-gate-card .5s cubic-bezier(.16,1,.3,1) both; }
+[data-site="home"] .gate .door:nth-child(2){ animation-delay:.05s } [data-site="home"] .gate .door:nth-child(3){ animation-delay:.10s }
+[data-site="home"] .gate .door:nth-child(4){ animation-delay:.15s } [data-site="home"] .gate .door:nth-child(5){ animation-delay:.20s }
+@keyframes zc-gate-card { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* door-as-button in the gate */
+[data-site="home"] .door-enter { width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
+[data-site="home"] .door-enter:focus-visible { outline: 2px solid var(--dc); outline-offset: 3px; }
+[data-site="home"] .door-enter-cta { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--line-soft); font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--dc); display: flex; justify-content: space-between; align-items: center; }
+[data-site="home"] .door-enter .door-arrow { transition: transform .2s ease; }
+[data-site="home"] .door-enter:hover .door-arrow { transform: translateX(4px); }
+[data-site="home"] .gate-all { display: inline-block; margin-top: 26px; background: none; border: 0; cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--bone-faint); text-decoration: underline; text-underline-offset: 4px; }
+[data-site="home"] .gate-all:hover { color: var(--bone); }
+/* close (only offered once a door is already active — never on first visit, where leaving un-chosen would strand the dimmed page) */
+[data-site="home"] .gate-close { position: absolute; top: 22px; right: 24px; width: 40px; height: 40px; display: grid; place-items: center; background: none; border: 1px solid var(--line-soft); border-radius: 999px; cursor: pointer; font-size: 20px; line-height: 1; color: var(--bone-faint); transition: color .2s ease, border-color .2s ease; }
+[data-site="home"] .gate-close:hover { color: var(--bone); border-color: color-mix(in srgb, var(--door-accent, var(--accent)) 55%, transparent); }
+[data-site="home"] .gate-close:focus-visible { outline: 2px solid var(--door-accent, var(--accent)); outline-offset: 3px; }
+
+/* pick choreography — chosen card blooms, siblings recede */
+[data-site="home"] .gate.picking .door { transition: opacity .26s ease, transform .26s ease, filter .26s ease; }
+[data-site="home"] .gate.picking .door:not(.chosen) { opacity: .3; transform: scale(.975); filter: saturate(.6); }
+[data-site="home"] .gate .door.chosen { transform: scale(1.02); box-shadow: 0 24px 60px -22px var(--dc); }
+
+/* --- persistent "reading as X" chip — visible only while gated --- */
+[data-site="home"] .doorchip {
+  position: fixed; left: 50%; top: 58px; transform: translateX(-50%); z-index: 80;
+  display: none; align-items: center; gap: 14px; padding: 7px 8px 7px 15px; border-radius: 999px;
+  background: color-mix(in srgb, #0d0b09 82%, transparent); backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--door-accent, var(--accent)) 45%, transparent);
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; color: var(--bone-dim); white-space: nowrap;
+}
+[data-site="home"] .doorchip.on { display: flex; }
+[data-site="home"] .doorchip b { color: var(--door-accent, var(--accent)); text-transform: uppercase; }
+[data-site="home"] .doorchip button { background: none; border: 0; cursor: pointer; font: inherit; color: var(--bone-faint); border-left: 1px solid var(--line-soft); padding: 2px 12px; letter-spacing: .1em; }
+[data-site="home"] .doorchip button:hover { color: var(--door-accent, var(--accent)); }
+
+/* --- rail: dim off-door links, tint the whole rail to the door --- */
+[data-site="home"][data-door="engineers"] .rail a:not([data-doors~="engineers"]):not([data-doors~="*"]),
+[data-site="home"][data-door="teams"]     .rail a:not([data-doors~="teams"]):not([data-doors~="*"]),
+[data-site="home"][data-door="creators"]  .rail a:not([data-doors~="creators"]):not([data-doors~="*"]),
+[data-site="home"][data-door="body"]      .rail a:not([data-doors~="body"]):not([data-doors~="*"]),
+[data-site="home"][data-door="readers"]   .rail a:not([data-doors~="readers"]):not([data-doors~="*"]) { opacity: .26; filter: grayscale(.7); pointer-events: none; }
+[data-site="home"][data-door]:not([data-door="__all"]) .rail::after { background: linear-gradient(to bottom, color-mix(in srgb, var(--door-accent) 65%, transparent), var(--door-accent)); }
+[data-site="home"][data-door]:not([data-door="__all"]) .rail a:not(.on) .d { background: color-mix(in srgb, var(--door-accent) 40%, var(--bone-faint)); }
+[data-site="home"][data-door] .rail a[data-doors~="*"] .d { outline: 1px solid color-mix(in srgb, var(--door-accent) 40%, transparent); outline-offset: 2px; }
+
+/* --- drop the "0X ·" scene numbers (door subsets are non-contiguous) --- */
+[data-site="home"] .eyebrow .n { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] .gate, [data-site="home"] .gate .door, [data-site="home"] main .scene, [data-site="home"] .door-enter .door-arrow { transition: none !important; animation: none !important; }
+}
+@media (max-width: 640px) {
+  [data-site="home"] .doorchip { top: 50px; font-size: 9.5px; letter-spacing: .08em; gap: 8px; padding-left: 12px; }
+  [data-site="home"] .doorchip button { padding: 2px 8px; }
+}

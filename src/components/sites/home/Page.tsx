@@ -3,6 +3,21 @@ import "@/styles/sites/home.css";
 import { dataOf, getBlocks, getSite } from "@/lib/content";
 import { RevealManager } from "@/components/system/Reveal";
 import { SceneAccent } from "@/components/system/SceneAccent";
+import { DoorGate } from "@/components/system/DoorGate";
+import { doorsFor, DOORS } from "@/components/system/doors";
+
+/** Pre-paint: stamp the remembered/shared door before first paint so returning
+ *  visitors never flash the full page. No-JS never runs it → full page renders. */
+const DOOR_BOOT = `(function(){try{var A={engineers:'#c6ff45',teams:'#3DE1E6',creators:'#8fd694',body:'#e85d2a',readers:'#7fd6a8',__all:'#e85d2a'};var el=document.querySelector('[data-site="home"]');if(!el)return;var c=new URLSearchParams(location.search).get('door');if(c==='all')c='__all';if(!c||!(c in A)){try{c=localStorage.getItem('zc-door')}catch(e){}if(c==='all')c='__all';}if(c&&(c in A)){el.setAttribute('data-door',c);el.style.setProperty('--door-accent',A[c]);el.classList.add('gate-boot');}}catch(e){}})();`;
+
+/** who → door key (must match DOORS keys + the CMS door order). */
+const WHO_KEY: Record<string, string> = {
+  "For engineers": "engineers",
+  "For teams & CTOs": "teams",
+  "For creators & writers": "creators",
+  "For body & mind": "body",
+  "For readers & the curious": "readers",
+};
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
 import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
 import { MethodTrack } from "@/components/sites/home/MethodTrack";
@@ -30,6 +45,7 @@ const Doors = z.object({
       vibe: z.string(),
       accent: z.string(),
       links: z.array(Cta),
+      key: z.string().optional(),
     })
   ),
 });
@@ -160,13 +176,22 @@ export default async function HomeSite() {
   const constel = dataOf(blocks, "constel", Constel)!;
   const field = dataOf(blocks, "field", Field)!;
 
+  const gateCards = (doors?.doors ?? [])
+    .map((d) => {
+      const key = (d as { key?: string }).key ?? WHO_KEY[d.who];
+      return key && DOORS[key] ? { key, who: d.who, vibe: d.vibe, accent: d.accent, scenes: DOORS[key].scenes.length } : null;
+    })
+    .filter((c): c is NonNullable<typeof c> => c !== null);
+
   return (
     <>
+      <script dangerouslySetInnerHTML={{ __html: DOOR_BOOT }} />
       <ParticleFieldLoader grades={field.grades} />
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
       <RevealManager />
       <SceneAccent />
+      <DoorGate cards={gateCards} />
 
       <header className="top">
         <a className="wordmark" href="#signal">
@@ -179,7 +204,7 @@ export default async function HomeSite() {
 
       <nav className="rail" aria-label="Scenes">
         {chrome.rail.map((r, i) => (
-          <a key={r.href} href={r.href} data-r={i}>
+          <a key={r.href} href={r.href} data-r={i} data-doors={doorsFor(r.href.replace("#", ""))}>
             <span className="d" />
             <span className="t">{r.t}</span>
           </a>
@@ -187,7 +212,7 @@ export default async function HomeSite() {
       </nav>
 
       <main>
-        <section className="scene hero" id="signal" data-scene="0" data-accent="#e85d2a">
+        <section className="scene hero" id="signal" data-doors={doorsFor("signal")} data-scene="0" data-accent="#e85d2a">
           <p className="eyebrow rv" dangerouslySetInnerHTML={{ __html: signal.eyebrowHtml }} />
           <h1 className="rv" dangerouslySetInnerHTML={{ __html: signal.h1Html }} />
           <p className="lede rv" dangerouslySetInnerHTML={{ __html: signal.ledeHtml }} />
@@ -197,7 +222,7 @@ export default async function HomeSite() {
         </section>
 
         {doors && (
-          <section className="scene" id="doors" data-scene="1" data-accent="#e85d2a">
+          <section className="scene" id="doors" data-doors={doorsFor("doors")} data-scene="1" data-accent="#e85d2a">
             <div className="shead rv">
               <p className="eyebrow" dangerouslySetInnerHTML={{ __html: doors.eyebrowHtml }} />
               <h2 dangerouslySetInnerHTML={{ __html: doors.h2Html }} />
@@ -222,7 +247,7 @@ export default async function HomeSite() {
           </section>
         )}
 
-        <section className="scene" id="method" data-scene="2" data-accent="#e85d2a">
+        <section className="scene" id="method" data-doors={doorsFor("method")} data-scene="2" data-accent="#e85d2a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: method.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: method.h2Html }} />
@@ -237,7 +262,7 @@ export default async function HomeSite() {
           <p className="aside-note rv" dangerouslySetInnerHTML={{ __html: method.asideHtml }} />
         </section>
 
-        <section className="scene" id="audits" data-scene="3" data-accent="#3DE1E6">
+        <section className="scene" id="audits" data-doors={doorsFor("audits")} data-scene="3" data-accent="#3DE1E6">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: audits.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: audits.h2Html }} />
@@ -271,7 +296,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene arena-scene" id="arena" data-scene="4" data-accent="#c6ff45">
+        <section className="scene arena-scene" id="arena" data-doors={doorsFor("arena")} data-scene="4" data-accent="#c6ff45">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: arena.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: arena.h2Html }} />
@@ -297,7 +322,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="sage" data-scene="5" data-accent="#8fd694">
+        <section className="scene" id="sage" data-doors={doorsFor("sage")} data-scene="5" data-accent="#8fd694">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: sage.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: sage.h2Html }} />
@@ -356,7 +381,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="stories" data-scene="6" data-accent="#7fd6a8">
+        <section className="scene" id="stories" data-doors={doorsFor("stories")} data-scene="6" data-accent="#7fd6a8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: stories.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: stories.h2Html }} />
@@ -375,7 +400,7 @@ export default async function HomeSite() {
         </section>
 
         {samhita && (
-        <section className="scene" id="samhita" data-scene="7" data-accent="#6f8bff">
+        <section className="scene" id="samhita" data-doors={doorsFor("samhita")} data-scene="7" data-accent="#6f8bff">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: samhita.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: samhita.h2Html }} />
@@ -412,7 +437,7 @@ export default async function HomeSite() {
         </section>
         )}
 
-        <section className="scene" id="systems" data-scene="8" data-accent="#54d38a">
+        <section className="scene" id="systems" data-doors={doorsFor("systems")} data-scene="8" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: systems.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
@@ -458,7 +483,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="library" data-scene="9" data-accent="#8fb6e8">
+        <section className="scene" id="library" data-doors={doorsFor("library")} data-scene="9" data-accent="#8fb6e8">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: library.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: library.h2Html }} />
@@ -479,7 +504,7 @@ export default async function HomeSite() {
           </div>
         </section>
 
-        <section className="scene" id="operator" data-scene="10" data-accent="#54d38a">
+        <section className="scene" id="operator" data-doors={doorsFor("operator")} data-scene="10" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: operator.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: operator.h2Html }} />
