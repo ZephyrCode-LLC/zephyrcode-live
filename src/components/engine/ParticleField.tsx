@@ -150,19 +150,20 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
       const push = (x: number, y: number) => pts.push([x, y]);
-      // ---- THE THINKER: a hunched seated silhouette (contour + masses), head bowed onto the fist, facing left ----
+      // ---- THE THINKER (bigger + crisper): a hunched seated silhouette, head bowed onto the fist, facing left ----
       const blob = (cx: number, cy: number, rx: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); push(cx + Math.cos(ang) * rr * rx, cy + Math.sin(ang) * rr * ry); } };
+      const S = 1.34;
       const V: Array<[number, number]> = [
         [1.4, 8.9], [-0.5, 9.0], [-2.2, 8.2], [-3.0, 6.9], [-2.6, 5.7], [-3.5, 4.1],
         [-4.2, 3.6], [-4.4, 1.1], [-4.5, 0.6], [0.8, 0.5], [2.7, 1.0], [3.0, 4.2], [2.4, 6.9],
       ];
-      for (let i = 0; i < V.length; i++) { const p = V[i], q = V[(i + 1) % V.length]; seg(pts, p[0], p[1], q[0], q[1], 52); } // silhouette outline
-      blob(0.9, 5.2, 2.0, 2.6, 240);        // back / torso mass (hunched)
-      blob(-1.1, 3.2, 2.9, 0.9, 190);       // thigh mass
-      blob(-2.3, 7.4, 1.35, 1.4, 210);      // the bowed head (solid)
-      blob(-2.75, 5.7, 0.7, 0.72, 70);      // fist under the chin
-      seg(pts, 1.0, 7.9, -3.5, 4.1, 72);    // the diagonal upper arm crossing to the elbow on the knee
-      blob(0, 1.5, 3.5, 0.9, 120);          // the rock he sits on
+      for (let i = 0; i < V.length; i++) { const p = V[i], q = V[(i + 1) % V.length]; seg(pts, p[0] * S, p[1] * S, q[0] * S, q[1] * S, 110); } // crisp, dense silhouette outline
+      blob(0.9 * S, 5.2 * S, 1.85 * S, 2.45 * S, 320);  // back / torso mass (hunched)
+      blob(-1.1 * S, 3.2 * S, 2.75 * S, 0.85 * S, 240); // thigh mass
+      blob(-2.3 * S, 7.4 * S, 1.28 * S, 1.34 * S, 280); // the bowed head (solid)
+      blob(-2.75 * S, 5.7 * S, 0.64 * S, 0.68 * S, 100);// fist under the chin
+      seg(pts, 1.0 * S, 7.9 * S, -3.5 * S, 4.1 * S, 120); // the diagonal upper arm to the elbow on the knee
+      blob(0, 1.5 * S, 3.4 * S, 0.85 * S, 160);         // the rock he sits on
       // ---- five OPEN doors in a row below (with a clear gap under the figure) ----
       const XC = [-20, -10, 0, 10, 20], DB = -12.0, DT = -3.2, DW = 1.7;
       for (const xc of XC) {
