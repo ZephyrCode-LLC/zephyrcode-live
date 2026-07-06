@@ -1,24 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
+import { ForgeEngine } from "@/components/sites/home/ForgeEngine";
 
 /**
  * The "personal operating systems" deck — FORGE (the body), TEMPER (the mind),
- * and COMPASS (the money, forthcoming) — switchable as tabs. Each tab leads with
- * a plain, benefit-first line and its OWN signature teaser, matched to that
- * product's real identity on its subdomain: FORGE = a green adherence engine
- * (a save-file you level or corrupt); TEMPER = a blade run through the tempering
+ * and COMPASS (living, forthcoming) — switchable as tabs. Each tab leads with a
+ * plain, benefit-first line and its OWN signature teaser, matched to that
+ * product's real identity: FORGE = a LIVE adherence engine (tap your week, watch
+ * the save-file level or corrupt); TEMPER = a blade run through the tempering
  * colours (straw → bronze → purple → blue); COMPASS = a roadmap climbing to your
  * number. No studio/operator copy here — the section is only about the products.
  */
-
-type Toy = {
-  k: string;
-  dayLabels: string[];
-  seriesParams: { start: number; hit: number; miss: number };
-  capHtml: string;
-};
 
 type Tab = {
   key: string;
@@ -29,7 +22,6 @@ type Tab = {
   prop: string;
   points: string[];
   teaser: "engine" | "blade" | "roadmap";
-  toy?: boolean;
   cta?: { label: string; href: string };
 };
 
@@ -37,21 +29,10 @@ const ROADMAP = "M2 34 C 40 33, 60 24, 95 18 S 150 9, 198 4";
 
 function Teaser({ kind }: { kind: Tab["teaser"] }) {
   if (kind === "engine") {
-    // FORGE — the adherence engine (green save-file), like the ENGINE panel on forge-app
+    // FORGE — the live adherence engine (a save-file you level or corrupt)
     return (
-      <div className="sys-teaser forge-engine" aria-hidden="true">
-        <div className="fe-head mono">ENGINE</div>
-        <div className="fe-row">
-          <span className="fe-label mono">ADHERENCE</span>
-          <span className="fe-track"><i className="fe-fill up" /></span>
-          <span className="fe-num mono up">74%</span>
-        </div>
-        <div className="fe-row">
-          <span className="fe-label mono">SKIPPED DEBT</span>
-          <span className="fe-track"><i className="fe-fill down" /></span>
-          <span className="fe-num mono down">−2 wk</span>
-        </div>
-        <p className="fe-note mono">SAVE-FILE: leveling · goal date moved up 11 days</p>
+      <div className="sys-teaser">
+        <ForgeEngine />
       </div>
     );
   }
@@ -78,12 +59,12 @@ function Teaser({ kind }: { kind: Tab["teaser"] }) {
   );
 }
 
-export function SystemsDeck({ toy }: { toy: Toy }) {
+export function SystemsDeck() {
   const tabs: Tab[] = [
     {
       key: "forge",
       name: "FORGE",
-      os: "OS 01 · The body",
+      os: "OS 01 · The Body Armour",
       state: "live",
       accent: "#52c98a",
       prop: "Training and nutrition tuned to your genetics and bloodwork — so you build the body your data says you can.",
@@ -93,13 +74,12 @@ export function SystemsDeck({ toy }: { toy: Toy }) {
         "A save-file you level or corrupt — see it before you skip",
       ],
       teaser: "engine",
-      toy: true,
       cta: { label: "Open FORGE →", href: "https://forge-app.zephyrcode.live?utm_source=hub-systems" },
     },
     {
       key: "temper",
       name: "TEMPER",
-      os: "OS 02 · The mind",
+      os: "OS 02 · The Mind Spa",
       state: "live",
       accent: "#8b7fd4",
       prop: "Train your attention like a blade. Focus longer, get interrupted less, and see exactly what distraction is costing you.",
@@ -114,7 +94,7 @@ export function SystemsDeck({ toy }: { toy: Toy }) {
     {
       key: "compass",
       name: "COMPASS",
-      os: "OS 03 · The money",
+      os: "OS 03 · Living",
       state: "soon",
       accent: "#cca24a",
       prop: "Feed in what you own, owe, and want — and get a clear, simulated roadmap to the number you're aiming for.",
@@ -172,12 +152,6 @@ export function SystemsDeck({ toy }: { toy: Toy }) {
           </div>
           <Teaser kind={t.teaser} />
         </div>
-
-        {t.toy && (
-          <div className="sys-toy">
-            <ConsequenceWeek k={toy.k} dayLabels={toy.dayLabels} seriesParams={toy.seriesParams} capHtml={toy.capHtml} />
-          </div>
-        )}
       </article>
     </div>
   );

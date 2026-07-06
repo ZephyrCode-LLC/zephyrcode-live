@@ -534,7 +534,7 @@ export default async function HomeSite() {
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
             <p className="sub sys-lede" dangerouslySetInnerHTML={{ __html: systems.subHtml }} />
           </div>
-          <SystemsDeck toy={systems.toy} />
+          <SystemsDeck />
         </section>
 
         <section className="scene" id="library" data-doors={doorsFor("library")} data-scene="9" data-accent="#8fb6e8">
