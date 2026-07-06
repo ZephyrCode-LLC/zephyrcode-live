@@ -517,7 +517,10 @@ export default async function HomeSite() {
           <div className="shelves">
             {library.shelves.map((s) => (
               <div key={s.h3} className={`shelf ${s.cls} rv`}>
-                <div className="spectrum" />
+                <div className={`spectrum sp-${s.cls}`} aria-hidden="true">
+                  {s.cls === "watch" && Array.from({ length: 8 }).map((_, i) => <i key={i} style={{ ["--b" as string]: i }} />)}
+                  {s.cls === "listen" && Array.from({ length: 16 }).map((_, i) => <i key={i} style={{ ["--b" as string]: i }} />)}
+                </div>
                 <h3>{s.h3}</h3>
                 <p className="axis">{s.axis}</p>
                 <p dangerouslySetInnerHTML={{ __html: s.pHtml }} />
