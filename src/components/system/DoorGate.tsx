@@ -1,30 +1,31 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { track } from "@/lib/posthog";
-import { DOORS, HUB_ACCENT, type GateCard } from "@/components/system/doors";
+import { DOORS, HUB_ACCENT } from "@/components/system/doors";
 
 /**
- * Door-gate — the homepage serves different audiences, so a visitor picks a
- * "door" and sees only that door's sections (+ the always-on frame), themed to
- * the door's colour. Mechanism: the server renders ALL scenes (SEO / no-JS get
- * the full page); gating is a single `data-door` attribute on the root, driving
- * static CSS keyed off each scene's `data-doors` token list. A pre-paint boot
- * script (rendered in Page.tsx) stamps the remembered door before first paint so
- * returning visitors never flash the full page. "Reveal everything" (data-door
- * = __all) is always one click away, so nothing is ever unreachable.
+ * Door controller — the homepage serves different audiences. The DOORS *section*
+ * (scene 01, server-rendered) is the picker; there is no modal. A visitor lands
+ * on the welcome, scrolls into the doors section, and can focus a door — the
+ * page then keeps the always-on essentials (welcome, method, library, operator)
+ * and reveals only that audience's product rooms, themed to the door's colour;
+ * the chosen door card widens and highlights, the rest tuck below it.
+ *
+ * Mechanism: a single `data-door` attr on the root drives static CSS keyed off
+ * each scene/rail's `data-doors` token list. No attr = everything shown (also
+ * what SEO/no-JS get, since the boot script only stamps a *remembered* choice).
+ * "Everything" (data-door=__all) and the chip's "reveal everything" always
+ * un-focus. This component renders only the persistent "reading as X" chip and
+ * wires click/keyboard selection onto the section's cards.
  */
 
 const VALID = new Set([...Object.keys(DOORS), "__all"]);
 const root = () => (typeof document !== "undefined" ? (document.querySelector('[data-site="home"]') as HTMLElement | null) : null);
+const reduce = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-export function DoorGate({ cards }: { cards: GateCard[] }) {
-  const [open, setOpen] = useState(false);
-  const [picking, setPicking] = useState<string | null>(null);
-  const [active, setActive] = useState<string | null>(null); // door key or "__all"
-  const gateRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // pending choose() commit
-  const restoreRef = useRef<HTMLElement | null>(null); // focus to restore when the gate closes
+export function DoorGate() {
+  const [active, setActive] = useState<string | null>(null); // door key, "__all", or null (unpicked)
 
   function markRail(el: HTMLElement) {
     const door = el.getAttribute("data-door");
@@ -36,49 +37,49 @@ export function DoorGate({ cards }: { cards: GateCard[] }) {
     });
   }
 
+  // reflect the picked door into the doors section: widen + highlight the match,
+  // let the rest recede below it.
+  function markSection(el: HTMLElement, key: string | null) {
+    const wrap = el.querySelector<HTMLElement>("#doors .doors");
+    if (!wrap) return;
+    let picked = false;
+    wrap.querySelectorAll<HTMLElement>(".door").forEach((c) => {
+      const on = key != null && key !== "__all" && c.getAttribute("data-door-key") === key;
+      c.classList.toggle("is-picked", on);
+      c.setAttribute("aria-pressed", on ? "true" : "false");
+      if (on) picked = true;
+    });
+    wrap.classList.toggle("has-pick", picked);
+  }
+
   function apply(key: string) {
     const el = root();
     if (!el) return;
-    el.setAttribute("data-door", key);
-    el.style.setProperty("--door-accent", key === "__all" ? HUB_ACCENT : DOORS[key].accent);
+    if (key === "none") {
+      el.removeAttribute("data-door");
+      el.style.removeProperty("--door-accent");
+    } else {
+      el.setAttribute("data-door", key);
+      el.style.setProperty("--door-accent", key === "__all" ? HUB_ACCENT : DOORS[key].accent);
+    }
     markRail(el);
+    markSection(el, key === "none" ? null : key);
     window.dispatchEvent(new Event("zc:regate"));
-    setActive(key);
+    setActive(key === "none" ? null : key);
   }
 
-  function clearPending() {
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+  function goToDoors() {
+    document.querySelector("#doors")?.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "start" });
   }
 
   function choose(key: string) {
-    if (!DOORS[key]) return;
-    setPicking(key);
-    const finish = () => {
-      timerRef.current = null;
-      apply(key);
-      try { localStorage.setItem("zc-door", key); } catch {}
-      history.replaceState(null, "", `?door=${key}`);
-      track("door_selected", { door: key });
-      setOpen(false);
-      setPicking(null);
-      setTimeout(() => {
-        const first = [...document.querySelectorAll<HTMLElement>("main .scene")].find(
-          (s) => s.offsetHeight > 0 && s.id !== "signal" && s.id !== "doors"
-        );
-        first?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-      }, 280);
-    };
-    timerRef.current = setTimeout(finish, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 330);
-  }
-
-  function revealAll() {
-    clearPending(); // a late choose() commit must not override an explicit reveal-all
-    setPicking(null);
-    apply("__all");
-    try { localStorage.setItem("zc-door", "__all"); } catch {}
-    history.replaceState(null, "", "?door=all");
-    track("door_revealed_all", {});
-    setOpen(false);
+    if (!VALID.has(key)) return;
+    apply(key);
+    try { localStorage.setItem("zc-door", key); } catch {}
+    history.replaceState(null, "", key === "__all" ? "?door=all" : `?door=${key}`);
+    track(key === "__all" ? "door_revealed_all" : "door_selected", { door: key });
+    // keep the widened pick + the newly-focused rooms in view
+    setTimeout(goToDoors, 60);
   }
 
   useEffect(() => {
@@ -95,99 +96,44 @@ export function DoorGate({ cards }: { cards: GateCard[] }) {
     if (choice && VALID.has(choice)) {
       apply(choice); // idempotent with the boot script
       try { localStorage.setItem("zc-door", choice); } catch {}
-    } else if (cards.length) {
-      markRail(el);
-      setOpen(true);
     } else {
-      // no doors configured — never strand the visitor behind an empty modal on
-      // a dimmed page; just show everything.
-      apply("__all");
+      apply("none"); // default: everything shown, nothing focused, no modal
     }
 
-    return () => clearPending();
+    // selection via the section: click the card (or its focus button / press
+    // Enter on it) to focus a door; room links inside still navigate normally.
+    const section = el.querySelector<HTMLElement>("#doors");
+    const keyFromTarget = (t: HTMLElement): string | null => {
+      if (t.closest("a")) return null; // a room link → let it navigate
+      const btn = t.closest<HTMLElement>("[data-focus]");
+      const card = t.closest<HTMLElement>(".door[data-door-key]");
+      return btn?.getAttribute("data-focus") || card?.getAttribute("data-door-key") || null;
+    };
+    const onClick = (e: MouseEvent) => {
+      const key = keyFromTarget(e.target as HTMLElement);
+      if (key && VALID.has(key)) { e.preventDefault(); choose(key); }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const card = (e.target as HTMLElement).closest<HTMLElement>(".door[data-door-key]");
+      if (!card || (e.target as HTMLElement).closest("a, button")) return; // buttons/links handle themselves
+      const key = card.getAttribute("data-door-key");
+      if (key && VALID.has(key)) { e.preventDefault(); choose(key); }
+    };
+    section?.addEventListener("click", onClick);
+    section?.addEventListener("keydown", onKey);
+    return () => {
+      section?.removeEventListener("click", onClick);
+      section?.removeEventListener("keydown", onKey);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // while the gate is open: focus it, trap Tab inside it, wire Esc, and restore
-  // focus to the trigger on close (a11y — it's an aria-modal dialog).
-  useEffect(() => {
-    const el = gateRef.current;
-    if (!open || !el) return;
-    restoreRef.current = (document.activeElement as HTMLElement) ?? null;
-    el.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        // first visit (no door yet): Esc reveals all so the page un-dims.
-        // reopened over an active door: Esc just closes, keeping the theme.
-        if (root()?.getAttribute("data-door") != null) setOpen(false);
-        else revealAll();
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const items = el.querySelectorAll<HTMLElement>("button:not([disabled])");
-      if (!items.length) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      const a = document.activeElement;
-      if (e.shiftKey && (a === first || a === el)) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && (a === last || a === el)) { e.preventDefault(); first.focus(); }
-    };
-    el.addEventListener("keydown", onKey);
-    return () => {
-      el.removeEventListener("keydown", onKey);
-      restoreRef.current?.focus?.();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
   return (
-    <>
-      {/* the fullscreen chooser — authored hidden so no-JS/crawlers never see it */}
-      <div
-        className={`gate${open ? " show" : ""}${picking ? " picking" : ""}`}
-        ref={gateRef}
-        hidden={!open}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Choose where to start"
-        tabIndex={-1}
-      >
-        <div className="gate-inner">
-          {/* close is offered only when a door is already active; on first visit the
-              only exits are picking a door or "show everything" (both un-dim) */}
-          {active != null && (
-            <button type="button" className="gate-close" onClick={() => setOpen(false)} aria-label="Close">×</button>
-          )}
-          <p className="gate-eyebrow">zephyrcode.live — one studio, many rooms</p>
-          <h2 className="gate-h2">Where do you want in?</h2>
-          <p className="gate-sub">Everything here is real and live, but it serves different people. Pick a door — you can open the rest anytime.</p>
-          <div className="gate-grid">
-            {cards.map((c) => (
-              <button
-                key={c.key}
-                type="button"
-                className={`door door-enter${picking === c.key ? " chosen" : ""}`}
-                style={{ ["--dc" as string]: c.accent }}
-                onClick={() => choose(c.key)}
-                aria-pressed={active === c.key}
-              >
-                <span className="door-who">{c.who}</span>
-                <span className="door-vibe">{c.vibe}</span>
-                <span className="door-enter-cta mono">{c.scenes} room{c.scenes === 1 ? "" : "s"} + the essentials <span className="door-arrow">→</span></span>
-              </button>
-            ))}
-          </div>
-          <button type="button" className="gate-all" onClick={revealAll}>show everything instead</button>
-        </div>
-      </div>
-
-      {/* persistent "you're reading as X" pill — shown (via .on) once a door resolves */}
-      <div className={`doorchip${active != null ? " on" : ""}`} aria-hidden={active == null}>
-        <span>reading as <b>{active === "__all" ? "everything" : active ? DOORS[active]?.label : ""}</b></span>
-        <button type="button" onClick={() => setOpen(true)}>{active === "__all" ? "choose a door" : "switch door"}</button>
-        {active !== "__all" && <button type="button" onClick={revealAll}>reveal everything</button>}
-      </div>
-    </>
+    <div className={`doorchip${active != null ? " on" : ""}`} aria-hidden={active == null}>
+      <span>reading as <b>{active === "__all" ? "everything" : active ? DOORS[active]?.label : ""}</b></span>
+      <button type="button" onClick={goToDoors}>switch door</button>
+      {active !== "__all" && <button type="button" onClick={() => choose("__all")}>reveal everything</button>}
+    </div>
   );
 }

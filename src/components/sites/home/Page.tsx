@@ -176,13 +176,6 @@ export default async function HomeSite() {
   const constel = dataOf(blocks, "constel", Constel)!;
   const field = dataOf(blocks, "field", Field)!;
 
-  const gateCards = (doors?.doors ?? [])
-    .map((d) => {
-      const key = (d as { key?: string }).key ?? WHO_KEY[d.who];
-      return key && DOORS[key] ? { key, who: d.who, vibe: d.vibe, accent: d.accent, scenes: DOORS[key].scenes.length } : null;
-    })
-    .filter((c): c is NonNullable<typeof c> => c !== null);
-
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: DOOR_BOOT }} />
@@ -191,7 +184,7 @@ export default async function HomeSite() {
       <div className="grain" aria-hidden="true" />
       <RevealManager />
       <SceneAccent />
-      <DoorGate cards={gateCards} />
+      <DoorGate />
 
       <header className="top">
         <a className="wordmark" href="#signal">
@@ -229,20 +222,52 @@ export default async function HomeSite() {
               <p className="sub">{doors.sub}</p>
             </div>
             <div className="doors rv">
-              {doors.doors.map((d) => (
-                <div className="door" key={d.who} style={{ ["--dc" as string]: d.accent }}>
-                  <p className="door-who">{d.who}</p>
-                  <p className="door-vibe">{d.vibe}</p>
-                  <div className="door-links">
-                    {d.links.map((l) => (
-                      <a key={l.href} href={l.href} {...ext(l.href)}>
-                        <span>{l.label}</span>
-                        <span className="door-arrow">→</span>
-                      </a>
-                    ))}
+              {doors.doors.map((d) => {
+                const key = (d as { key?: string }).key ?? WHO_KEY[d.who];
+                const short = key && DOORS[key] ? DOORS[key].short : "this door";
+                return (
+                  <div
+                    className="door"
+                    key={d.who}
+                    data-door-key={key}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed="false"
+                    style={{ ["--dc" as string]: d.accent }}
+                  >
+                    <p className="door-who">{d.who}</p>
+                    <p className="door-vibe">{d.vibe}</p>
+                    <div className="door-links">
+                      {d.links.map((l) => (
+                        <a key={l.href} href={l.href} {...ext(l.href)}>
+                          <span>{l.label}</span>
+                          <span className="door-arrow">→</span>
+                        </a>
+                      ))}
+                    </div>
+                    <button type="button" className="door-focus" data-focus={key}>
+                      <span>Read as {short}</span>
+                      <span className="door-arrow">→</span>
+                    </button>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+              {/* the "everything" door — the full constellation, one scroll */}
+              <div
+                className="door door-all"
+                data-door-key="__all"
+                role="button"
+                tabIndex={0}
+                aria-pressed="false"
+                style={{ ["--dc" as string]: "#e85d2a" }}
+              >
+                <p className="door-who">Show me everything</p>
+                <p className="door-vibe">The full constellation — every room in one scroll. You can focus a single door anytime.</p>
+                <button type="button" className="door-focus" data-focus="__all">
+                  <span>Open all doors</span>
+                  <span className="door-arrow">→</span>
+                </button>
+              </div>
             </div>
           </section>
         )}
