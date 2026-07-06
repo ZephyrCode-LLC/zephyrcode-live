@@ -131,35 +131,112 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       }
       return a;
     }
-    // DOORS scene formation — a pixelated figure (the visitor) above five doors.
+    // DOORS scene formation — a thin standing figure (the visitor) facing a row of OPEN doors.
+    // Smooth line-drawn glyphs (no pixel grid): a slim person on the left, four ajar doors
+    // whose panels swing toward the viewer in light perspective, warm light spilling out.
     function fDoors() {
       const a = new Float32Array(N * 3);
-      const G = 0.7; // pixel grid
-      const snap = (v: number) => Math.round(v / G) * G;
       const pts: Array<[number, number]> = [];
-      const push = (x: number, y: number) => pts.push([snap(x), snap(y)]);
-      // the visitor — head + shoulders (the universal "user" glyph), centered up top
-      const HEAD_Y = 9.4, HEAD_R = 2.4;
-      for (let s = 0; s < 780; s++) { const ang = Math.random() * 6.283, r = HEAD_R * Math.sqrt(Math.random()); push(Math.cos(ang) * r, HEAD_Y + Math.sin(ang) * r); }
-      for (let s = 0; s < 1200; s++) { const ty = Math.random(); const y = 3.1 + ty * 3.9; const hw = 2.0 + (1 - ty) * 3.5; push((Math.random() * 2 - 1) * hw, y); } // shoulders dome
-      // five doors in a row below
-      const XC = [-16, -8, 0, 8, 16], DY0 = -10.6, DY1 = -1.4, DHW = 2.3, DH = DY1 - DY0;
+      const push = (x: number, y: number) => pts.push([x, y]);
+      const line = (x0: number, y0: number, x1: number, y1: number, n: number) => {
+        for (let s = 0; s < n; s++) { const t = Math.random(); push(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t); }
+      };
+      // ---- the visitor: a slim full-body silhouette, far left, facing the doors ----
+      const FX = -23;
+      for (let s = 0; s < 110; s++) { const ang = Math.random() * 6.283, r = 1.05 * Math.sqrt(Math.random()); push(FX + Math.cos(ang) * r, 7.3 + Math.sin(ang) * r); } // head
+      line(FX, 6.0, FX, -1.4, 190);                 // spine / torso (thin)
+      line(FX - 1.5, 5.2, FX + 1.5, 5.2, 55);       // shoulders
+      line(FX - 1.5, 5.2, FX - 2.7, 0.4, 85);       // left arm
+      line(FX + 1.5, 5.2, FX + 2.7, 0.4, 85);       // right arm
+      line(FX, -1.4, FX - 1.7, -9.2, 115);          // left leg
+      line(FX, -1.4, FX + 1.7, -9.2, 115);          // right leg
+      // ---- four OPEN doors across the right ----
+      // Each is a portal (frame) with the leaf swung open INTO the room: hinged on the right
+      // jamb, its tall near/free edge sits left of centre and the top & bottom edges recede to
+      // the hinge — leaving a dark opening on the left with faint light spilling out.
+      const XC = [-11, -2, 7, 16], DB = -9.4, DT = 1.8, DW = 2.15;
       for (const xc of XC) {
-        for (let s = 0; s < 300; s++) { const t = Math.random() * DH; push(xc - DHW, DY0 + t); push(xc + DHW, DY0 + t); } // jambs
-        for (let s = 0; s < 130; s++) { const t = (Math.random() * 2 - 1) * DHW; push(xc + t, DY1); push(xc + t, DY0); } // lintel + sill
-        for (let s = 0; s < 150; s++) push(xc + (Math.random() * 2 - 1) * DHW * 0.82, DY0 + Math.random() * DH); // sparse interior
-        for (let s = 0; s < 22; s++) push(xc + DHW * 0.55, (DY0 + DY1) / 2 + (Math.random() * 2 - 1) * 0.3); // knob
+        const xL = xc - DW, xR = xc + DW;
+        line(xL, DB, xL, DT, 120);                  // left jamb
+        line(xR, DB, xR, DT, 120);                  // right jamb (hinge side)
+        line(xL, DT, xR, DT, 62);                   // lintel
+        line(xL, DB, xR, DB, 62);                   // threshold
+        const xn = xc - DW * 0.25, ins = 0.9;       // near (free) edge x + perspective inset at the hinge
+        line(xn, DB - 0.4, xn, DT + 0.4, 120);      // near edge — tallest, closest to viewer
+        line(xn, DT + 0.4, xR, DT - ins, 85);       // top edge receding to the hinge
+        line(xn, DB - 0.4, xR, DB + ins, 85);       // bottom edge receding to the hinge
+        for (let s = 0; s < 58; s++) { const u = Math.random(); const xx = xn + (xR - xn) * u; const yT = (DT + 0.4) + ((DT - ins) - (DT + 0.4)) * u, yB = (DB - 0.4) + ((DB + ins) - (DB - 0.4)) * u; push(xx, yB + (yT - yB) * Math.random()); } // leaf face
+        for (let s = 0; s < 12; s++) push(xn - 0.28, (DB + DT) / 2 + (Math.random() * 2 - 1) * 0.25); // knob on the free edge
+        for (let s = 0; s < 26; s++) push(xL + (xn - xL) * Math.random() * 0.9, DB + Math.random() * (DT - DB)); // light spilling from the opening
       }
       for (let i = 0; i < N; i++) {
         const q = pts[i % pts.length];
-        a[i * 3] = q[0] + rnd(-0.16, 0.16);
-        a[i * 3 + 1] = q[1] + rnd(-0.16, 0.16);
+        a[i * 3] = q[0] + rnd(-0.12, 0.12);
+        a[i * 3 + 1] = q[1] + rnd(-0.12, 0.12);
         a[i * 3 + 2] = rnd(-1.1, 1.1);
       }
       return a;
     }
-    void fFunnel; // superseded by fDoors for the doors scene
-    const T = [fWind(), fDoors(), fFlame(), fLattice(), fWave(), fRing()];
+
+    // METHOD scene formation — a horizontal figure-8 (∞), particles circulating around it.
+    // "One loop that transfers." Gerono lemniscate x=W·cosθ, y=H·sin2θ; each particle keeps a
+    // phase θ0 (∝ index → an even cyan→indigo gradient around the curve) and flows in the frame loop.
+    const loopTheta = new Float32Array(N);
+    const loopOx = new Float32Array(N), loopOy = new Float32Array(N), loopZ = new Float32Array(N);
+    for (let i = 0; i < N; i++) {
+      loopTheta[i] = (i / N) * Math.PI * 2;
+      loopOx[i] = rnd(-0.5, 0.5); loopOy[i] = rnd(-0.5, 0.5); loopZ[i] = rnd(-1.4, 1.4);
+    }
+    const LOOP_W = 15, LOOP_H = 6.6, LOOP_SPD = 0.5;
+    const loopAt = (i: number, tt: number): [number, number, number] => {
+      const th = loopTheta[i] + tt * LOOP_SPD;
+      const c = Math.cos(th), s = Math.sin(th);
+      return [LOOP_W * c + loopOx[i], LOOP_H * 2 * s * c + loopOy[i], loopZ[i]];
+    };
+    function fLoop() {
+      const a = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) { const q = loopAt(i, 0); a[i * 3] = q[0]; a[i * 3 + 1] = q[1]; a[i * 3 + 2] = q[2]; }
+      return a;
+    }
+
+    // ARENA scene formation — an ascending staircase of bars (a leaderboard / skill climb).
+    // Each particle's height fraction = index/N (→ aU gradient dark base → voltage-lime top);
+    // it joins any bar tall enough to reach that height, so taller bars stack on the right.
+    function fBars() {
+      const a = new Float32Array(N * 3);
+      const NB = 11, X0 = -22, X1 = 22, MAXH = 15, BASE = -9, BW = 1.45;
+      const hts: number[] = [], xcs: number[] = [];
+      for (let k = 0; k < NB; k++) { hts.push(2 + (k / (NB - 1)) * (MAXH - 2)); xcs.push(X0 + (k / (NB - 1)) * (X1 - X0)); }
+      for (let i = 0; i < N; i++) {
+        const y = (i / N) * MAXH;               // desired height (correlates with aU)
+        let lo = 0; while (lo < NB && hts[lo] < y) lo++; // bars lo..NB-1 are tall enough
+        const span = NB - lo;
+        const k = span > 0 ? lo + Math.floor(Math.random() * span) : NB - 1;
+        a[i * 3] = xcs[k] + (Math.random() * 2 - 1) * BW;
+        a[i * 3 + 1] = BASE + y + (Math.random() * 2 - 1) * 0.14;
+        a[i * 3 + 2] = rnd(-1.4, 1.4);
+      }
+      return a;
+    }
+
+    // SAGE scene formation — a breathing orbit with a bright nucleus (the ops "brain" + its satellites).
+    function fOrbit() {
+      const a = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) {
+        if (Math.random() < 0.28) {             // nucleus
+          const ang = rnd(0, 6.283), r = 2.7 * Math.sqrt(Math.random());
+          a[i * 3] = Math.cos(ang) * r; a[i * 3 + 1] = Math.sin(ang) * r * 0.95; a[i * 3 + 2] = rnd(-1.6, 1.6);
+        } else {                                 // orbit ring
+          const ang = (i / N) * Math.PI * 2;
+          const R = 10.6 + rnd(-0.5, 0.5) + Math.sin(ang * 3) * 0.4;
+          a[i * 3] = Math.cos(ang) * R; a[i * 3 + 1] = Math.sin(ang) * R * 0.94; a[i * 3 + 2] = rnd(-1.6, 1.6);
+        }
+      }
+      return a;
+    }
+
+    void fFunnel; void fFlame; void fWave; void fRing; // superseded by fLoop / fBars / fOrbit
+    const T = [fWind(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit()];
     const GRADE = grades;
 
     /* ---------- geometry + shader ---------- */
@@ -305,7 +382,6 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
 
       const W = (s: number) => (sa === s ? 1 - e : 0) + (sb === s ? e : 0);
       const w0 = W(0),
-        w2 = W(2),
         w4 = W(4),
         w5 = W(5);
       const rotC = Math.cos(t * 0.1),
@@ -319,11 +395,14 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const i3 = i * 3;
         const seed = aRand[i];
         let ax = A[i3];
-        const ay = A[i3 + 1];
+        let ay = A[i3 + 1];
         let az = A[i3 + 2];
         let bx = B[i3];
-        const by = B[i3 + 1];
+        let by = B[i3 + 1];
         let bz = B[i3 + 2];
+        // METHOD (formation 2): stream the particles live around the ∞ loop
+        if (sa === 2) { const q = loopAt(i, t); ax = q[0]; ay = q[1]; az = q[2]; }
+        if (sb === 2) { const q = loopAt(i, t); bx = q[0]; by = q[1]; bz = q[2]; }
         if (sa === 3) {
           const ax2 = ax * rotC - az * rotS;
           az = ax * rotS + az * rotC;
@@ -347,13 +426,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
             dy += Math.cos(t * 0.27 + ax * 0.17 + seed * 1.7) * 1.5 * w0;
             dz += Math.sin(t * 0.22 + seed * 3.1) * 1.3 * w0;
           }
-          if (w2 > 0) {
-            const hh = Math.max(0, (py + 9) / 22);
-            dx += Math.sin(t * 1.9 + py * 0.5 + seed * 6.3) * 1.5 * hh * w2;
-            dy += (Math.sin(t * 2.1 + seed * 9.0) * 0.45 + 0.25) * w2;
-          }
           if (w4 > 0) {
-            dy += Math.sin(t * 1.15 + px * 0.34 + seed) * 0.9 * w4;
+            // ARENA bars: a gentle per-column bob, like live values ticking up
+            dy += Math.sin(t * 1.5 + Math.round(px * 0.4) * 1.3 + seed * 0.4) * 0.38 * w4;
           }
           px += dx;
           py += dy;

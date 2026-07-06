@@ -216,9 +216,7 @@ export default async function HomeSite() {
           <h1 className="rv" dangerouslySetInnerHTML={{ __html: signal.h1Html }} />
           <p className="lede rv" dangerouslySetInnerHTML={{ __html: signal.ledeHtml }} />
           <div className="hero-cta rv">
-            <a className="btn solid" href="https://book-antyodaya.zephyrcode.live?utm_source=hub-hero" target="_blank" rel="noopener">
-              Start a novel →
-            </a>
+            <a className="btn solid" href="/pilot?p=studio">Work With the Studio →</a>
             <a className="btn ghost" href="#doors">Or pick your door ↓</a>
           </div>
           <p className="scrollcue rv">
