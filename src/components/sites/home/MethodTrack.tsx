@@ -284,9 +284,31 @@ export function MethodTrack({ moves }: { moves: Move[] }) {
     // ratio threshold is unreachable when the row is taller than the viewport) and roots at
     // the viewport, so it works even if an ancestor — not window — is the scroll container.
     let armed = true;
-    const runOnce = () => { if (!armed) return; armed = false; clearTimers(); after(140, runMethod); };
+    let lastRun = -1e9;
+    const runOnce = () => {
+      if (!armed) return;
+      // Cooldown: never restart the relay mid-play. When a door-jump parks the row
+      // straddling the observer boundary it can oscillate isIntersecting; without this
+      // guard runMethod re-fires every ~1s and the cards flicker forever.
+      const now = performance.now();
+      if (now - lastRun < 4500) return;
+      armed = false;
+      lastRun = now;
+      clearTimers();
+      after(140, runMethod);
+    };
     const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) runOnce(); else armed = true; }),
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) runOnce();
+          else {
+            // Re-arm (to replay on a later scroll-back) ONLY once the row is fully out of
+            // view — not merely past the -22% margin — so a partially-visible section can't
+            // ping-pong the observer and re-trigger the relay in a loop.
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            if (e.boundingClientRect.bottom <= 0 || e.boundingClientRect.top >= vh) armed = true;
+          }
+        }),
       { threshold: 0, rootMargin: "0px 0px -22% 0px" }
     );
     io.observe(el);
