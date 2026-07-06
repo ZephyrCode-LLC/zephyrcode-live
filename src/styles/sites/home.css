@@ -199,6 +199,39 @@
 [data-site="home"] .sys-lede b { color: var(--bone); font-weight: 600; }
 [data-site="home"] .proof { font-family: var(--mono); font-size: 11.5px; color: var(--bone-faint); letter-spacing: 0.04em; border-left: 2px solid var(--brass); padding-left: 14px; margin: 22px 0 38px; max-width: 60ch; line-height: 1.7; }
 [data-site="home"] .proof b { color: var(--brass); font-weight: 500; }
+
+/* body & mind — the FORGE / TEMPER / planner deck */
+@keyframes sys-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+[data-site="home"] .sysdeck { margin-top: 10px; }
+[data-site="home"] .sys-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+[data-site="home"] .sys-tab { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 9px 18px; cursor: pointer; border: 1px solid var(--line); background: rgba(13, 11, 9, 0.5); color: var(--bone-dim); border-radius: 2px; transition: color .3s, border-color .3s, background .3s; }
+[data-site="home"] .sys-tab-name { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
+[data-site="home"] .sys-tab-state { font-family: var(--mono); font-size: 8px; letter-spacing: 0.14em; padding: 2px 6px; border-radius: 3px; background: color-mix(in srgb, var(--dc) 88%, black); color: #0d0b09; }
+[data-site="home"] .sys-tab-state.soon { background: none; border: 1px solid var(--line); color: var(--bone-faint); }
+[data-site="home"] .sys-tab:hover { color: var(--bone); border-color: color-mix(in srgb, var(--dc) 40%, var(--line)); }
+[data-site="home"] .sys-tab.is-active { color: var(--dc); border-color: color-mix(in srgb, var(--dc) 55%, transparent); background: color-mix(in srgb, var(--dc) 9%, rgba(13,11,9,.5)); }
+[data-site="home"] .sys-tab:focus-visible { outline: 1px solid var(--dc); outline-offset: 3px; }
+[data-site="home"] .sys-panel { animation: sys-fade .45s ease both; }
+[data-site="home"] .sys-panel-in { display: grid; grid-template-columns: 1.25fr 1fr; gap: 32px; align-items: center; border: 1px solid var(--line-soft); border-left: 2px solid color-mix(in srgb, var(--dc) 70%, transparent); background: rgba(13, 11, 9, 0.5); padding: 30px; }
+[data-site="home"] .sys-os { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: color-mix(in srgb, var(--dc) 82%, var(--bone-faint)); margin: 0 0 8px; }
+[data-site="home"] .sys-name { font-size: 1.95rem; font-weight: 400; letter-spacing: .01em; color: var(--bone); margin: 0 0 12px; line-height: 1.05; }
+[data-site="home"] .sys-prop { font-size: 1.02rem; line-height: 1.55; color: var(--bone); margin: 0 0 16px; max-width: 46ch; }
+[data-site="home"] .sys-points { list-style: none; margin: 0 0 22px; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+[data-site="home"] .sys-points li { position: relative; padding-left: 18px; font-size: 0.9rem; color: var(--bone-dim); line-height: 1.5; }
+[data-site="home"] .sys-points li::before { content: ""; position: absolute; left: 0; top: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--dc); }
+[data-site="home"] .sys-cta { align-self: flex-start; }
+[data-site="home"] .sys-soon-tag { display: inline-block; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dc); border: 1px dashed color-mix(in srgb, var(--dc) 50%, transparent); padding: 8px 14px; border-radius: 3px; }
+[data-site="home"] .sys-vital-wrap { display: flex; flex-direction: column; gap: 8px; }
+[data-site="home"] .sys-vital { width: 100%; height: 54px; color: var(--dc); }
+[data-site="home"] .sv-base { fill: none; stroke: color-mix(in srgb, currentColor 22%, transparent); stroke-width: 1.4; }
+[data-site="home"] .sv-scan { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16 120; filter: drop-shadow(0 0 4px currentColor); animation: os-scan 2.8s linear infinite; }
+[data-site="home"] .vital-roadmap .sv-base { stroke-dasharray: 3 4; opacity: .55; }
+[data-site="home"] .sv-target { stroke: color-mix(in srgb, currentColor 45%, transparent); stroke-width: 1; stroke-dasharray: 2 3; }
+[data-site="home"] .sv-dot { fill: currentColor; filter: drop-shadow(0 0 5px currentColor); animation: os-live-pulse 1.8s ease-in-out infinite; }
+[data-site="home"] .sys-vital-cap { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--bone-faint); }
+[data-site="home"] .sys-toy { margin-top: 26px; }
+@media (max-width: 820px) { [data-site="home"] .sys-panel-in { grid-template-columns: 1fr; gap: 22px; } }
+@media (prefers-reduced-motion: reduce) { [data-site="home"] .sys-panel, [data-site="home"] .sv-scan, [data-site="home"] .sv-dot { animation: none !important; } }
 /* OS flagship cards (FORGE · the body / TEMPER · the mind) */
 [data-site="home"] .os-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 14px; margin: 24px 0 38px; max-width: 760px; }
 [data-site="home"] .os-card { display: flex; flex-direction: column; gap: 9px; padding: 22px 22px 20px; text-decoration: none; border: 1px solid var(--line-soft); background: rgba(13, 11, 9, 0.74); transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease; }

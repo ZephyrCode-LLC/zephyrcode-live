@@ -18,12 +18,8 @@ const WHO_KEY: Record<string, string> = {
   "For body & mind": "body",
   "For readers & the curious": "readers",
 };
-/** OS vital traces — FORGE (the body) reads as a heartbeat, TEMPER (the mind) as a focus wave. */
-const OS_ECG = "M0 12 H38 l4 -9 l4 17 l4 -9 H92 l4 -9 l4 17 l4 -9 H146 l4 -9 l4 17 l4 -9 H200";
-const OS_WAVE = "M0 12 Q12.5 3 25 12 T50 12 T75 12 T100 12 T125 12 T150 12 T175 12 T200 12";
-
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
-import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
+import { SystemsDeck } from "@/components/sites/home/SystemsDeck";
 import { MethodTrack } from "@/components/sites/home/MethodTrack";
 import { StoriesTabs } from "@/components/sites/home/StoriesTabs";
 
@@ -498,53 +494,7 @@ export default async function HomeSite() {
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />
             <p className="sub sys-lede" dangerouslySetInnerHTML={{ __html: systems.subHtml }} />
           </div>
-          {systems.osCards ? (
-            <div className="os-cards rv">
-              {systems.osCards.map((c) => {
-                const isBody = /body|forge/i.test(`${c.k} ${c.h3}`);
-                return (
-                  <a key={c.h3} className={`os-card${c.live ? " live" : ""}`} href={c.link.href} {...ext(c.link.href)}>
-                    <span className="os-k">
-                      {c.k}
-                      {c.live && <span className="os-live">LIVE</span>}
-                    </span>
-                    <span className="os-h">{c.h3}</span>
-                    {c.live && (
-                      <svg className={`os-vital ${isBody ? "os-ecg" : "os-wave"}`} viewBox="0 0 200 24" preserveAspectRatio="none" aria-hidden="true">
-                        <path className="os-vital-base" d={isBody ? OS_ECG : OS_WAVE} />
-                        <path className="os-vital-scan" d={isBody ? OS_ECG : OS_WAVE} />
-                      </svg>
-                    )}
-                    <span className="os-p" dangerouslySetInnerHTML={{ __html: c.pHtml }} />
-                    <span className="os-link">{c.link.label}</span>
-                  </a>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="proof rv" dangerouslySetInnerHTML={{ __html: systems.proofHtml }} />
-          )}
-          <ConsequenceWeek
-            k={systems.toy.k}
-            dayLabels={systems.toy.dayLabels}
-            seriesParams={systems.toy.seriesParams}
-            capHtml={systems.toy.capHtml}
-          />
-          <div className="arcade rv">
-            {systems.sims.map((s) => (
-              <div className="sim" key={s.n}>
-                <p className="n">{s.n}</p>
-                <p>{s.p}</p>
-              </div>
-            ))}
-          </div>
-          <div className="btnrow rv">
-            {systems.ctas.map((c) => (
-              <a key={c.label} className={`btn ${c.style}`} href={c.href} {...ext(c.href)}>
-                {c.label}
-              </a>
-            ))}
-          </div>
+          <SystemsDeck toy={systems.toy} />
         </section>
 
         <section className="scene" id="library" data-doors={doorsFor("library")} data-scene="9" data-accent="#8fb6e8">
