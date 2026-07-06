@@ -229,7 +229,7 @@ export default async function HomeSite() {
             <div className="doors rv">
               {doors.doors.map((d) => {
                 const key = (d as { key?: string }).key ?? WHO_KEY[d.who];
-                const short = key && DOORS[key] ? DOORS[key].short : "this door";
+                const cta = key && DOORS[key] ? DOORS[key].cta : "Explore this door";
                 return (
                   <div
                     className="door"
@@ -251,7 +251,7 @@ export default async function HomeSite() {
                       ))}
                     </div>
                     <button type="button" className="door-focus" data-focus={key}>
-                      <span>Read as {short}</span>
+                      <span>{cta}</span>
                       <span className="door-arrow">→</span>
                     </button>
                   </div>
@@ -488,7 +488,53 @@ export default async function HomeSite() {
         </section>
         )}
 
-        <section className="scene" id="systems" data-doors={doorsFor("systems")} data-scene="8" data-accent="#54d38a">
+        <section className="scene" id="studio" data-doors={doorsFor("studio")} data-scene="8" data-accent="#8fd694">
+          <div className="shead rv">
+            <p className="eyebrow">For creators &amp; course-sellers</p>
+            <h2>
+              We&rsquo;ll build your audience an experience they <em>can&rsquo;t scroll past.</em>
+            </h2>
+            <p className="sub">
+              Turn your course, book, or newsletter into a custom interactive site — the kind people share and actually
+              buy. Same studio that designed and shipped these, end to end.
+            </p>
+          </div>
+          <div className="studio-proof rv">
+            <a className="sp-card" href="https://book-antyodaya.zephyrcode.live?utm_source=hub-studio" target="_blank" rel="noopener">
+              <span className="sp-k mono">Interactive novel</span>
+              <span className="sp-h">ANTYODAYA</span>
+              <span className="sp-p">A near-future thriller you read like a case file — datelined chapters, X-ray dossiers, seven small machines built into the prose.</span>
+              <span className="sp-go mono">See it live →</span>
+            </a>
+            <a className="sp-card" href="https://kshetra.zephyrcode.live?utm_source=hub-studio" target="_blank" rel="noopener">
+              <span className="sp-k mono">Interactive novel</span>
+              <span className="sp-h">KSHETRA</span>
+              <span className="sp-p">The Bhagavad Gītā, one night, in second person — the verse handed back to you the moment your own question asks it.</span>
+              <span className="sp-go mono">See it live →</span>
+            </a>
+            <a className="sp-card" href="https://arcade.zephyrcode.live?utm_source=hub-studio" target="_blank" rel="noopener">
+              <span className="sp-k mono">Playable demos</span>
+              <span className="sp-h">The arcade</span>
+              <span className="sp-p">Little interactive toys that make an abstract idea click in ten seconds — the kind we can build around your material.</span>
+              <span className="sp-go mono">Play them →</span>
+            </a>
+          </div>
+          <p className="studio-toys-k mono rv">A few interactive toys we&rsquo;ve built — yours could be next</p>
+          <div className="studio-toys rv">
+            {systems.sims.map((s) => (
+              <div className="sim" key={s.n}>
+                <p className="n">{s.n}</p>
+                <p>{s.p}</p>
+              </div>
+            ))}
+          </div>
+          <div className="btnrow rv">
+            <a className="btn solid" href="/pilot?p=studio">Pitch us your idea →</a>
+            <a className="btn ghost" href="https://sage.zephyrcode.live?utm_source=hub-studio" target="_blank" rel="noopener">Or run your content ops in SAGE →</a>
+          </div>
+        </section>
+
+        <section className="scene" id="systems" data-doors={doorsFor("systems")} data-scene="9" data-accent="#54d38a">
           <div className="shead rv">
             <p className="eyebrow" dangerouslySetInnerHTML={{ __html: systems.eyebrowHtml }} />
             <h2 dangerouslySetInnerHTML={{ __html: systems.h2Html }} />

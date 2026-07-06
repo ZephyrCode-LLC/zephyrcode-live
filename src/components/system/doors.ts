@@ -9,12 +9,12 @@
  *  product rooms on top of that always-on spine; picking one hides the OTHER
  *  doors' product rooms so the page focuses. Default (no pick) shows everything. */
 
-export const DOORS: Record<string, { label: string; short: string; accent: string; scenes: string[] }> = {
-  engineers: { label: "Engineers", short: "an engineer", accent: "#c6ff45", scenes: ["arena"] },
-  teams: { label: "Teams & CTOs", short: "a team", accent: "#3DE1E6", scenes: ["audits"] },
-  creators: { label: "Creators", short: "a creator", accent: "#8fd694", scenes: ["sage", "samhita"] },
-  body: { label: "Body & mind", short: "body & mind", accent: "#e85d2a", scenes: ["systems"] },
-  readers: { label: "Readers", short: "a reader", accent: "#7fd6a8", scenes: ["stories"] },
+export const DOORS: Record<string, { label: string; short: string; cta: string; accent: string; scenes: string[] }> = {
+  engineers: { label: "Engineers", short: "an engineer", cta: "Train the craft", accent: "#c6ff45", scenes: ["arena"] },
+  teams: { label: "Teams & CTOs", short: "a team", cta: "Book a teardown", accent: "#3DE1E6", scenes: ["audits"] },
+  creators: { label: "Creators", short: "a creator", cta: "Open the studio", accent: "#8fd694", scenes: ["sage", "samhita", "studio"] },
+  body: { label: "Body & mind", short: "body & mind", cta: "Explore the tools", accent: "#e85d2a", scenes: ["systems"] },
+  readers: { label: "Readers", short: "a reader", cta: "Peek into the rooms", accent: "#7fd6a8", scenes: ["stories"] },
 };
 /** Always visible, every door + the unpicked default — the studio's universal spine. */
 export const ALWAYS = ["signal", "doors", "method", "library", "operator"];

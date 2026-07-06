@@ -5,10 +5,12 @@ import { ConsequenceWeek } from "@/components/engine/ConsequenceWeek";
 
 /**
  * The "personal operating systems" deck — FORGE (the body), TEMPER (the mind),
- * and a forthcoming money planner — switchable as tabs (same footprint as the
- * StoriesTabs novel deck). Each tab leads with a plain, benefit-first line and a
- * signature teaser animation; FORGE carries the live "tap your week" consequence
- * toy. No studio/operator copy here — this section is only about the products.
+ * and COMPASS (the money, forthcoming) — switchable as tabs. Each tab leads with
+ * a plain, benefit-first line and its OWN signature teaser, matched to that
+ * product's real identity on its subdomain: FORGE = a green adherence engine
+ * (a save-file you level or corrupt); TEMPER = a blade run through the tempering
+ * colours (straw → bronze → purple → blue); COMPASS = a roadmap climbing to your
+ * number. No studio/operator copy here — the section is only about the products.
  */
 
 type Toy = {
@@ -18,10 +20,6 @@ type Toy = {
   capHtml: string;
 };
 
-const ECG = "M0 12 H38 l4 -9 l4 17 l4 -9 H92 l4 -9 l4 17 l4 -9 H146 l4 -9 l4 17 l4 -9 H200";
-const WAVE = "M0 12 Q12.5 3 25 12 T50 12 T75 12 T100 12 T125 12 T150 12 T175 12 T200 12";
-const ROADMAP = "M0 21 C 40 20, 60 15, 90 12 S 130 7, 200 3"; // net-worth climbing to a goal
-
 type Tab = {
   key: string;
   name: string;
@@ -30,10 +28,55 @@ type Tab = {
   accent: string;
   prop: string;
   points: string[];
-  vital: "ecg" | "wave" | "roadmap";
+  teaser: "engine" | "blade" | "roadmap";
   toy?: boolean;
   cta?: { label: string; href: string };
 };
+
+const ROADMAP = "M2 34 C 40 33, 60 24, 95 18 S 150 9, 198 4";
+
+function Teaser({ kind }: { kind: Tab["teaser"] }) {
+  if (kind === "engine") {
+    // FORGE — the adherence engine (green save-file), like the ENGINE panel on forge-app
+    return (
+      <div className="sys-teaser forge-engine" aria-hidden="true">
+        <div className="fe-head mono">ENGINE</div>
+        <div className="fe-row">
+          <span className="fe-label mono">ADHERENCE</span>
+          <span className="fe-track"><i className="fe-fill up" /></span>
+          <span className="fe-num mono up">74%</span>
+        </div>
+        <div className="fe-row">
+          <span className="fe-label mono">SKIPPED DEBT</span>
+          <span className="fe-track"><i className="fe-fill down" /></span>
+          <span className="fe-num mono down">−2 wk</span>
+        </div>
+        <p className="fe-note mono">SAVE-FILE: leveling · goal date moved up 11 days</p>
+      </div>
+    );
+  }
+  if (kind === "blade") {
+    // TEMPER — the blade run through the tempering colours
+    return (
+      <div className="sys-teaser blade-wrap" aria-hidden="true">
+        <span className="temper-blade" />
+        <span className="blade-cap mono">straw → bronze → purple → blue</span>
+      </div>
+    );
+  }
+  // COMPASS — the roadmap climbing to your number
+  return (
+    <div className="sys-teaser vital-roadmap" aria-hidden="true">
+      <svg className="sys-vital" viewBox="0 0 200 40" preserveAspectRatio="none">
+        <path className="sv-goal" d="M198 4 v34" />
+        <path className="sv-base" d={ROADMAP} />
+        <path className="sv-scan" d={ROADMAP} />
+        <circle className="sv-dot" r="3" cx="198" cy="4" />
+      </svg>
+      <span className="blade-cap mono">your roadmap, simulated</span>
+    </div>
+  );
+}
 
 export function SystemsDeck({ toy }: { toy: Toy }) {
   const tabs: Tab[] = [
@@ -42,14 +85,14 @@ export function SystemsDeck({ toy }: { toy: Toy }) {
       name: "FORGE",
       os: "OS 01 · The body",
       state: "live",
-      accent: "#e0673a",
+      accent: "#52c98a",
       prop: "Training and nutrition tuned to your genetics and bloodwork — so you build the body your data says you can.",
       points: [
         "Three sessions a day, built around your DNA",
         "Audited by bloodwork that actually moved",
-        "See where this week's choices land — before you make them",
+        "A save-file you level or corrupt — see it before you skip",
       ],
-      vital: "ecg",
+      teaser: "engine",
       toy: true,
       cta: { label: "Open FORGE →", href: "https://forge-app.zephyrcode.live?utm_source=hub-systems" },
     },
@@ -59,28 +102,28 @@ export function SystemsDeck({ toy }: { toy: Toy }) {
       os: "OS 02 · The mind",
       state: "live",
       accent: "#8b7fd4",
-      prop: "Train your attention like a muscle. Focus longer, get interrupted less, and see exactly what distraction is costing you.",
+      prop: "Train your attention like a blade. Focus longer, get interrupted less, and see exactly what distraction is costing you.",
       points: [
         "The real price a “quick meeting” charges your afternoon",
         "A day-clock that proves your best hours",
         "Eight weeks of moved focus metrics",
       ],
-      vital: "wave",
+      teaser: "blade",
       cta: { label: "Enter TEMPER →", href: "https://temper.zephyrcode.live?utm_source=hub-systems" },
     },
     {
-      key: "money",
-      name: "The financial planner",
+      key: "compass",
+      name: "COMPASS",
       os: "OS 03 · The money",
       state: "soon",
-      accent: "#54c38a",
+      accent: "#cca24a",
       prop: "Feed in what you own, owe, and want — and get a clear, simulated roadmap to the number you're aiming for.",
       points: [
         "Assets, liabilities, goals and ambitions — in",
         "A year-by-year roadmap you can steer — out",
-        "Watch a decision today move the finish line",
+        "Watch one decision today move the finish line",
       ],
-      vital: "roadmap",
+      teaser: "roadmap",
     },
   ];
 
@@ -127,27 +170,7 @@ export function SystemsDeck({ toy }: { toy: Toy }) {
               <span className="sys-soon-tag mono">In build — arriving soon</span>
             )}
           </div>
-
-          <div className={`sys-vital-wrap vital-${t.vital}`} aria-hidden="true">
-            <svg className="sys-vital" viewBox="0 0 200 24" preserveAspectRatio="none">
-              {t.vital === "roadmap" ? (
-                <>
-                  <path className="sv-target" d="M200 3 v18" />
-                  <path className="sv-base" d={ROADMAP} />
-                  <path className="sv-scan" d={ROADMAP} />
-                  <circle className="sv-dot" r="2.6" cx="200" cy="3" />
-                </>
-              ) : (
-                <>
-                  <path className="sv-base" d={t.vital === "ecg" ? ECG : WAVE} />
-                  <path className="sv-scan" d={t.vital === "ecg" ? ECG : WAVE} />
-                </>
-              )}
-            </svg>
-            <span className="sys-vital-cap mono">
-              {t.vital === "ecg" ? "vitals, live" : t.vital === "wave" ? "attention, live" : "your roadmap, simulated"}
-            </span>
-          </div>
+          <Teaser kind={t.teaser} />
         </div>
 
         {t.toy && (
