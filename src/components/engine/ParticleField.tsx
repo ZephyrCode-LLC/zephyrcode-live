@@ -43,7 +43,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     camera.position.set(0, 0, 34);
 
     const N = window.innerWidth < 700 ? 4200 : 9000;
-    const SCENES = 13;
+    const SCENES = 14;
     const rnd = (a: number, b: number) => a + Math.random() * (b - a);
 
     // shared glyph helpers: draw a line of points into `pts`, and scatter `pts` across all particles.
@@ -150,17 +150,21 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
       const push = (x: number, y: number) => pts.push([x, y]);
-      // ---- the visitor: a slim full-body figure, centred, on top ----
-      const FX = 0;
-      for (let s = 0; s < 100; s++) { const ang = Math.random() * 6.283, r = 0.95 * Math.sqrt(Math.random()); push(FX + Math.cos(ang) * r, 11.0 + Math.sin(ang) * r); } // head
-      seg(pts, FX, 9.7, FX, 2.6, 180);              // torso (thin spine)
-      seg(pts, FX - 1.35, 8.9, FX + 1.35, 8.9, 50); // shoulders
-      seg(pts, FX - 1.35, 8.9, FX - 2.5, 3.9, 80);  // left arm
-      seg(pts, FX + 1.35, 8.9, FX + 2.5, 3.9, 80);  // right arm
-      seg(pts, FX, 2.6, FX - 1.6, -1.3, 105);       // left leg
-      seg(pts, FX, 2.6, FX + 1.6, -1.3, 105);       // right leg
-      // ---- five OPEN doors in a row below ----
-      const XC = [-20, -10, 0, 10, 20], DB = -11.4, DT = -2.2, DW = 1.7;
+      // ---- THE THINKER: a hunched seated silhouette (contour + masses), head bowed onto the fist, facing left ----
+      const blob = (cx: number, cy: number, rx: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); push(cx + Math.cos(ang) * rr * rx, cy + Math.sin(ang) * rr * ry); } };
+      const V: Array<[number, number]> = [
+        [1.4, 8.9], [-0.5, 9.0], [-2.2, 8.2], [-3.0, 6.9], [-2.6, 5.7], [-3.5, 4.1],
+        [-4.2, 3.6], [-4.4, 1.1], [-4.5, 0.6], [0.8, 0.5], [2.7, 1.0], [3.0, 4.2], [2.4, 6.9],
+      ];
+      for (let i = 0; i < V.length; i++) { const p = V[i], q = V[(i + 1) % V.length]; seg(pts, p[0], p[1], q[0], q[1], 52); } // silhouette outline
+      blob(0.9, 5.2, 2.0, 2.6, 240);        // back / torso mass (hunched)
+      blob(-1.1, 3.2, 2.9, 0.9, 190);       // thigh mass
+      blob(-2.3, 7.4, 1.35, 1.4, 210);      // the bowed head (solid)
+      blob(-2.75, 5.7, 0.7, 0.72, 70);      // fist under the chin
+      seg(pts, 1.0, 7.9, -3.5, 4.1, 72);    // the diagonal upper arm crossing to the elbow on the knee
+      blob(0, 1.5, 3.5, 0.9, 120);          // the rock he sits on
+      // ---- five OPEN doors in a row below (with a clear gap under the figure) ----
+      const XC = [-20, -10, 0, 10, 20], DB = -12.0, DT = -3.2, DW = 1.7;
       for (const xc of XC) {
         const xL = xc - DW, xR = xc + DW;
         seg(pts, xL, DB, xL, DT, 92);               // left jamb (the hinge)
@@ -269,6 +273,27 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return a;
     }
 
+    // KSHETRA scene — a conch (shankha): a fat teardrop body, a spiralling spire of decreasing
+    // whorls up to the right, and a crescent aperture down the left lip. (kshetra = the interactive Gītā.)
+    function fConch() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      // body — a fat teardrop: rounded wide bottom (the mouth end) tapering to a point up top
+      for (let s = 0; s < 1600; s++) {
+        const u = Math.random(); // 0 bottom → 1 top
+        const y = -6.5 + u * 9.6;
+        const w = 3.0 * Math.pow(1 - u, 0.55) * Math.min(1, (u + 0.05) * 6);
+        pts.push([(Math.random() * 2 - 1) * w, y]);
+      }
+      // spire — decreasing whorl bumps spiralling up-right to a point
+      const spire: Array<[number, number, number]> = [[1.3, 3.4, 1.25], [2.0, 4.4, 0.95], [2.6, 5.2, 0.68], [3.1, 5.9, 0.46], [3.4, 6.4, 0.28]];
+      for (const sp of spire) for (let s = 0; s < Math.round(sp[2] * 170); s++) { const ang = Math.random() * 6.283, rr = sp[2] * Math.sqrt(Math.random()); pts.push([sp[0] + Math.cos(ang) * rr, sp[1] + Math.sin(ang) * rr]); }
+      // aperture — a crescent opening down the left lip
+      for (let s = 0; s < 300; s++) { const t = Math.random(); const y = -5.6 + t * 8.2; const x = -0.5 - 2.5 * Math.sin(Math.PI * t); pts.push([x + (Math.random() * 2 - 1) * 0.2, y]); }
+      fillPts(a, pts, 0.12, 1.2);
+      return a;
+    }
+
     // SAMHITA scene — two streams merging into one, with commit nodes (prose reviewed & merged like code).
     function fMerge() {
       const a = new Float32Array(N * 3);
@@ -298,17 +323,36 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return a;
     }
 
-    // ARCADE scene — a classic pixel "space invader" (the playable toys).
+    // ARCADE scene — a wave of small arcade minions (ghosts · Pac-Men · invaders) tiled in a
+    // row/column grid across the whole width, bright and playful. The toys.
     function fInvader() {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
-      const rows = ["00100000100", "00010001000", "00111111100", "01101110110", "11111111111", "10111111101", "10100000101", "00011011000"];
-      const cols = rows[0].length, rws = rows.length, G = 2.0;
-      for (let r = 0; r < rws; r++) for (let c = 0; c < cols; c++) if (rows[r][c] === "1") {
-        const cx = (c - (cols - 1) / 2) * G, cy = ((rws - 1) / 2 - r) * G;
-        for (let s = 0; s < 26; s++) pts.push([cx + (Math.random() * 2 - 1) * G * 0.5, cy + (Math.random() * 2 - 1) * G * 0.5]);
+      const ghost = (gx: number, gy: number, R: number) => {
+        const BH = R * 1.3;
+        for (let s = 0; s < Math.round(R * 26); s++) { const t = Math.random() * Math.PI; pts.push([gx + Math.cos(t) * R, gy + Math.sin(t) * R]); } // dome
+        for (let s = 0; s < Math.round(R * 30); s++) { const u = Math.random() * 2 - 1; pts.push([gx + u * R, gy - BH + 0.42 * R * Math.abs(Math.sin(u * 3 * Math.PI))]); } // wavy skirt
+        for (let s = 0; s < Math.round(R * R * 11); s++) pts.push([gx + (Math.random() * 2 - 1) * R * 0.88, gy - Math.random() * BH]); // body
+        for (const ex of [-0.4, 0.4]) for (let s = 0; s < 9; s++) { const ang = Math.random() * 6.283, rr = 0.28 * R * Math.sqrt(Math.random()); pts.push([gx + ex * R + Math.cos(ang) * rr, gy + 0.32 * R + Math.sin(ang) * rr]); } // eyes
+      };
+      const pac = (px: number, py: number, R: number, face: number) => {
+        const m = 0.42;
+        for (let s = 0; s < Math.round(R * R * 58); s++) { const ang = face + m + Math.random() * (Math.PI * 2 - 2 * m), rr = R * Math.sqrt(Math.random()); pts.push([px + Math.cos(ang) * rr, py + Math.sin(ang) * rr]); }
+      };
+      const invader = (ix: number, iy: number, R: number) => {
+        const g = R * 0.5;
+        const cells: Array<[number, number]> = [[-1, 1], [1, 1], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, -1], [-1, -1], [1, -1], [2, -1], [-1, -2], [1, -2]];
+        for (const cl of cells) for (let s = 0; s < 8; s++) pts.push([ix + cl[0] * g + (Math.random() * 2 - 1) * g * 0.5, iy + cl[1] * g + (Math.random() * 2 - 1) * g * 0.5]);
+      };
+      const cols = 8, rows = 4, X0 = -24, X1 = 24, Y0 = 9.5, Y1 = -9.5, R = 1.35;
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const gx = X0 + (X1 - X0) * (c / (cols - 1)), gy = Y0 + (Y1 - Y0) * (r / (rows - 1));
+        const type = (r + c) % 3;
+        if (type === 0) ghost(gx, gy, R);
+        else if (type === 1) pac(gx, gy, R, c % 2 ? Math.PI : 0);
+        else invader(gx, gy, R);
       }
-      fillPts(a, pts, 0.1, 1.2);
+      fillPts(a, pts, 0.1, 1.3);
       return a;
     }
 
@@ -323,44 +367,80 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return a;
     }
 
-    // LIBRARY scene — a row of book spines on a shelf (books & films, by mood).
+    // LIBRARY scene — the three axes: crisp book spines (read), headphones (listen, top-left), a TV (watch, top-right).
     function fBooks() {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
-      const shelfY = -8.5;
-      seg(pts, -22, shelfY, 22, shelfY, 240); // the shelf
-      const heights = [10, 8.5, 11, 7.5, 9.5, 12, 8, 10.5, 9, 11.5, 7, 10, 8.5, 11, 9.5];
-      let x = -21;
-      for (let b = 0; b < heights.length && x < 21; b++) {
-        const w = 1.4 + ((b * 0.37) % 1.0), h = heights[b], x0 = x, x1 = x + w, y0 = shelfY, y1 = shelfY + h;
-        seg(pts, x0, y0, x0, y1, 68); seg(pts, x1, y0, x1, y1, 68); seg(pts, x0, y1, x1, y1, 26); // spine outline
-        for (let s = 0; s < 40; s++) pts.push([x0 + (x1 - x0) * Math.random(), y0 + (y1 - y0) * Math.random()]); // spine fill
-        x = x1 + 0.5;
+      // ---- books: a tidy row of solid, well-separated spines on a shelf (lower half) ----
+      const shelfY = -9;
+      seg(pts, -13, shelfY, 13, shelfY, 200);
+      const heights = [7.5, 6, 8.5, 5.5, 7, 9, 6.5, 8, 6, 7.5];
+      let x = -12.5;
+      for (let b = 0; b < heights.length && x < 12.5; b++) {
+        const w = 1.7 + ((b * 0.53) % 1.0) * 0.7, h = heights[b], x0 = x, x1 = x + w, y1 = shelfY + h;
+        seg(pts, x0, shelfY, x0, y1, 82); seg(pts, x1, shelfY, x1, y1, 82); seg(pts, x0, y1, x1, y1, 34); // crisp edges
+        for (let s = 0; s < 88; s++) pts.push([x0 + 0.18 + (x1 - x0 - 0.36) * Math.random(), shelfY + 0.2 + (h - 0.4) * Math.random()]); // dense fill
+        x = x1 + 0.55;
       }
-      fillPts(a, pts, 0.1, 1.2);
+      // ---- headphones (top-left): band arch + two ear cups ----
+      const hx = -15, hy = 7;
+      for (let s = 0; s < 220; s++) { const t = Math.PI * (0.04 + Math.random() * 0.92); pts.push([hx + Math.cos(t) * 3.2, hy + Math.sin(t) * 3.2]); } // band
+      for (const side of [-1, 1]) for (let s = 0; s < 150; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); pts.push([hx + side * 3.05 + Math.cos(ang) * rr * 0.8, hy - 1.1 + Math.sin(ang) * rr * 1.15]); } // ear cups
+      // ---- TV (top-right): screen frame + glow + stand + antennae ----
+      const tx = 15, ty = 7;
+      rectPts(pts, tx - 3.4, ty - 2.4, tx + 3.4, ty + 2.4, 90);
+      for (let s = 0; s < 170; s++) pts.push([tx - 3.0 + Math.random() * 6.0, ty - 2.0 + Math.random() * 4.0]); // screen glow
+      seg(pts, tx - 1.4, ty - 2.4, tx - 1.9, ty - 3.7, 24); seg(pts, tx + 1.4, ty - 2.4, tx + 1.9, ty - 3.7, 24); // stand
+      seg(pts, tx - 1.0, ty + 2.4, tx - 2.6, ty + 4.6, 30); seg(pts, tx + 1.0, ty + 2.4, tx + 2.6, ty + 4.6, 30); // antennae
+      fillPts(a, pts, 0.09, 1.2);
       return a;
     }
 
-    // OPERATOR scene — a single figure (the maker), centred and grounded on a line.
+    // OPERATOR scene — "the maker": a side-view boy at his desk, headphones on, typing on a laptop,
+    // a bulb glowing overhead, a stack of books in the far corner, coffee at hand. (the real setup.)
     function fMaker() {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
-      for (let s = 0; s < 160; s++) { const ang = Math.random() * 6.283, r = 1.25 * Math.sqrt(Math.random()); pts.push([Math.cos(ang) * r, 8.5 + Math.sin(ang) * r]); } // head
-      seg(pts, 0, 7.0, 0, -1.0, 240);      // torso
-      seg(pts, -1.9, 6.0, 1.9, 6.0, 70);   // shoulders
-      seg(pts, -1.9, 6.0, -3.0, 0.4, 110); // left arm
-      seg(pts, 1.9, 6.0, 3.0, 0.4, 110);   // right arm
-      seg(pts, 0, -1.0, -2.0, -8.5, 150);  // left leg
-      seg(pts, 0, -1.0, 2.0, -8.5, 150);   // right leg
-      seg(pts, -7, -8.7, 7, -8.7, 180);    // ground line
-      fillPts(a, pts, 0.12, 1.1);
+      const disc = (cx: number, cy: number, r: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); pts.push([cx + Math.cos(ang) * rr * r, cy + Math.sin(ang) * rr * ry]); } };
+      const ring = (cx: number, cy: number, r: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = Math.random() * 6.283; pts.push([cx + Math.cos(ang) * r, cy + Math.sin(ang) * ry]); } };
+      // ---- desk ----
+      seg(pts, -10, -3.5, 13, -3.5, 240);
+      seg(pts, -8, -3.5, -8, -10, 90); seg(pts, 11, -3.5, 11, -10, 90);
+      // ---- laptop (right of desk, open screen facing the boy) ----
+      seg(pts, 3, -3.5, 8.4, -3.7, 90);          // base
+      seg(pts, 8.4, -3.7, 7.1, 1.4, 110);        // screen back edge
+      seg(pts, 8.0, -3.7, 6.7, 1.4, 70);         // screen front edge
+      for (let s = 0; s < 120; s++) pts.push([6.7 + (8.4 - 6.7) * Math.random(), -3.6 + Math.random() * 5.0]); // screen glow
+      // ---- the boy: side profile, seated, facing right toward the laptop ----
+      disc(-4, 3.2, 1.5, 1.6, 150);              // head
+      for (let s = 0; s < 34; s++) pts.push([-2.55 + Math.random() * 0.5, 2.9 + (Math.random() * 2 - 1) * 0.38]); // nose (faces right)
+      for (let s = 0; s < 210; s++) { const t = Math.PI * (0.08 + Math.random() * 0.84); pts.push([-4 + Math.cos(t) * 1.95, 3.3 + Math.sin(t) * 1.95]); } // headphone band
+      disc(-5.5, 2.9, 0.75, 1.0, 120);           // near ear cup
+      seg(pts, -4, 1.7, -2.9, -3.5, 150);        // torso (leaning to the desk)
+      seg(pts, -3.6, 0.9, -1.2, -1.9, 60);       // upper arm
+      seg(pts, -1.2, -1.9, 4.6, -3.3, 90);       // forearm → hand typing on the keyboard
+      seg(pts, -6.4, -4.2, -6.4, 2.0, 90);       // chair back
+      seg(pts, -6.4, -4.2, -2.6, -4.2, 60);      // seat
+      seg(pts, -3, -4.2, 0.2, -4.6, 70); seg(pts, 0.2, -4.6, 0.2, -10, 80); // thigh + shin under the desk
+      // ---- bulb hanging overhead (warm glow) ----
+      seg(pts, 2.5, 14, 2.5, 6.4, 120);          // cord
+      seg(pts, 2.0, 6.4, 3.0, 6.4, 16);          // base
+      ring(2.5, 5.1, 1.35, 1.5, 110); disc(2.5, 5.1, 1.35, 1.5, 70); // bulb
+      for (let s = 0; s < 90; s++) { const ang = Math.random() * 6.283, rr = 1.7 + Math.random() * 2.9; pts.push([2.5 + Math.cos(ang) * rr, 5.1 + Math.sin(ang) * rr]); } // glow halo
+      // ---- books stacked in the far corner (top-left shelf) ----
+      seg(pts, -21, 4.4, -13, 4.4, 70);
+      for (let k = 0; k < 4; k++) { const yy = 4.6 + k * 0.85, off = (k % 2) * 0.6 - 0.3; rectPts(pts, -20 + off, yy, -14 + off, yy + 0.7, 20); }
+      // ---- coffee mug on the desk ----
+      seg(pts, -1.4, -3.5, -1.4, -2.2, 26); seg(pts, 0.2, -3.5, 0.2, -2.2, 26); seg(pts, -1.4, -3.5, 0.2, -3.5, 16); // body
+      for (let s = 0; s < 40; s++) { const t = Math.random() * Math.PI; pts.push([0.2 + Math.sin(t) * 0.7, -2.85 + Math.cos(t) * 0.55]); } // handle
+      fillPts(a, pts, 0.1, 1.2);
       return a;
     }
 
     void fFunnel; void fFlame; void fWave; void fRing; // superseded by the scene formations below
     const T = [
       fWind(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
-      fLamp(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), fMaker(),
+      fLamp(), fConch(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), fMaker(),
     ];
     const GRADE = grades;
 

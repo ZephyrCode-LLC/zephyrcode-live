@@ -14,7 +14,7 @@ export const DOORS: Record<string, { label: string; short: string; cta: string; 
   teams: { label: "Teams & CTOs", short: "a team", cta: "Book a teardown", accent: "#3DE1E6", scenes: ["audits"] },
   creators: { label: "Creators", short: "a creator", cta: "Open the studio", accent: "#8fd694", scenes: ["sage", "samhita", "studio", "arcade"] },
   body: { label: "Body & mind", short: "body & mind", cta: "Explore the tools", accent: "#e85d2a", scenes: ["systems"] },
-  readers: { label: "Readers", short: "a reader", cta: "Peek into the rooms", accent: "#7fd6a8", scenes: ["stories", "arcade"] },
+  readers: { label: "Readers", short: "a reader", cta: "Peek into the rooms", accent: "#7fd6a8", scenes: ["stories", "kshetra", "arcade"] },
 };
 /** Always visible, every door + the unpicked default — the studio's universal spine. */
 export const ALWAYS = ["signal", "doors", "method", "library", "operator"];

@@ -455,6 +455,17 @@ export default async function HomeSite() {
           )}
         </section>
 
+        <section className="scene" id="kshetra" data-doors={doorsFor("kshetra")} data-scene="7" data-accent="#5b8dd6">
+          <div className="shead rv">
+            <p className="eyebrow">The second novel</p>
+            <h2>Kshetra — the Gītā, made interactive.</h2>
+          </div>
+          <p className="story-cat rv">Arjuna&rsquo;s field of choice <span>— the dialogue, walked one decision at a time</span></p>
+          <div className="hero-cta rv">
+            <a className="btn solid" href="https://kshetra.zephyrcode.live?utm_source=hub-kshetra" target="_blank" rel="noopener">Enter Kshetra →</a>
+          </div>
+        </section>
+
         {samhita && (
         <section className="scene" id="samhita" data-doors={doorsFor("samhita")} data-scene="7" data-accent="#6f8bff">
           <div className="shead rv">
