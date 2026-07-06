@@ -203,11 +203,28 @@
 [data-site="home"] .sp-h { font-size: 1.35rem; font-weight: 400; letter-spacing: .02em; color: var(--bone); }
 [data-site="home"] .sp-p { font-size: 0.86rem; line-height: 1.55; color: var(--bone-dim); flex: 1; }
 [data-site="home"] .sp-go { margin-top: 6px; font-size: 10.5px; letter-spacing: 0.08em; color: var(--sac); }
-[data-site="home"] .studio-toys-k { margin: 34px 0 12px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bone-faint); }
-[data-site="home"] .studio-toys { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 26px; }
-[data-site="home"] .studio-toys .sim { border-top: 1px solid var(--line-soft); padding-top: 12px; }
-[data-site="home"] .studio-toys .sim .n { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: color-mix(in srgb, var(--sac) 75%, var(--bone)); margin-bottom: 6px; }
-[data-site="home"] .studio-toys .sim p { font-size: 0.82rem; line-height: 1.5; color: var(--bone-dim); }
+[data-site="home"] .studio-toys-k { margin: 34px 0 14px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--bone-faint); }
+/* the live-toy carousel — the actual playable machines, iframed */
+[data-site="home"] .studio-carousel { border: 1px solid var(--line-soft); background: rgba(10, 8, 6, 0.5); }
+[data-site="home"] .sc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--line-soft); }
+[data-site="home"] .sc-name { font-size: 1.15rem; font-weight: 400; color: var(--bone); margin: 0 0 3px; }
+[data-site="home"] .sc-blurb { font-size: 0.85rem; line-height: 1.5; color: var(--bone-dim); margin: 0; max-width: 62ch; }
+[data-site="home"] .sc-nav { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+[data-site="home"] .sc-nav button { width: 34px; height: 34px; border: 1px solid var(--line-soft); border-radius: 999px; background: none; color: var(--bone-dim); cursor: pointer; font-size: 15px; line-height: 1; transition: color .2s ease, border-color .2s ease; }
+[data-site="home"] .sc-nav button:hover { color: var(--sac); border-color: color-mix(in srgb, var(--sac) 55%, transparent); }
+[data-site="home"] .sc-count { font-size: 10px; letter-spacing: 0.14em; color: var(--bone-faint); }
+[data-site="home"] .sc-stage { position: relative; height: 540px; background: #07100b; }
+[data-site="home"] .sc-frame { width: 100%; height: 100%; border: 0; display: block; }
+[data-site="home"] .sc-open { position: absolute; top: 10px; right: 12px; z-index: 2; font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--bone-dim); background: color-mix(in srgb, #0a0a08 78%, transparent); border: 1px solid var(--line-soft); border-radius: 4px; padding: 4px 9px; text-decoration: none; backdrop-filter: blur(4px); }
+[data-site="home"] .sc-open:hover { color: var(--sac); border-color: color-mix(in srgb, var(--sac) 50%, transparent); }
+[data-site="home"] .sc-dots { display: flex; gap: 8px; justify-content: center; padding: 14px; border-top: 1px solid var(--line-soft); }
+[data-site="home"] .sc-dots button { width: 8px; height: 8px; padding: 0; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--sac) 45%, var(--line)); background: none; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+[data-site="home"] .sc-dots button.on { background: var(--sac); transform: scale(1.25); }
+@media (max-width: 640px) {
+  [data-site="home"] .sc-head { flex-direction: column; }
+  [data-site="home"] .sc-stage { height: 500px; }
+}
+@media (prefers-reduced-motion: reduce) { [data-site="home"] .sc-nav button, [data-site="home"] .sc-dots button { transition: none; } }
 @media (prefers-reduced-motion: reduce) { [data-site="home"] .sp-card { transition: none; } }
 
 /* systems */

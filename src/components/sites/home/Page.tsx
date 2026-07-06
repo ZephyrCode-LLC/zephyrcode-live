@@ -20,6 +20,7 @@ const WHO_KEY: Record<string, string> = {
 };
 import { ParticleFieldLoader } from "@/components/engine/ParticleFieldLoader";
 import { SystemsDeck } from "@/components/sites/home/SystemsDeck";
+import { StudioToys } from "@/components/sites/home/StudioToys";
 import { MethodTrack } from "@/components/sites/home/MethodTrack";
 import { StoriesTabs } from "@/components/sites/home/StoriesTabs";
 
@@ -514,20 +515,13 @@ export default async function HomeSite() {
             </a>
             <a className="sp-card" href="https://arcade.zephyrcode.live?utm_source=hub-studio" target="_blank" rel="noopener">
               <span className="sp-k mono">Playable demos</span>
-              <span className="sp-h">The arcade</span>
+              <span className="sp-h">The Arcade</span>
               <span className="sp-p">Little interactive toys that make an abstract idea click in ten seconds — the kind we can build around your material.</span>
               <span className="sp-go mono">Play them →</span>
             </a>
           </div>
-          <p className="studio-toys-k mono rv">A few interactive toys we&rsquo;ve built — yours could be next</p>
-          <div className="studio-toys rv">
-            {systems.sims.map((s) => (
-              <div className="sim" key={s.n}>
-                <p className="n">{s.n}</p>
-                <p>{s.p}</p>
-              </div>
-            ))}
-          </div>
+          <p className="studio-toys-k mono rv">A few interactive toys we&rsquo;ve built — play them; yours could be next</p>
+          <StudioToys />
           <div className="btnrow rv">
             <a className="btn solid" href="/pilot?p=studio">Pitch us your idea →</a>
             <a className="btn ghost" href="https://sage.zephyrcode.live?utm_source=hub-studio" target="_blank" rel="noopener">Or run your content ops in SAGE →</a>
