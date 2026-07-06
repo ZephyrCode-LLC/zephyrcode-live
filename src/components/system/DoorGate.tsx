@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { track } from "@/lib/posthog";
-import { DOORS, HUB_ACCENT } from "@/components/system/doors";
+import { DOORS, HUB_ACCENT, doorsFor } from "@/components/system/doors";
 
 /**
  * Door controller — the homepage serves different audiences. The DOORS *section*
@@ -108,6 +108,32 @@ export function DoorGate() {
     );
   }
 
+  // Land on a section by id, revealing it first if a door filter has hidden it.
+  // Used by the door cards' internal room links (#samhita, #audits, #library…) so
+  // they always reach their section instead of silently doing nothing.
+  function landOn(id: string) {
+    const el0 = document.getElementById(id);
+    if (!el0) return;
+    if (el0.offsetHeight === 0) {
+      const owner = doorsFor(id); // "*" | "creators" | "readers creators" | …
+      const key = owner === "*" ? "__all" : owner.split(/\s+/)[0];
+      apply(key);
+      try { localStorage.setItem("zc-door", key); } catch {}
+      history.replaceState(null, "", key === "__all" ? "?door=all" : `?door=${key}`);
+    }
+    const smooth: ScrollBehavior = reduce() ? "auto" : "smooth";
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const t = document.getElementById(id);
+        if (t) scrollTo(t, smooth);
+        setTimeout(() => {
+          const t2 = document.getElementById(id);
+          if (t2 && Math.abs(t2.getBoundingClientRect().top - 64) > 24) scrollTo(t2, "auto");
+        }, 460);
+      })
+    );
+  }
+
   useEffect(() => {
     const el = root();
     if (!el) return;
@@ -130,13 +156,21 @@ export function DoorGate() {
     // Enter on it) to focus a door; room links inside still navigate normally.
     const section = el.querySelector<HTMLElement>("#doors");
     const keyFromTarget = (t: HTMLElement): string | null => {
-      if (t.closest("a")) return null; // a room link → let it navigate
+      if (t.closest("a")) return null; // a room link → handled below / navigates
       const btn = t.closest<HTMLElement>("[data-focus]");
       const card = t.closest<HTMLElement>(".door[data-door-key]");
       return btn?.getAttribute("data-focus") || card?.getAttribute("data-door-key") || null;
     };
     const onClick = (e: MouseEvent) => {
-      const key = keyFromTarget(e.target as HTMLElement);
+      const t = e.target as HTMLElement;
+      // an internal room link (#samhita, #audits, #library…) → land on that section,
+      // revealing it first if the current door hid it. External links navigate as normal.
+      const anchor = t.closest<HTMLAnchorElement>('a[href^="#"]');
+      if (anchor && section?.contains(anchor)) {
+        const id = anchor.getAttribute("href")!.slice(1);
+        if (document.getElementById(id)) { e.preventDefault(); landOn(id); return; }
+      }
+      const key = keyFromTarget(t);
       if (key && VALID.has(key)) { e.preventDefault(); choose(key); }
     };
     const onKey = (e: KeyboardEvent) => {

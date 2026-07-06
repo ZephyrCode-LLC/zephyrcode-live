@@ -215,6 +215,12 @@ export default async function HomeSite() {
           <p className="eyebrow rv" dangerouslySetInnerHTML={{ __html: signal.eyebrowHtml }} />
           <h1 className="rv" dangerouslySetInnerHTML={{ __html: signal.h1Html }} />
           <p className="lede rv" dangerouslySetInnerHTML={{ __html: signal.ledeHtml }} />
+          <div className="hero-cta rv">
+            <a className="btn solid" href="https://book-antyodaya.zephyrcode.live?utm_source=hub-hero" target="_blank" rel="noopener">
+              Start a novel →
+            </a>
+            <a className="btn ghost" href="#doors">Or pick your door ↓</a>
+          </div>
           <p className="scrollcue rv">
             <span className="ln" /> {signal.scrollcue}
           </p>
@@ -520,11 +526,26 @@ export default async function HomeSite() {
               <span className="sp-go mono">Play them →</span>
             </a>
           </div>
-          <p className="studio-toys-k mono rv">A few interactive toys we&rsquo;ve built — play them; yours could be next</p>
-          <StudioToys />
+          <p className="studio-toys-k mono rv">Play the kind of interactive toys we build in the <a href="#arcade">Arcade&nbsp;↓</a> — yours could be next</p>
           <div className="btnrow rv">
             <a className="btn solid" href="/pilot?p=studio">Pitch us your idea →</a>
             <a className="btn ghost" href="https://sage.zephyrcode.live?utm_source=hub-studio" target="_blank" rel="noopener">Or run your content ops in SAGE →</a>
+          </div>
+        </section>
+
+        <section className="scene" id="arcade" data-doors={doorsFor("arcade")} data-scene="9" data-accent="#8fd694">
+          <div className="shead rv">
+            <p className="eyebrow">The Arcade</p>
+            <h2>
+              Little machines that make an idea <em>click in ten seconds.</em>
+            </h2>
+            <p className="sub">Playable toys — the same craft that goes into a custom build. Tap through a few; each one is fully live.</p>
+          </div>
+          <StudioToys />
+          <div className="btnrow rv">
+            <a className="btn ghost" href="https://arcade.zephyrcode.live?utm_source=hub-arcade" target="_blank" rel="noopener">
+              See the whole arcade →
+            </a>
           </div>
         </section>
 
@@ -576,7 +597,7 @@ export default async function HomeSite() {
                 />
               ))}
             </div>
-            <div className="timetable rv" aria-label="A working day">
+            <div className="timetable rv" aria-label="The audit delivery clock">
               {operator.timetable.map((r) => (
                 <div className="row" key={r.h}>
                   <span className="h">{r.h}</span>
