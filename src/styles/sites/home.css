@@ -179,6 +179,21 @@
 [data-site="home"] .shorts .l h4 { font-size: 1.35rem; font-style: italic; font-weight: 400; }
 [data-site="home"] .shorts .l p { font-size: 0.92rem; color: var(--bone-dim); margin-top: 6px; max-width: 52ch; }
 
+/* stories split — Novels vs Short stories */
+[data-site="home"] .story-cat { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bone); margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line-soft); }
+[data-site="home"] .story-cat span { color: var(--bone-faint); letter-spacing: 0.06em; text-transform: none; }
+[data-site="home"] .story-cat-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line-soft); }
+[data-site="home"] .story-cat-row .story-cat { margin: 0; padding: 0; border: 0; }
+[data-site="home"] .shorts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+[data-site="home"] .short-card { display: flex; flex-direction: column; gap: 7px; padding: 18px 18px 16px; border: 1px solid var(--line-soft); border-left: 2px solid color-mix(in srgb, var(--sc) 70%, transparent); background: rgba(13, 11, 9, 0.55); text-decoration: none; transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease; }
+[data-site="home"] .short-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--sc) 55%, transparent); border-left-color: var(--sc); background: rgba(24, 19, 14, 0.85); }
+[data-site="home"] .short-dek { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: color-mix(in srgb, var(--sc) 80%, var(--bone-faint)); }
+[data-site="home"] .short-title { font-size: 1.12rem; font-style: italic; line-height: 1.2; color: var(--bone); }
+[data-site="home"] .short-go { margin-top: auto; padding-top: 10px; font-size: 10.5px; letter-spacing: 0.1em; color: var(--sc); display: flex; align-items: center; gap: 6px; }
+[data-site="home"] .short-card .short-arrow { transition: transform 0.2s ease; }
+[data-site="home"] .short-card:hover .short-arrow { transform: translateX(4px); }
+@media (prefers-reduced-motion: reduce) { [data-site="home"] .short-card { transition: none; } }
+
 /* systems */
 [data-site="home"] .sys-lede { max-width: 64ch; color: var(--bone-dim); font-size: 1.06rem; margin-bottom: 14px; }
 [data-site="home"] .sys-lede b { color: var(--bone); font-weight: 600; }
@@ -195,6 +210,20 @@
 [data-site="home"] .os-card.live .os-h { color: var(--brass); }
 [data-site="home"] .os-card .os-p { font-size: 0.86rem; line-height: 1.55; color: var(--bone-dim); }
 [data-site="home"] .os-card .os-link { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--brass); margin-top: 2px; }
+/* OS vitals — each live OS runs a monitor trace (FORGE = heartbeat, TEMPER = focus wave) */
+[data-site="home"] .os-vital { width: 100%; height: 22px; margin: 3px 0 5px; display: block; }
+[data-site="home"] .os-ecg { color: var(--accent); }
+[data-site="home"] .os-wave { color: var(--iris); }
+[data-site="home"] .os-vital-base { fill: none; stroke: color-mix(in srgb, currentColor 20%, transparent); stroke-width: 1.4; }
+[data-site="home"] .os-vital-scan { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16 120; filter: drop-shadow(0 0 3px currentColor); animation: os-scan 2.6s linear infinite; }
+[data-site="home"] .os-wave .os-vital-scan { animation-duration: 3.6s; }
+@keyframes os-scan { from { stroke-dashoffset: 136; } to { stroke-dashoffset: 0; } }
+@keyframes os-live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+[data-site="home"] .os-card.live .os-live { animation: os-live-pulse 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] .os-vital-scan, [data-site="home"] .os-card.live .os-live { animation: none !important; }
+  [data-site="home"] .os-vital-scan { stroke-dasharray: none; opacity: 0.75; }
+}
 [data-site="home"] .os-card:hover .os-link { color: color-mix(in oklab, var(--accent) 85%, white); }
 [data-site="home"] .toy { border: 1px solid var(--line); background: rgba(13, 11, 9, 0.7); backdrop-filter: blur(2px); padding: 26px 28px; margin-bottom: 38px; max-width: 680px; }
 [data-site="home"] .toy .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }

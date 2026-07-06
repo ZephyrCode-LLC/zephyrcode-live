@@ -78,8 +78,17 @@ export function DoorGate() {
     try { localStorage.setItem("zc-door", key); } catch {}
     history.replaceState(null, "", key === "__all" ? "?door=all" : `?door=${key}`);
     track(key === "__all" ? "door_revealed_all" : "door_selected", { door: key });
-    // keep the widened pick + the newly-focused rooms in view
-    setTimeout(goToDoors, 60);
+    // jump to the first room specific to this door (its audience's payload);
+    // "everything" has no single room, so it settles back on the picker.
+    setTimeout(() => {
+      const firstRoom = key !== "__all" ? DOORS[key]?.scenes?.[0] : null;
+      const target = firstRoom ? document.getElementById(firstRoom) : null;
+      if (target && target.offsetHeight > 0) {
+        target.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "start" });
+      } else {
+        goToDoors();
+      }
+    }, 80);
   }
 
   useEffect(() => {
