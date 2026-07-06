@@ -276,31 +276,26 @@ export function MethodTrack({ moves }: { moves: Move[] }) {
     // primary trigger; a passive scroll listener + initial check are the fallback,
     // because IO is suspended in a backgrounded/hidden tab (the same reason
     // RevealManager guards the hero against a slow/suspended observer).
-    let ran = false;
-    const inView = () => {
-      const rr = el.getBoundingClientRect();
-      const vvh = window.innerHeight || document.documentElement.clientHeight;
-      return rr.top < vvh * 0.8 && rr.bottom > vvh * 0.15;
-    };
-    function fire() {
-      if (ran) return;
-      ran = true;
-      io.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      after(140, runMethod);
-    }
-    const onScroll = () => { if (inView()) fire(); };
-    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) fire(); }), { threshold: 0.35 });
+    //
+    // Fire the relay each time the row (re-)enters the viewport, re-arming once it fully
+    // leaves — so scrolling BACK to the section replays it, instead of a single one-time
+    // fire that leaves it sitting settled forever after the first (often fast) pass.
+    // `threshold: 0` + a bottom rootMargin makes the trigger height-independent (a high
+    // ratio threshold is unreachable when the row is taller than the viewport) and roots at
+    // the viewport, so it works even if an ancestor — not window — is the scroll container.
+    let armed = true;
+    const runOnce = () => { if (!armed) return; armed = false; clearTimers(); after(140, runMethod); };
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) runOnce(); else armed = true; }),
+      { threshold: 0, rootMargin: "0px 0px -22% 0px" }
+    );
     io.observe(el);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    if (inView()) fire();
 
     return () => {
       clearTimers();
       cancelAnimationFrame(dustRaf);
       cancelAnimationFrame(waveRaf);
       io.disconnect();
-      window.removeEventListener("scroll", onScroll);
       listeners.forEach(([c, type, fn]) => c.removeEventListener(type, fn));
     };
   }, []);
