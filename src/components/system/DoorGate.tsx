@@ -72,23 +72,40 @@ export function DoorGate() {
     document.querySelector("#doors")?.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "start" });
   }
 
+  // the room a door drops you into: its first audience-specific scene ("everything"
+  // has none, so it falls back to the picker).
+  function landingFor(key: string): HTMLElement | null {
+    const room = key !== "__all" ? DOORS[key]?.scenes?.[0] : null;
+    const el = (room && document.getElementById(room)) || document.getElementById("doors");
+    return el && el.offsetHeight > 0 ? el : null;
+  }
+  function scrollTo(el: HTMLElement, behavior: ScrollBehavior) {
+    const HEADER = 64; // clear the fixed wordmark / chip so the heading isn't tucked under it
+    const y = Math.max(0, window.scrollY + el.getBoundingClientRect().top - HEADER);
+    window.scrollTo({ top: y, behavior });
+  }
+
   function choose(key: string) {
     if (!VALID.has(key)) return;
     apply(key);
     try { localStorage.setItem("zc-door", key); } catch {}
     history.replaceState(null, "", key === "__all" ? "?door=all" : `?door=${key}`);
     track(key === "__all" ? "door_revealed_all" : "door_selected", { door: key });
-    // jump to the first room specific to this door (its audience's payload);
-    // "everything" has no single room, so it settles back on the picker.
-    setTimeout(() => {
-      const firstRoom = key !== "__all" ? DOORS[key]?.scenes?.[0] : null;
-      const target = firstRoom ? document.getElementById(firstRoom) : null;
-      if (target && target.offsetHeight > 0) {
-        target.scrollIntoView({ behavior: reduce() ? "auto" : "smooth", block: "start" });
-      } else {
-        goToDoors();
-      }
-    }, 80);
+    // Jump to the door's first room. Do it AFTER two frames so the scene hides +
+    // the picker's widen-reflow have settled (else we scroll to a stale position),
+    // then correct once more when the reveal fully lands — smooth scroll can
+    // undershoot a shifting layout, which read as "it didn't jump".
+    const smooth: ScrollBehavior = reduce() ? "auto" : "smooth";
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const t = landingFor(key);
+        if (t) scrollTo(t, smooth);
+        setTimeout(() => {
+          const t2 = landingFor(key);
+          if (t2 && Math.abs(t2.getBoundingClientRect().top - 64) > 24) scrollTo(t2, "auto");
+        }, 460);
+      })
+    );
   }
 
   useEffect(() => {

@@ -619,6 +619,11 @@ export default async function HomeSite() {
             ))}
           </div>
         </div>
+        <div className="footer-writing">
+          <a href="https://priyanshusekhar.substack.com/" target="_blank" rel="noopener">
+            The Optimum — essays &amp; field reports on <b>Substack</b> <span aria-hidden="true">→</span>
+          </a>
+        </div>
         <div className="legal">
           {constel.legal.map((l) => (
             <span key={l}>{l}</span>

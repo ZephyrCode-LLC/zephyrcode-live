@@ -181,7 +181,7 @@
 
 /* stories split — Novels vs Short stories */
 [data-site="home"] .story-cat { font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bone); margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line-soft); }
-[data-site="home"] .story-cat span { color: var(--bone-faint); letter-spacing: 0.06em; text-transform: none; }
+[data-site="home"] .story-cat span { color: var(--bone-dim); letter-spacing: 0.06em; text-transform: none; }
 [data-site="home"] .story-cat-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; margin: 40px 0 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line-soft); }
 [data-site="home"] .story-cat-row .story-cat { margin: 0; padding: 0; border: 0; }
 [data-site="home"] .shorts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
@@ -356,7 +356,12 @@
 [data-site="home"] .cmap .u { font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.06em; color: var(--bone-dim); transition: color 0.2s; }
 [data-site="home"] .cmap a:hover .u { color: var(--accent); }
 [data-site="home"] .cmap .what { font-size: 0.85rem; font-style: italic; color: var(--bone-faint); white-space: nowrap; }
-[data-site="home"] .legal { max-width: var(--maxw); margin: 54px auto 0; display: flex; flex-wrap: wrap; gap: 10px 30px; justify-content: space-between; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--bone-faint); }
+[data-site="home"] .footer-writing { max-width: var(--maxw); margin: 40px auto 0; padding-top: 26px; border-top: 1px solid var(--line-soft); }
+[data-site="home"] .footer-writing a { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--bone-dim); text-decoration: none; transition: color 0.2s ease; }
+[data-site="home"] .footer-writing a b { color: var(--accent); font-weight: 500; }
+[data-site="home"] .footer-writing a:hover { color: var(--bone); }
+[data-site="home"] .footer-writing a span { color: var(--accent); }
+[data-site="home"] .legal { max-width: var(--maxw); margin: 30px auto 0; display: flex; flex-wrap: wrap; gap: 10px 30px; justify-content: space-between; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; color: var(--bone-faint); }
 
 /* ---- mobile ---- */
 @media (max-width: 640px) {
