@@ -43,8 +43,19 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     camera.position.set(0, 0, 34);
 
     const N = window.innerWidth < 700 ? 4200 : 9000;
-    const SCENES = 6;
+    const SCENES = 13;
     const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+
+    // shared glyph helpers: draw a line of points into `pts`, and scatter `pts` across all particles.
+    const seg = (pts: Array<[number, number]>, x0: number, y0: number, x1: number, y1: number, n: number) => {
+      for (let s = 0; s < n; s++) { const t = Math.random(); pts.push([x0 + (x1 - x0) * t, y0 + (y1 - y0) * t]); }
+    };
+    const rectPts = (pts: Array<[number, number]>, x0: number, y0: number, x1: number, y1: number, n: number) => {
+      seg(pts, x0, y0, x1, y0, n); seg(pts, x0, y1, x1, y1, n); seg(pts, x0, y0, x0, y1, n); seg(pts, x1, y0, x1, y1, n);
+    };
+    const fillPts = (a: Float32Array, pts: Array<[number, number]>, jit: number, zr: number) => {
+      for (let i = 0; i < N; i++) { const q = pts[i % pts.length]; a[i * 3] = q[0] + rnd(-jit, jit); a[i * 3 + 1] = q[1] + rnd(-jit, jit); a[i * 3 + 2] = rnd(-zr, zr); }
+    };
 
     /* ---------- formation targets ---------- */
     function fWind() {
@@ -131,67 +142,71 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       }
       return a;
     }
-    // DOORS scene formation — a thin standing figure (the visitor) facing a row of OPEN doors.
-    // Smooth line-drawn glyphs (no pixel grid): a slim person on the left, four ajar doors
-    // whose panels swing toward the viewer in light perspective, warm light spilling out.
+    // DOORS scene formation — a slim figure ON TOP, a row of 5 OPEN doors BELOW it.
+    // Figure: a thin full-body silhouette (head, torso, arms, legs), centred up top.
+    // Each door: a frame whose leaf is swung WIDE out to the left of the hinge (a clearly ajar
+    // parallelogram jutting past the frame), leaving the doorway itself open — unmistakably open.
     function fDoors() {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
       const push = (x: number, y: number) => pts.push([x, y]);
-      const line = (x0: number, y0: number, x1: number, y1: number, n: number) => {
-        for (let s = 0; s < n; s++) { const t = Math.random(); push(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t); }
-      };
-      // ---- the visitor: a slim full-body silhouette, far left, facing the doors ----
-      const FX = -23;
-      for (let s = 0; s < 110; s++) { const ang = Math.random() * 6.283, r = 1.05 * Math.sqrt(Math.random()); push(FX + Math.cos(ang) * r, 7.3 + Math.sin(ang) * r); } // head
-      line(FX, 6.0, FX, -1.4, 190);                 // spine / torso (thin)
-      line(FX - 1.5, 5.2, FX + 1.5, 5.2, 55);       // shoulders
-      line(FX - 1.5, 5.2, FX - 2.7, 0.4, 85);       // left arm
-      line(FX + 1.5, 5.2, FX + 2.7, 0.4, 85);       // right arm
-      line(FX, -1.4, FX - 1.7, -9.2, 115);          // left leg
-      line(FX, -1.4, FX + 1.7, -9.2, 115);          // right leg
-      // ---- four OPEN doors across the right ----
-      // Each is a portal (frame) with the leaf swung open INTO the room: hinged on the right
-      // jamb, its tall near/free edge sits left of centre and the top & bottom edges recede to
-      // the hinge — leaving a dark opening on the left with faint light spilling out.
-      const XC = [-11, -2, 7, 16], DB = -9.4, DT = 1.8, DW = 2.15;
+      // ---- the visitor: a slim full-body figure, centred, on top ----
+      const FX = 0;
+      for (let s = 0; s < 100; s++) { const ang = Math.random() * 6.283, r = 0.95 * Math.sqrt(Math.random()); push(FX + Math.cos(ang) * r, 11.0 + Math.sin(ang) * r); } // head
+      seg(pts, FX, 9.7, FX, 2.6, 180);              // torso (thin spine)
+      seg(pts, FX - 1.35, 8.9, FX + 1.35, 8.9, 50); // shoulders
+      seg(pts, FX - 1.35, 8.9, FX - 2.5, 3.9, 80);  // left arm
+      seg(pts, FX + 1.35, 8.9, FX + 2.5, 3.9, 80);  // right arm
+      seg(pts, FX, 2.6, FX - 1.6, -1.3, 105);       // left leg
+      seg(pts, FX, 2.6, FX + 1.6, -1.3, 105);       // right leg
+      // ---- five OPEN doors in a row below ----
+      const XC = [-20, -10, 0, 10, 20], DB = -11.4, DT = -2.2, DW = 1.7;
       for (const xc of XC) {
         const xL = xc - DW, xR = xc + DW;
-        line(xL, DB, xL, DT, 120);                  // left jamb
-        line(xR, DB, xR, DT, 120);                  // right jamb (hinge side)
-        line(xL, DT, xR, DT, 62);                   // lintel
-        line(xL, DB, xR, DB, 62);                   // threshold
-        const xn = xc - DW * 0.25, ins = 0.9;       // near (free) edge x + perspective inset at the hinge
-        line(xn, DB - 0.4, xn, DT + 0.4, 120);      // near edge — tallest, closest to viewer
-        line(xn, DT + 0.4, xR, DT - ins, 85);       // top edge receding to the hinge
-        line(xn, DB - 0.4, xR, DB + ins, 85);       // bottom edge receding to the hinge
-        for (let s = 0; s < 58; s++) { const u = Math.random(); const xx = xn + (xR - xn) * u; const yT = (DT + 0.4) + ((DT - ins) - (DT + 0.4)) * u, yB = (DB - 0.4) + ((DB + ins) - (DB - 0.4)) * u; push(xx, yB + (yT - yB) * Math.random()); } // leaf face
-        for (let s = 0; s < 12; s++) push(xn - 0.28, (DB + DT) / 2 + (Math.random() * 2 - 1) * 0.25); // knob on the free edge
-        for (let s = 0; s < 26; s++) push(xL + (xn - xL) * Math.random() * 0.9, DB + Math.random() * (DT - DB)); // light spilling from the opening
+        seg(pts, xL, DB, xL, DT, 92);               // left jamb (the hinge)
+        seg(pts, xR, DB, xR, DT, 92);               // right jamb
+        seg(pts, xL, DT, xR, DT, 46);               // lintel
+        seg(pts, xL, DB, xR, DB, 40);               // threshold — the doorway itself stays empty (open)
+        // the leaf swung WIDE open past the frame: a tilted parallelogram jutting out to the left
+        const xF = xL - 2.6, tilt = -1.2;           // free edge shifted left + down (swung toward you)
+        seg(pts, xL, DT, xF, DT + tilt, 78);        // top edge (slants down-left)
+        seg(pts, xL, DB, xF, DB + tilt, 78);        // bottom edge (parallel)
+        seg(pts, xF, DB + tilt, xF, DT + tilt, 96); // free edge (tall)
+        for (let s = 0; s < 40; s++) { const u = Math.random(); const xx = xF + (xL - xF) * u; const yT = (DT + tilt) - tilt * u, yB = (DB + tilt) - tilt * u; push(xx, yB + (yT - yB) * Math.random()); } // leaf face
+        for (let s = 0; s < 10; s++) push(xF + 0.35, (DB + DT) / 2 + tilt / 2 + (Math.random() * 2 - 1) * 0.25); // knob on the free edge
       }
-      for (let i = 0; i < N; i++) {
-        const q = pts[i % pts.length];
-        a[i * 3] = q[0] + rnd(-0.12, 0.12);
-        a[i * 3 + 1] = q[1] + rnd(-0.12, 0.12);
-        a[i * 3 + 2] = rnd(-1.1, 1.1);
-      }
+      fillPts(a, pts, 0.12, 1.1);
       return a;
     }
 
-    // METHOD scene formation — a horizontal figure-8 (∞), particles circulating around it.
-    // "One loop that transfers." Gerono lemniscate x=W·cosθ, y=H·sin2θ; each particle keeps a
-    // phase θ0 (∝ index → an even cyan→indigo gradient around the curve) and flows in the frame loop.
-    const loopTheta = new Float32Array(N);
-    const loopOx = new Float32Array(N), loopOy = new Float32Array(N), loopZ = new Float32Array(N);
-    for (let i = 0; i < N; i++) {
-      loopTheta[i] = (i / N) * Math.PI * 2;
-      loopOx[i] = rnd(-0.5, 0.5); loopOy[i] = rnd(-0.5, 0.5); loopZ[i] = rnd(-1.4, 1.4);
+    // METHOD scene formation — a CLOSED horizontal figure-8 (∞) the particles flow around.
+    // Gerono lemniscate x=W·cosθ, y=H·sin2θ. Particles are spaced by ARC LENGTH (even density,
+    // no thin/broken spots) and flow at constant speed around it, so it always reads as one
+    // continuous closed curve. "One loop that transfers."
+    const LOOP_W = 13.5, LOOP_H = 6.2, LOOP_FLOW = 0.06; // flow = loop-fractions per second
+    const geroX = (th: number) => LOOP_W * Math.cos(th);
+    const geroY = (th: number) => LOOP_H * Math.sin(2 * th);
+    // build an arc-length table, then invert it: even fraction s∈[0,1) → theta
+    const LK = 1200;
+    const cumLen = new Float32Array(LK + 1);
+    for (let k = 1, pxL = geroX(0), pyL = geroY(0); k <= LK; k++) {
+      const th = (k / LK) * Math.PI * 2, x = geroX(th), y = geroY(th);
+      cumLen[k] = cumLen[k - 1] + Math.hypot(x - pxL, y - pyL); pxL = x; pyL = y;
     }
-    const LOOP_W = 15, LOOP_H = 6.6, LOOP_SPD = 0.5;
+    const totalLen = cumLen[LK];
+    const KI = 1024;
+    const sToTheta = new Float32Array(KI);
+    for (let j = 0, k = 0; j < KI; j++) {
+      const target = (j / KI) * totalLen;
+      while (k < LK && cumLen[k] < target) k++;
+      sToTheta[j] = (k / LK) * Math.PI * 2;
+    }
+    const loopFrac = new Float32Array(N), loopOn = new Float32Array(N * 2), loopZ = new Float32Array(N);
+    for (let i = 0; i < N; i++) { loopFrac[i] = i / N; loopOn[i * 2] = rnd(-0.26, 0.26); loopOn[i * 2 + 1] = rnd(-0.26, 0.26); loopZ[i] = rnd(-1.3, 1.3); }
     const loopAt = (i: number, tt: number): [number, number, number] => {
-      const th = loopTheta[i] + tt * LOOP_SPD;
-      const c = Math.cos(th), s = Math.sin(th);
-      return [LOOP_W * c + loopOx[i], LOOP_H * 2 * s * c + loopOy[i], loopZ[i]];
+      let sf = loopFrac[i] + tt * LOOP_FLOW; sf -= Math.floor(sf);
+      const th = sToTheta[(sf * KI) | 0];
+      return [geroX(th) + loopOn[i * 2], geroY(th) + loopOn[i * 2 + 1], loopZ[i]];
     };
     function fLoop() {
       const a = new Float32Array(N * 3);
@@ -235,8 +250,118 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return a;
     }
 
-    void fFunnel; void fFlame; void fWave; void fRing; // superseded by fLoop / fBars / fOrbit
-    const T = [fWind(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit()];
+    // STORIES scene — a lamp (diya) of dots: a shallow oil-bowl with a flame rising. (antyodaya = a lamp.)
+    function fLamp() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      const BX = 7, BY = 3, BCY = -4.5;
+      for (let s = 0; s < 640; s++) { const t = Math.PI + Math.random() * Math.PI; pts.push([BX * Math.cos(t), BCY + BY * Math.sin(t)]); } // bowl (lower half-ellipse)
+      for (let s = 0; s < 240; s++) pts.push([(Math.random() * 2 - 1) * BX * 0.9, BCY - Math.random() * BY * 0.85]); // oil fill
+      for (let s = 0; s < 220; s++) { const u = Math.random() * 2 - 1; pts.push([u * BX, BCY + 0.15 - Math.abs(u) * 0.55]); } // rim with a slight spout at the ends
+      for (let s = 0; s < 120; s++) pts.push([(Math.random() * 2 - 1) * 3.2, -8.0 + Math.random() * 0.6]); // base
+      for (let s = 0; s < 70; s++) pts.push([(Math.random() * 2 - 1) * 0.25, -4.3 + Math.random() * 2.1]); // wick
+      for (let s = 0; s < 1400; s++) { // flame — teardrop rising to a tip
+        const h = Math.random(), y = -2.2 + h * 9.4;
+        const w = 2.5 * (h < 0.32 ? 0.15 + 0.85 * Math.sqrt(h / 0.32) : Math.pow((1 - h) / 0.68, 0.8));
+        pts.push([(Math.random() * 2 - 1) * w, y]);
+      }
+      fillPts(a, pts, 0.14, 1.2);
+      return a;
+    }
+
+    // SAMHITA scene — two streams merging into one, with commit nodes (prose reviewed & merged like code).
+    function fMerge() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      const jx = 0, jy = 1.5;
+      seg(pts, -9, 11, jx, jy, 820);   // left branch
+      seg(pts, 9, 11, jx, jy, 820);    // right branch
+      seg(pts, jx, jy, 0, -11, 1100);  // merged trunk
+      const nodes: Array<[number, number]> = [[-9, 11], [-4.5, 6.2], [9, 11], [4.5, 6.2], [0, 1.5], [0, -3], [0, -7.2], [0, -11]];
+      for (const nd of nodes) for (let s = 0; s < 80; s++) { const ang = Math.random() * 6.283, r = 0.7 * Math.sqrt(Math.random()); pts.push([nd[0] + Math.cos(ang) * r, nd[1] + Math.sin(ang) * r]); }
+      fillPts(a, pts, 0.14, 1.3);
+      return a;
+    }
+
+    // STUDIO scene — a wireframe browser window (we build creators their own interactive site).
+    function fBlueprint() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      const L = -13, R = 13, TP = 9, BT = -9;
+      rectPts(pts, L, BT, R, TP, 120);            // window frame
+      seg(pts, L, TP - 2.4, R, TP - 2.4, 70);     // title-bar divider
+      for (let d = 0; d < 3; d++) for (let s = 0; s < 22; s++) { const ang = Math.random() * 6.283, r = 0.35 * Math.sqrt(Math.random()); pts.push([L + 1.4 + d * 1.3 + Math.cos(ang) * r, TP - 1.2 + Math.sin(ang) * r]); } // window dots
+      rectPts(pts, L + 2, 1.5, R - 2, TP - 4, 55); // hero block
+      rectPts(pts, L + 2, BT + 2, -1, -0.5, 48);   // left column
+      rectPts(pts, 1, BT + 2, R - 2, -0.5, 48);    // right column
+      fillPts(a, pts, 0.12, 1.1);
+      return a;
+    }
+
+    // ARCADE scene — a classic pixel "space invader" (the playable toys).
+    function fInvader() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      const rows = ["00100000100", "00010001000", "00111111100", "01101110110", "11111111111", "10111111101", "10100000101", "00011011000"];
+      const cols = rows[0].length, rws = rows.length, G = 2.0;
+      for (let r = 0; r < rws; r++) for (let c = 0; c < cols; c++) if (rows[r][c] === "1") {
+        const cx = (c - (cols - 1) / 2) * G, cy = ((rws - 1) / 2 - r) * G;
+        for (let s = 0; s < 26; s++) pts.push([cx + (Math.random() * 2 - 1) * G * 0.5, cy + (Math.random() * 2 - 1) * G * 0.5]);
+      }
+      fillPts(a, pts, 0.1, 1.2);
+      return a;
+    }
+
+    // SYSTEMS scene — three interlocking rings (FORGE · TEMPER · COMPASS — the body/mind/living OS).
+    function fRings() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      const centers: Array<[number, number]> = [[-6.5, 2.2], [6.5, 2.2], [0, -4.4]];
+      const R = 6.2;
+      for (const ct of centers) for (let s = 0; s < 1200; s++) { const ang = Math.random() * 6.283, rr = R + (Math.random() * 2 - 1) * 0.35; pts.push([ct[0] + Math.cos(ang) * rr, ct[1] + Math.sin(ang) * rr]); }
+      fillPts(a, pts, 0.12, 1.4);
+      return a;
+    }
+
+    // LIBRARY scene — a row of book spines on a shelf (books & films, by mood).
+    function fBooks() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      const shelfY = -8.5;
+      seg(pts, -22, shelfY, 22, shelfY, 240); // the shelf
+      const heights = [10, 8.5, 11, 7.5, 9.5, 12, 8, 10.5, 9, 11.5, 7, 10, 8.5, 11, 9.5];
+      let x = -21;
+      for (let b = 0; b < heights.length && x < 21; b++) {
+        const w = 1.4 + ((b * 0.37) % 1.0), h = heights[b], x0 = x, x1 = x + w, y0 = shelfY, y1 = shelfY + h;
+        seg(pts, x0, y0, x0, y1, 68); seg(pts, x1, y0, x1, y1, 68); seg(pts, x0, y1, x1, y1, 26); // spine outline
+        for (let s = 0; s < 40; s++) pts.push([x0 + (x1 - x0) * Math.random(), y0 + (y1 - y0) * Math.random()]); // spine fill
+        x = x1 + 0.5;
+      }
+      fillPts(a, pts, 0.1, 1.2);
+      return a;
+    }
+
+    // OPERATOR scene — a single figure (the maker), centred and grounded on a line.
+    function fMaker() {
+      const a = new Float32Array(N * 3);
+      const pts: Array<[number, number]> = [];
+      for (let s = 0; s < 160; s++) { const ang = Math.random() * 6.283, r = 1.25 * Math.sqrt(Math.random()); pts.push([Math.cos(ang) * r, 8.5 + Math.sin(ang) * r]); } // head
+      seg(pts, 0, 7.0, 0, -1.0, 240);      // torso
+      seg(pts, -1.9, 6.0, 1.9, 6.0, 70);   // shoulders
+      seg(pts, -1.9, 6.0, -3.0, 0.4, 110); // left arm
+      seg(pts, 1.9, 6.0, 3.0, 0.4, 110);   // right arm
+      seg(pts, 0, -1.0, -2.0, -8.5, 150);  // left leg
+      seg(pts, 0, -1.0, 2.0, -8.5, 150);   // right leg
+      seg(pts, -7, -8.7, 7, -8.7, 180);    // ground line
+      fillPts(a, pts, 0.12, 1.1);
+      return a;
+    }
+
+    void fFunnel; void fFlame; void fWave; void fRing; // superseded by the scene formations below
+    const T = [
+      fWind(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
+      fLamp(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), fMaker(),
+    ];
     const GRADE = grades;
 
     /* ---------- geometry + shader ---------- */
@@ -307,9 +432,14 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     }
     let keys: number[] = [];
     function computeKeys() {
-      keys = sceneEls.map((el) =>
-        Math.max(0, el.offsetTop + el.offsetHeight / 2 - window.innerHeight / 2)
-      );
+      // A door-gated (display:none) scene has offsetParent===null; reuse the previous key so the
+      // formation index → scene mapping doesn't jump when some scenes are hidden.
+      let last = 0;
+      keys = sceneEls.map((el) => {
+        if (el.offsetParent === null && el.offsetHeight === 0) return last;
+        last = Math.max(0, el.offsetTop + el.offsetHeight / 2 - window.innerHeight / 2);
+        return last;
+      });
     }
     let fTarget = 0;
     let fSmooth = 0;
@@ -383,7 +513,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const W = (s: number) => (sa === s ? 1 - e : 0) + (sb === s ? e : 0);
       const w0 = W(0),
         w4 = W(4),
-        w5 = W(5);
+        w5 = W(5),
+        w6 = W(6);
       const rotC = Math.cos(t * 0.1),
         rotS = Math.sin(t * 0.1);
       const A = T[sa],
@@ -429,6 +560,11 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           if (w4 > 0) {
             // ARENA bars: a gentle per-column bob, like live values ticking up
             dy += Math.sin(t * 1.5 + Math.round(px * 0.4) * 1.3 + seed * 0.4) * 0.38 * w4;
+          }
+          if (w6 > 0 && py > -3) {
+            // STORIES lamp: the flame dances (only the part above the wick)
+            dx += Math.sin(t * 2.6 + seed * 7.0) * 0.3 * w6;
+            dy += (0.12 + 0.32 * Math.abs(Math.sin(t * 3.1 + seed * 9.0))) * w6;
           }
           px += dx;
           py += dy;
