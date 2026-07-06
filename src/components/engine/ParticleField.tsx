@@ -131,7 +131,35 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       }
       return a;
     }
-    const T = [fWind(), fFunnel(), fFlame(), fLattice(), fWave(), fRing()];
+    // DOORS scene formation — a pixelated figure (the visitor) above five doors.
+    function fDoors() {
+      const a = new Float32Array(N * 3);
+      const G = 0.7; // pixel grid
+      const snap = (v: number) => Math.round(v / G) * G;
+      const pts: Array<[number, number]> = [];
+      const push = (x: number, y: number) => pts.push([snap(x), snap(y)]);
+      // the visitor — head + shoulders (the universal "user" glyph), centered up top
+      const HEAD_Y = 9.4, HEAD_R = 2.4;
+      for (let s = 0; s < 780; s++) { const ang = Math.random() * 6.283, r = HEAD_R * Math.sqrt(Math.random()); push(Math.cos(ang) * r, HEAD_Y + Math.sin(ang) * r); }
+      for (let s = 0; s < 1200; s++) { const ty = Math.random(); const y = 3.1 + ty * 3.9; const hw = 2.0 + (1 - ty) * 3.5; push((Math.random() * 2 - 1) * hw, y); } // shoulders dome
+      // five doors in a row below
+      const XC = [-16, -8, 0, 8, 16], DY0 = -10.6, DY1 = -1.4, DHW = 2.3, DH = DY1 - DY0;
+      for (const xc of XC) {
+        for (let s = 0; s < 300; s++) { const t = Math.random() * DH; push(xc - DHW, DY0 + t); push(xc + DHW, DY0 + t); } // jambs
+        for (let s = 0; s < 130; s++) { const t = (Math.random() * 2 - 1) * DHW; push(xc + t, DY1); push(xc + t, DY0); } // lintel + sill
+        for (let s = 0; s < 150; s++) push(xc + (Math.random() * 2 - 1) * DHW * 0.82, DY0 + Math.random() * DH); // sparse interior
+        for (let s = 0; s < 22; s++) push(xc + DHW * 0.55, (DY0 + DY1) / 2 + (Math.random() * 2 - 1) * 0.3); // knob
+      }
+      for (let i = 0; i < N; i++) {
+        const q = pts[i % pts.length];
+        a[i * 3] = q[0] + rnd(-0.16, 0.16);
+        a[i * 3 + 1] = q[1] + rnd(-0.16, 0.16);
+        a[i * 3 + 2] = rnd(-1.1, 1.1);
+      }
+      return a;
+    }
+    void fFunnel; // superseded by fDoors for the doors scene
+    const T = [fWind(), fDoors(), fFlame(), fLattice(), fWave(), fRing()];
     const GRADE = grades;
 
     /* ---------- geometry + shader ---------- */
