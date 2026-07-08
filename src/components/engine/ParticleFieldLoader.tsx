@@ -27,7 +27,7 @@ const SECTION_GRADES: Grade[] = [
   [[0.95, 0.86, 0.62], [0.55, 0.68, 0.9], 0.5], // kshetra — a conch: pearly cream ↔ soft blue (the Gītā)
   [[0.42, 0.55, 0.78], [0.5, 0.82, 0.86], 0.5], // samhita — slate → cyan, the review/merge
   [[0.55, 0.45, 0.85], [0.78, 0.72, 0.98], 0.5], // studio — violet, the build/blueprint
-  [[1.0, 0.85, 0.2], [1.0, 0.35, 0.7], 0.0], // arcade — BRIGHT neon: Pac-Man yellow ↔ ghost magenta
+  [[1.0, 0.9, 0.22], [0.45, 0.8, 1.0], 1.0], // arcade — ordered neon: the Pac + pellets glow yellow → the ghost pack + swarm go ice-blue
   [[0.32, 0.79, 0.55], [0.6, 0.92, 0.72], 0.5], // systems — forge green, the three OS rings
   [[0.79, 0.64, 0.36], [0.95, 0.82, 0.5], 0.5], // library — brass, the books/headphones/TV
   [[0.91, 0.4, 0.18], [1.0, 0.6, 0.3], 0.4], // operator — ember, the maker at his desk
