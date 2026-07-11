@@ -2,6 +2,7 @@ import { z } from "zod";
 import "@/styles/sites/home.css";
 import { dataOf, getBlocks, getSite, getStoryShorts } from "@/lib/content";
 import { RevealManager } from "@/components/system/Reveal";
+import { EtchManager } from "@/components/system/Etch";
 import { SceneAccent } from "@/components/system/SceneAccent";
 import { DoorGate } from "@/components/system/DoorGate";
 import { doorsFor, DOORS } from "@/components/system/doors";
@@ -189,6 +190,7 @@ export default async function HomeSite() {
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
       <RevealManager />
+      <EtchManager />
       <SceneAccent />
       <DoorGate />
 
@@ -303,7 +305,7 @@ export default async function HomeSite() {
             <h2 dangerouslySetInnerHTML={{ __html: audits.h2Html }} />
             <p className="sub" dangerouslySetInnerHTML={{ __html: audits.subHtml }} />
           </div>
-          <svg className="audit-trace rv" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+          <svg className="audit-trace" data-etch="trace" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
             <path
               d="M0 40 L120 40 L150 40 L168 14 L186 52 L206 40 L300 40 L360 38 L520 40 L760 40 L900 40 L930 40 L948 18 L966 50 L984 40 L1200 40"
               fill="none"
@@ -312,8 +314,16 @@ export default async function HomeSite() {
               strokeLinecap="round"
               strokeLinejoin="round"
             />
+            <circle className="at-tip" r="3">
+              <animateMotion
+                dur="1.8s"
+                begin="indefinite"
+                fill="freeze"
+                path="M0 40 L120 40 L150 40 L168 14 L186 52 L206 40 L300 40 L360 38 L520 40 L760 40 L900 40 L930 40 L948 18 L966 50 L984 40 L1200 40"
+              />
+            </circle>
           </svg>
-          <div className="audit-cards rv">
+          <div className="audit-cards" data-etch="cards">
             {audits.items.map((it) => (
               <a key={it.sku} className="audit-card" href={audits.cta.href} {...ext(audits.cta.href)}>
                 <span className="ac-sku">{it.sku}</span>
@@ -630,7 +640,7 @@ export default async function HomeSite() {
       <footer>
         <div className="constel">
           <p className="k">{constel.k}</p>
-          <div className="cmap">
+          <div className="cmap" data-etch="cascade">
             {constel.map.map((m) => (
               <a key={m.u} href={m.href} {...ext(m.href)}>
                 <span className="u">{m.u}</span>

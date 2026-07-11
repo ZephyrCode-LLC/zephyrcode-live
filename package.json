@@ -13,6 +13,7 @@
     "@aws-sdk/client-sesv2": "^3.1076.0",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.1",
+    "animejs": "^4.5.0",
     "next": "15.5.19",
     "posthog-js": "^1.396.2",
     "react": "19.1.0",
