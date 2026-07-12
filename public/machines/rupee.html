@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EVERY RUPEE A JOB — a playable argument · ZephyrCode Arcade</title>
+<meta name="description" content="Hand the machine everything you own and everything you want. It gives every rupee a job — and names the salary you're missing.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0D0B09;--ink2:#14110D;--ink3:#1B1712;--bone:#ECE2D3;--dim:rgba(236,226,211,.74);
+--faint:rgba(236,226,211,.4);--phos:#5BE39A;--mag:#E85BC4;--iris:#8B7FD4;--cyan:#58B7D8;
+--line:rgba(236,226,211,.13);--soft:rgba(236,226,211,.07);--green:#9CB86F;--red:#D85C4A;
+--serif:"Fraunces",Georgia,serif;--mono:"JetBrains Mono",monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--ink);color:var(--bone);font-family:var(--serif);font-weight:400;min-height:100vh;
+display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--phos);color:var(--ink)}
+button{font-family:inherit;color:inherit}
+input,select{font-family:var(--mono);color:var(--bone);background:var(--ink3);border:1px solid var(--line);
+border-radius:2px;padding:8px 10px;font-size:13px;width:100%}
+input:focus{outline:none;border-color:var(--phos)}
+input[type=number]{appearance:textfield;-moz-appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+.hud{display:flex;align-items:center;gap:14px;padding:16px 22px;border-bottom:1px solid var(--soft);flex-wrap:wrap}
+.hud .n{font-family:var(--mono);font-size:12px;letter-spacing:.24em;color:var(--phos);font-weight:700}
+.hud .g{font-family:var(--mono);font-size:9px;letter-spacing:.2em;color:var(--faint)}
+.hud .sp{margin-left:auto;display:flex;gap:10px;align-items:center}
+.cur{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.cur button{font-family:var(--mono);font-size:11px;padding:6px 13px;background:none;border:none;color:var(--dim);cursor:pointer;letter-spacing:.1em}
+.cur button.on{background:var(--phos);color:var(--ink);font-weight:700}
+.hud .r{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);
+background:none;border:1px solid var(--line);padding:6px 12px;border-radius:2px;cursor:pointer}
+.hud .r:hover{color:var(--mag);border-color:var(--mag)}
+
+.stage{flex:1;max-width:980px;width:100%;margin:0 auto;padding:26px 22px 40px}
+.brief{font-size:15.5px;color:var(--dim);max-width:64ch;line-height:1.6}
+.brief b{color:var(--bone)}
+.privacy{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-family:var(--mono);font-size:9.5px;
+letter-spacing:.16em;color:var(--phos);border:1px solid rgba(91,227,154,.35);padding:7px 12px;border-radius:2px}
+.privacy::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--phos);box-shadow:0 0 8px var(--phos)}
+
+.sect{margin-top:30px}
+.sk{font-family:var(--mono);font-size:9.5px;letter-spacing:.26em;color:var(--faint);margin-bottom:12px}
+.sk b{color:var(--phos);font-weight:700}
+.panel{background:var(--ink2);border:1px solid var(--line);border-radius:6px;padding:18px}
+.intake{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+.assets{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.fld .lab{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;
+display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.fld .lab i{width:8px;height:8px;border-radius:2px;flex:none;font-style:normal}
+.fld .echo{font-family:var(--mono);font-size:9.5px;color:var(--faint);margin-top:4px;min-height:1.2em;letter-spacing:.06em}
+.flowout{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim)}
+.flowout b{font-size:15px;font-weight:700}
+.flowout b.gr{color:var(--phos)}.flowout b.rd{color:var(--red)}
+.seg{display:flex;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.seg button{flex:1;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;padding:8px 4px;background:none;border:none;color:var(--dim);cursor:pointer}
+.seg button.on{background:var(--iris);color:var(--ink);font-weight:700}
+.seg.hot button.on{background:var(--phos)}
+.life .fld{margin-bottom:12px}
+.step{display:flex;align-items:center;gap:12px}
+.step button{width:34px;height:34px;background:var(--ink3);border:1px solid var(--line);border-radius:2px;
+font-family:var(--mono);font-size:15px;color:var(--dim);cursor:pointer}
+.step button:hover{border-color:var(--phos);color:var(--phos)}
+.step .v{font-family:var(--mono);font-size:15px;font-weight:700;min-width:2ch;text-align:center}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;padding:8px 13px;border-radius:2px;cursor:pointer;
+border:1px dashed var(--line);background:none;color:var(--dim)}
+.chip:hover{border-color:var(--mag);color:var(--mag)}
+.chip:disabled{opacity:.3;cursor:default}
+.goal{display:grid;grid-template-columns:1.5fr 1fr .6fr 1.3fr 34px;gap:10px;align-items:end;padding:12px 0;border-bottom:1px dashed var(--soft)}
+.goal:last-child{border-bottom:none}
+.goal .del{width:34px;height:34px;background:none;border:1px solid var(--line);border-radius:2px;color:var(--faint);cursor:pointer;font-size:13px}
+.goal .del:hover{border-color:var(--red);color:var(--red)}
+.nogoals{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.1em;padding:14px 0}
+
+.mapwrap{overflow-x:auto}
+.mapwrap svg{display:block;min-width:660px;width:100%}
+.maplegend{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px;font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--faint)}
+.maplegend span{display:inline-flex;align-items:center;gap:6px}
+.maplegend i{width:9px;height:9px;border-radius:2px;font-style:normal}
+.tipline{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--phos);min-height:1.4em;margin-top:10px}
+
+.readout{display:grid;grid-template-columns:1.1fr 1.3fr 1fr;gap:12px;margin-top:14px}
+.ro{background:var(--ink2);border:1px solid var(--line);border-radius:5px;padding:14px 16px}
+.ro .k{font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--faint);text-transform:uppercase}
+.ro .v{font-family:var(--mono);font-size:21px;font-weight:700;margin-top:5px;color:var(--bone)}
+.ro .v.gr{color:var(--phos)}.ro .v.rd{color:var(--red)}.ro .v.mg{color:var(--mag)}
+.ro .s{font-family:var(--mono);font-size:9px;color:var(--faint);margin-top:5px;letter-spacing:.08em;line-height:1.5}
+.runbar{height:8px;background:var(--ink3);border-radius:4px;margin-top:10px;position:relative;overflow:visible}
+.runbar .fill{height:100%;border-radius:4px;background:var(--phos);transition:width .3s}
+.runbar .fill.rd{background:var(--red)}.runbar .fill.mid{background:var(--mag)}
+.runbar .tick{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--bone);opacity:.7}
+
+.gcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px;margin-top:14px}
+.gc{background:var(--ink2);border:1px solid var(--line);border-radius:5px;padding:14px 16px}
+.gc .gk{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.gc .gn{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--bone);font-weight:700;text-transform:uppercase}
+.gc .gp{font-family:var(--mono);font-size:8px;letter-spacing:.14em;padding:3px 7px;border-radius:2px;border:1px solid}
+.gc .gp.must{color:var(--phos);border-color:rgba(91,227,154,.5)}
+.gc .gp.want{color:var(--iris);border-color:rgba(139,127,212,.5)}
+.gc .gp.dream{color:var(--mag);border-color:rgba(232,91,196,.5)}
+.gc .gfv{font-family:var(--mono);font-size:9.5px;color:var(--dim);margin-top:7px;letter-spacing:.05em;line-height:1.6}
+.gc .bar{height:7px;background:var(--ink3);border-radius:4px;margin-top:9px;overflow:hidden}
+.gc .bar b{display:block;height:100%;background:var(--phos);transition:width .3s}
+.gc .bar b.low{background:var(--red)}.gc .bar b.mid{background:var(--mag)}
+.gc .gneed{font-family:var(--mono);font-size:10px;margin-top:8px;letter-spacing:.06em;color:var(--dim)}
+.gc .gneed b{color:var(--mag);font-weight:700}
+.gc .gneed b.ok{color:var(--phos)}
+
+.whatif{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+.wi .lab{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;display:flex;justify-content:space-between}
+.wi .lab b{color:var(--phos);font-weight:700}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:rgba(236,226,211,.16);border:none;border-radius:2px;padding:0;margin-top:14px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+background:var(--ink3);border:2px solid var(--phos);cursor:grab}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink3);border:2px solid var(--phos);cursor:grab}
+
+details.assume{margin-top:14px;border:1px solid var(--soft);border-radius:5px;background:var(--ink2)}
+details.assume summary{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--dim);padding:12px 16px;cursor:pointer;list-style:none}
+details.assume summary::before{content:"▸ ";color:var(--phos)}
+details.assume[open] summary::before{content:"▾ "}
+.assumegrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px;padding:4px 16px 14px}
+.rules{padding:0 16px 16px;font-family:var(--mono);font-size:9.5px;line-height:1.9;color:var(--faint);letter-spacing:.04em}
+.rules b{color:var(--dim)}
+
+.lock{margin-top:22px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;background:transparent;
+border:1px solid var(--phos);color:var(--phos);padding:13px 26px;border-radius:2px;cursor:pointer;transition:.2s}
+.lock:hover{background:var(--phos);color:var(--ink)}
+.verdict{display:none;margin-top:26px;border:1px solid var(--mag);border-radius:6px;background:var(--ink2);padding:26px 28px}
+.verdict.on{display:block}
+.verdict .vk{font-family:var(--mono);font-size:9px;letter-spacing:.26em;color:var(--mag);margin-bottom:10px}
+.verdict .vt{font-size:29px;font-weight:600;color:var(--bone)}
+.verdict .vl{font-family:var(--mono);font-size:11px;color:var(--phos);margin-top:6px;letter-spacing:.08em}
+.verdict p{margin-top:14px;font-size:15px;color:var(--dim);line-height:1.65;max-width:58ch}
+.vbtns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.vbtn{font-family:var(--mono);font-size:10px;letter-spacing:.18em;padding:11px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--line);background:none;color:var(--bone)}
+.vbtn.hot{border-color:var(--phos);color:var(--phos)}
+.vbtn.hot:hover{background:var(--phos);color:var(--ink)}
+.vbtn:hover{border-color:var(--faint)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,8px);background:var(--ink3);border:1px solid var(--phos);
+color:var(--bone);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:10px 18px;border-radius:2px;
+opacity:0;transition:.3s;max-width:86vw;z-index:9}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.foot{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint);padding:14px 22px;border-top:1px solid var(--soft);line-height:1.8}
+
+@media(max-width:720px){
+  .intake,.whatif,.readout{grid-template-columns:1fr}
+  .assets{grid-template-columns:1fr 1fr}
+  .assumegrid{grid-template-columns:1fr 1fr}
+  .goal{grid-template-columns:1fr 1fr;grid-auto-rows:auto}
+  .goal .del{justify-self:end}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+<div class="hud">
+  <span class="n">EVERY RUPEE A JOB</span><span class="g">GRAMMAR · THE ASSIGNMENT</span>
+  <span class="sp">
+    <span class="cur" role="group" aria-label="Currency">
+      <button id="curINR" class="on" aria-pressed="true">₹</button><button id="curUSD" aria-pressed="false">$</button>
+    </span>
+    <button class="r" id="reset">RESET</button>
+  </span>
+</div>
+
+<div class="stage">
+  <p class="brief">A financial advisor is an assignment problem wearing a tie. Pile up <b>everything you own</b> on
+  the left. Line up <b>everything you want</b> on the right. The machine reserves your emergency fund first, then
+  marches down your goals — nearest must-have first — handing each asset the job it is actually suited for.
+  Whatever the pile can't cover, it converts into one honest number: <b>the salary you're missing.</b></p>
+  <p class="privacy">RUNS ENTIRELY IN THIS TAB · NOTHING YOU TYPE LEAVES THE PAGE</p>
+
+  <div class="sect">
+    <p class="sk"><b>01</b> · THE PILE — what you own today</p>
+    <div class="intake">
+      <div class="panel">
+        <div class="assets" id="assets"></div>
+      </div>
+      <div class="panel life">
+        <p class="sk" style="margin-bottom:12px"><b>02</b> · THE FLOW &amp; THE LIFE</p>
+        <div class="fld"><div class="lab">Monthly income (take-home)</div><input type="number" id="inc" min="0"><div class="echo" id="incE"></div></div>
+        <div class="fld"><div class="lab">Monthly expenses</div><input type="number" id="exp" min="0"><div class="echo" id="expE"></div></div>
+        <div class="fld"><div class="lab">Job stability</div>
+          <div class="seg" id="stab">
+            <button data-v="0">SOLID</button><button data-v="1" class="on">AVERAGE</button><button data-v="2">SHAKY / FREELANCE</button>
+          </div>
+        </div>
+        <div class="fld"><div class="lab">Household income</div>
+          <div class="seg" id="earners"><button data-v="1" class="on">SINGLE</button><button data-v="2">DUAL</button></div>
+        </div>
+        <div class="fld"><div class="lab">Dependents</div>
+          <div class="step"><button id="depDn" aria-label="Fewer dependents">−</button><span class="v" id="depV">1</span><button id="depUp" aria-label="More dependents">+</button></div>
+        </div>
+        <div class="flowout" id="flowout"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <p class="sk"><b>03</b> · THE WANTS — goals, priced today</p>
+    <div class="panel">
+      <div class="chips" id="chips"></div>
+      <div id="goals"></div>
+    </div>
+  </div>
+
+  <div class="sect">
+    <p class="sk"><b>04</b> · THE MAP — every unit of money, assigned</p>
+    <div class="panel mapwrap">
+      <svg id="map" role="img" aria-label="Flow map from assets to goals"></svg>
+      <div class="maplegend" id="legend"></div>
+      <p class="tipline" id="tip">HOVER A RIBBON TO SEE THE ASSIGNMENT.</p>
+    </div>
+
+    <div class="readout">
+      <div class="ro">
+        <div class="k">Emergency runway</div>
+        <div class="v" id="roRun">—</div>
+        <div class="runbar"><div class="fill" id="runFill"></div><div class="tick" id="runTick"></div></div>
+        <div class="s" id="roRunS"></div>
+      </div>
+      <div class="ro">
+        <div class="k">The missing salary</div>
+        <div class="v" id="roMiss">—</div>
+        <div class="s" id="roMissS"></div>
+      </div>
+      <div class="ro">
+        <div class="k">Free agents</div>
+        <div class="v" id="roFree">—</div>
+        <div class="s" id="roFreeS"></div>
+      </div>
+    </div>
+
+    <div class="gcards" id="gcards"></div>
+  </div>
+
+  <div class="sect">
+    <p class="sk"><b>05</b> · WHAT IF — bend the future, watch the map re-draw</p>
+    <div class="panel whatif">
+      <div class="wi"><div class="lab"><span>MARKET RETURNS</span><b id="wiRetV">+0%</b></div>
+        <input type="range" id="wiRet" min="-3" max="3" step="0.5" value="0" aria-label="Return adjustment"></div>
+      <div class="wi"><div class="lab"><span>INFLATION</span><b id="wiInfV">6%</b></div>
+        <input type="range" id="wiInf" min="2" max="12" step="0.5" value="6" aria-label="Inflation"></div>
+      <div class="wi"><div class="lab"><span>EXTRA MONTHLY INCOME</span><b id="wiIncV">+0</b></div>
+        <input type="range" id="wiInc" min="0" max="100" step="1" value="0" aria-label="Extra monthly income"></div>
+    </div>
+    <details class="assume">
+      <summary>THE MACHINE'S ASSUMPTIONS — EVERY CONSTANT, EDITABLE</summary>
+      <div class="assumegrid" id="assume"></div>
+      <div class="rules" id="rules"></div>
+    </details>
+  </div>
+
+  <button class="lock" id="lock">SEAL THE PLAN →</button>
+
+  <div class="verdict" id="vd">
+    <div class="vk">THE MACHINE'S VERDICT</div>
+    <div class="vt" id="vt">—</div>
+    <div class="vl" id="vl">—</div>
+    <p id="vp"></p>
+    <div class="vbtns">
+      <button class="vbtn hot" id="share">↗ SHARE THIS VERDICT</button>
+      <button class="vbtn" id="again">RE-OPEN THE BOOKS</button>
+    </div>
+  </div>
+</div>
+
+<div class="foot">THE ARCADE · ZEPHYRCODE · AN EDUCATIONAL SIMULATOR, NOT FINANCIAL ADVICE — EVERY NUMBER IS ARITHMETIC YOU CAN CHECK ABOVE · YOUR DATA STAYS IN THIS TAB</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const MACHINE='rupee', CANON='https://arcade.zephyrcode.live/m/rupee';
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2100);}
+function share(line){const txt=line+' — play it: '+CANON;
+  const done=()=>{toast('Copied.');try{if(parent!==window)parent.postMessage({type:'zc-share',machine:MACHINE},'*');}catch(e){}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(()=>toast(txt));}
+  else toast(txt);}
+
+/* ---------- asset classes ---------- */
+const CLASSES=[
+ {id:'cash',  name:'Cash & savings',      color:'#5BE39A'},
+ {id:'fd',    name:'Fixed deposits / debt',color:'#58B7D8'},
+ {id:'stocks',name:'Stocks',              color:'#E85BC4'},
+ {id:'mf',    name:'Mutual funds',        color:'#8B7FD4'},
+ {id:'epf',   name:'EPF / retirement',    color:'#9CB86F'},
+ {id:'gold',  name:'Gold',                color:'#E0E4EA'},
+ {id:'re',    name:'Real estate (not home)',color:'#C97BA4'},
+ {id:'crypto',name:'Crypto',              color:'#FF7A9E'},
+];
+/* per-currency defaults: expected annual returns %, inflation %, demo scenario */
+const DEFAULTS={
+ INR:{inf:6, ret:{cash:3.5, fd:6.5, stocks:12, mf:11, epf:8.25, gold:7.5, re:8, crypto:12},
+      demo:{assets:{cash:300000, fd:500000, stocks:800000, mf:1200000, epf:1000000, gold:200000, re:0, crypto:100000},
+            inc:200000, exp:120000,
+            goals:[
+              {name:'Retirement', cost:30000000, yrs:25, pri:'must', kind:'retire'},
+              {name:"Child's education", cost:5000000, yrs:12, pri:'must', kind:'edu'},
+              {name:'Car', cost:1500000, yrs:4, pri:'want', kind:''},
+              {name:'Travel', cost:500000, yrs:2, pri:'dream', kind:''}]},
+      wiIncStep:5000, wiIncMax:100000},
+ USD:{inf:3, ret:{cash:4, fd:4.5, stocks:9, mf:8, epf:6, gold:5, re:6, crypto:9},
+      demo:{assets:{cash:15000, fd:20000, stocks:60000, mf:40000, epf:80000, gold:5000, re:0, crypto:5000},
+            inc:7000, exp:4500,
+            goals:[
+              {name:'Retirement', cost:1500000, yrs:25, pri:'must', kind:'retire'},
+              {name:"Child's education", cost:200000, yrs:12, pri:'must', kind:'edu'},
+              {name:'Car', cost:35000, yrs:4, pri:'want', kind:''},
+              {name:'Travel', cost:12000, yrs:2, pri:'dream', kind:''}]},
+      wiIncStep:250, wiIncMax:5000},
+};
+const PRESETS=[
+ {name:'Retirement', kind:'retire', pri:'must', yrs:25, cost:{INR:30000000,USD:1500000}},
+ {name:'Home down payment', kind:'', pri:'must', yrs:5, cost:{INR:2500000,USD:80000}},
+ {name:"Child's education", kind:'edu', pri:'must', yrs:12, cost:{INR:5000000,USD:200000}},
+ {name:'Car', kind:'', pri:'want', yrs:4, cost:{INR:1500000,USD:35000}},
+ {name:'Wedding', kind:'', pri:'want', yrs:3, cost:{INR:2000000,USD:40000}},
+ {name:'Travel', kind:'', pri:'dream', yrs:2, cost:{INR:500000,USD:12000}},
+];
+/* inflation bumps over general, by goal kind (education runs hotter — everywhere) */
+const INF_BUMP={edu:4, retire:0, '':0};
+
+/* ---------- state ---------- */
+let CUR='INR';
+const S={assets:{}, inc:0, exp:0, stab:1, earners:1, deps:1, goals:[],
+         ret:{}, inf:6, wiRet:0, wiInc:0};
+
+function loadDefaults(){
+  const d=DEFAULTS[CUR];
+  S.assets={...d.demo.assets}; S.inc=d.demo.inc; S.exp=d.demo.exp;
+  S.goals=d.demo.goals.map(g=>({...g}));
+  S.ret={...d.ret}; S.inf=d.inf; S.wiRet=0; S.wiInc=0;
+  S.stab=1; S.earners=1; S.deps=1;
+}
+
+/* ---------- formatting ---------- */
+function fmt(v){
+  v=Math.round(v);
+  if(CUR==='INR'){
+    const a=Math.abs(v);
+    if(a>=1e7) return '₹'+(v/1e7).toFixed(v%1e7===0?0:1).replace(/\.0$/,'')+'Cr';
+    if(a>=1e5) return '₹'+(v/1e5).toFixed(v%1e5===0?0:1).replace(/\.0$/,'')+'L';
+    return '₹'+v.toLocaleString('en-IN');
+  }
+  const a=Math.abs(v);
+  if(a>=1e6) return '$'+(v/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+  if(a>=1e4) return '$'+Math.round(v/1e3)+'k';
+  return '$'+v.toLocaleString('en-US');
+}
+function fmtFull(v){return CUR==='INR' ? '₹'+Math.round(v).toLocaleString('en-IN') : '$'+Math.round(v).toLocaleString('en-US');}
+const sym=()=>CUR==='INR'?'₹':'$';
+
+/* ---------- the engine ---------- */
+const PRI_RANK={must:0,want:1,dream:2};
+function bucketRate(yrs){ // annual % for NEW monthly money aimed at this horizon
+  const n=S.wiRet;
+  if(yrs<3)  return Math.max(0.5, S.ret.fd+n);
+  if(yrs<=7) return Math.max(0.5, (S.ret.fd+S.ret.mf)/2+n);
+  return Math.max(0.5, S.ret.stocks+n);
+}
+function pmt(gapFV,yrs){ // monthly contribution to reach gapFV in yrs at bucket rate
+  const m=Math.max(1,Math.round(yrs*12)), r=bucketRate(yrs)/100/12;
+  if(r<=0) return gapFV/m;
+  return gapFV*r/(Math.pow(1+r,m)-1);
+}
+function grow(id,amount,yrs){const r=Math.max(0,(S.ret[id]+S.wiRet))/100;return amount*Math.pow(1+r,yrs);}
+
+/* eligibility + ordering of asset classes per goal */
+function eligibleOrder(goal){
+  const y=goal.yrs;
+  if(goal.kind==='retire'){
+    // retirement: locked money first, then growth, then the rest
+    return ['epf','stocks','mf','re','gold','crypto','fd','cash'];
+  }
+  if(y<3)  return ['cash','fd'];                       // short: liquid only
+  if(y<=7) return ['fd','mf','gold','stocks'];         // medium
+  return ['stocks','mf','gold','re','crypto','fd','cash']; // long: growth first
+}
+// crypto counted at half its face value; RE only for goals >=10y (or retirement); EPF only retirement
+function usable(id,goal){
+  if(id==='epf') return goal.kind==='retire';
+  if(id==='re')  return goal.kind==='retire'||goal.yrs>=10;
+  if(id==='crypto') return goal.yrs>=7;
+  return true;
+}
+
+function compute(){
+  const inf=S.inf/100;
+  const surplus=S.inc-S.exp+S.wiInc;
+
+  // 1) emergency fund target (months of expenses)
+  let months=3 + [0,1.5,3][S.stab] + (S.earners===1?1.5:0) + (S.deps>0?1.5:0);
+  months=Math.min(12,months);
+  const efTarget=months*S.exp;
+  // fund from cash then FD
+  const rem={}; CLASSES.forEach(c=>rem[c.id]=Math.max(0,+S.assets[c.id]||0));
+  const efFlows=[];
+  let efAlloc=0;
+  for(const id of ['cash','fd']){
+    if(efAlloc>=efTarget) break;
+    const take=Math.min(rem[id], efTarget-efAlloc);
+    if(take>0){efFlows.push({from:id,amt:take});rem[id]-=take;efAlloc+=take;}
+  }
+  const efGap=Math.max(0,efTarget-efAlloc);
+  const runway=S.exp>0? efAlloc/S.exp : 0;
+  const efMonthly=efGap>0? efGap/12 : 0; // fill the hole over 12 months
+
+  // 2) goals: inflate, sort, allocate
+  const goals=S.goals.map((g,i)=>{
+    const gi=inf+((INF_BUMP[g.kind]||0)/100);
+    return {...g, idx:i, fv: g.cost*Math.pow(1+Math.max(0,gi),g.yrs), flows:[], coveredFV:0};
+  }).sort((a,b)=>(PRI_RANK[a.pri]-PRI_RANK[b.pri])||(a.yrs-b.yrs));
+
+  for(const g of goals){
+    let needFV=g.fv;
+    for(const id of eligibleOrder(g)){
+      if(needFV<=0.5) break;
+      if(!usable(id,g)) continue;
+      let avail=rem[id]; if(avail<=0) continue;
+      const face=id==='crypto'?0.5:1;                    // trust half the crypto
+      const fvPerUnit=face*Math.pow(1+Math.max(0,(S.ret[id]+S.wiRet))/100, g.yrs);
+      const pvNeeded=needFV/fvPerUnit;
+      const takePV=Math.min(avail,pvNeeded);
+      const gotFV=takePV*fvPerUnit;
+      rem[id]-=takePV; g.flows.push({from:id,amt:takePV,fv:gotFV});
+      g.coveredFV+=gotFV; needFV-=gotFV;
+    }
+    g.gapFV=Math.max(0,g.fv-g.coveredFV);
+    g.funded=g.fv>0? g.coveredFV/g.fv : 1;
+    g.monthly=g.gapFV>0.5? pmt(g.gapFV,g.yrs) : 0;
+  }
+
+  // 3) the missing salary
+  const needMust = efMonthly + goals.filter(g=>g.pri==='must').reduce((s,g)=>s+g.monthly,0);
+  const needAll  = efMonthly + goals.reduce((s,g)=>s+g.monthly,0);
+  const missing  = Math.max(0, needMust - Math.max(0,surplus));
+  const missingAll = Math.max(0, needAll - Math.max(0,surplus));
+  const free = CLASSES.reduce((s,c)=>s+rem[c.id],0);
+
+  return {surplus,months,efTarget,efAlloc,efGap,efMonthly,runway,efFlows,goals,rem,
+          needMust,needAll,missing,missingAll,free};
+}
+
+/* ---------- intake DOM ---------- */
+function buildAssets(){
+  $('assets').innerHTML=CLASSES.map(c=>`
+    <div class="fld"><div class="lab"><i style="background:${c.color}"></i>${c.name}</div>
+    <input type="number" min="0" id="a_${c.id}" value="${S.assets[c.id]||0}">
+    <div class="echo" id="ae_${c.id}"></div></div>`).join('');
+  CLASSES.forEach(c=>{
+    $('a_'+c.id).addEventListener('input',e=>{S.assets[c.id]=+e.target.value||0;render();});
+  });
+}
+function buildChips(){
+  $('chips').innerHTML=PRESETS.map((p,i)=>`<button class="chip" data-i="${i}">+ ${p.name.toUpperCase()}</button>`).join('')
+    +`<button class="chip" data-i="-1">+ CUSTOM GOAL</button>`;
+  $('chips').querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.i;
+    if(i<0) S.goals.push({name:'My goal',cost:CUR==='INR'?1000000:20000,yrs:5,pri:'want',kind:''});
+    else{const p=PRESETS[i];S.goals.push({name:p.name,cost:p.cost[CUR],yrs:p.yrs,pri:p.pri,kind:p.kind});}
+    buildGoals();render();
+  }));
+}
+function buildGoals(){
+  const host=$('goals');
+  if(!S.goals.length){host.innerHTML=`<p class="nogoals">NO GOALS ON THE BOOKS. THE MACHINE FINDS THAT HARD TO BELIEVE — ADD ONE ABOVE.</p>`;return;}
+  host.innerHTML=S.goals.map((g,i)=>`
+    <div class="goal">
+      <div class="fld"><div class="lab">Goal</div><input type="text" id="gn_${i}" value="${g.name.replace(/"/g,'&quot;')}"></div>
+      <div class="fld"><div class="lab">Costs today</div><input type="number" min="0" id="gc_${i}" value="${g.cost}"><div class="echo" id="gce_${i}"></div></div>
+      <div class="fld"><div class="lab">Years away</div><input type="number" min="1" max="40" id="gy_${i}" value="${g.yrs}"></div>
+      <div class="fld"><div class="lab">Priority</div>
+        <div class="seg hot" id="gp_${i}">
+          <button data-v="must" ${g.pri==='must'?'class="on"':''}>MUST</button>
+          <button data-v="want" ${g.pri==='want'?'class="on"':''}>WANT</button>
+          <button data-v="dream" ${g.pri==='dream'?'class="on"':''}>DREAM</button>
+        </div></div>
+      <button class="del" data-i="${i}" aria-label="Remove ${g.name}">✕</button>
+    </div>`).join('');
+  S.goals.forEach((g,i)=>{
+    $('gn_'+i).addEventListener('input',e=>{g.name=e.target.value;render();});
+    $('gc_'+i).addEventListener('input',e=>{g.cost=+e.target.value||0;render();});
+    $('gy_'+i).addEventListener('input',e=>{g.yrs=Math.max(1,Math.min(40,+e.target.value||1));render();});
+    $('gp_'+i).querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+      g.pri=b.dataset.v;
+      $('gp_'+i).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));
+      render();
+    }));
+  });
+  host.querySelectorAll('.del').forEach(b=>b.addEventListener('click',()=>{
+    S.goals.splice(+b.dataset.i,1);buildGoals();render();
+  }));
+}
+function buildAssume(){
+  $('assume').innerHTML=CLASSES.map(c=>`
+    <div class="fld"><div class="lab"><i style="background:${c.color}"></i>${c.id.toUpperCase()} RETURN %/YR</div>
+    <input type="number" step="0.25" id="r_${c.id}" value="${S.ret[c.id]}"></div>`).join('');
+  CLASSES.forEach(c=>{
+    $('r_'+c.id).addEventListener('input',e=>{S.ret[c.id]=+e.target.value||0;render();});
+  });
+  $('rules').innerHTML=
+   `<b>THE RULES, IN FULL:</b> emergency fund = expenses × (3 base + stability 0/1.5/3 + single-income 1.5 + dependents 1.5, capped at 12 months), funded from cash then deposits, never equity · `+
+   `each goal inflates: cost × (1+inflation)^years (education runs +4% hotter) · goals are served MUST → WANT → DREAM, nearest first · `+
+   `goals under 3 years may only use cash/deposits; 3–7 years adds funds &amp; gold; beyond 7, growth assets lead · `+
+   `EPF/retirement money is locked — it only ever funds retirement · real estate only funds goals ≥10 years out · crypto is counted at HALF its face value, and never for anything under 7 years · `+
+   `monthly top-up per goal: gap × r ÷ ((1+r)^months − 1) at the horizon's bucket rate · the missing salary = (emergency fill + must-goal top-ups) − your monthly surplus.`;
+}
+
+/* ---------- the sankey map ---------- */
+let flowMeta=[];
+function drawMap(R){
+  const svg=$('map');
+  const leftIds=CLASSES.filter(c=>(+S.assets[c.id]||0)>0).map(c=>c.id);
+  const rights=[{id:'__ef',name:'EMERGENCY FUND',color:'#5BE39A',
+                 amt:R.efAlloc, gap:R.efGap>0}]
+    .concat(R.goals.map(g=>({id:'g'+g.idx,name:g.name.toUpperCase(),
+      color:g.pri==='must'?'#5BE39A':g.pri==='want'?'#8B7FD4':'#E85BC4',
+      amt:g.flows.reduce((s,f)=>s+f.amt,0), gap:g.gapFV>0.5, goal:g})));
+  if(R.free>0.5) rights.push({id:'__free',name:'FREE AGENTS',color:'#ECE2D3',amt:R.free,gap:false,free:true});
+
+  const totalL=leftIds.reduce((s,id)=>s+(+S.assets[id]||0),0);
+  const W=880, PAD=26, GAPY=14, NW=12, LX=210, RX=W-230, SLOT=30;
+  const nL=leftIds.length, nR=rights.length;
+  const usable=Math.max(260, Math.max(nL,nR)*34+120);
+  const scale=totalL>0? (usable-GAPY*Math.max(nL,nR-1))/totalL : 0;
+  const MINH=7;
+
+  // node geometry (right column reserves SLOT px per node so labels never collide)
+  const lpos={}; let y=PAD;
+  leftIds.forEach(id=>{const h=Math.max(MINH,(+S.assets[id]||0)*scale);lpos[id]={y,h,used:0};y+=Math.max(h,SLOT)+GAPY;});
+  const leftEnd=y;
+  const rpos={}; y=PAD;
+  rights.forEach(r=>{const h=Math.max(MINH,r.amt*scale);rpos[r.id]={y,h,used:0};y+=Math.max(h,SLOT)+GAPY;});
+  const H=Math.max(leftEnd,y)-GAPY+PAD;
+
+  const cById=Object.fromEntries(CLASSES.map(c=>[c.id,c]));
+  let el='', ribbons='';
+  flowMeta=[];
+  // gather flows: emergency first, then per-goal
+  const allFlows=R.efFlows.map(f=>({...f,to:'__ef',toName:'EMERGENCY FUND',fv:null,yrs:null}))
+    .concat(R.goals.flatMap(g=>g.flows.map(f=>({...f,to:'g'+g.idx,toName:g.name.toUpperCase(),fv:f.fv,yrs:g.yrs}))));
+  // free agents ribbons
+  CLASSES.forEach(c=>{if(R.rem[c.id]>0.5&&R.free>0.5)allFlows.push({from:c.id,amt:R.rem[c.id],to:'__free',toName:'FREE AGENTS',fv:null,yrs:null});});
+
+  allFlows.forEach((f,fi)=>{
+    const L=lpos[f.from], Rp=rpos[f.to]; if(!L||!Rp) return;
+    const h=Math.max(1.5,f.amt*scale);
+    const y0=L.y+L.used, y1=Rp.y+Rp.used;
+    L.used+=h; Rp.used+=h;
+    const x0=LX+NW, x1=RX;
+    const mx=(x0+x1)/2;
+    ribbons+=`<path class="rib" data-f="${fi}" d="M${x0},${y0} C${mx},${y0} ${mx},${y1} ${x1},${y1} L${x1},${y1+h} C${mx},${y1+h} ${mx},${y0+h} ${x0},${y0+h} Z"
+      fill="${cById[f.from].color}" opacity="0.42"/>`;
+    flowMeta[fi]=f;
+  });
+  // nodes + labels
+  leftIds.forEach(id=>{
+    const p=lpos[id], c=cById[id];
+    el+=`<rect x="${LX}" y="${p.y}" width="${NW}" height="${p.h}" rx="2" fill="${c.color}"/>
+      <text x="${LX-10}" y="${p.y+p.h/2+3}" text-anchor="end" font-family="JetBrains Mono" font-size="10" fill="#ECE2D3" letter-spacing="1">${c.name.toUpperCase()}</text>
+      <text x="${LX-10}" y="${p.y+p.h/2+16}" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="rgba(236,226,211,.45)">${fmt(+S.assets[id]||0)}</text>`;
+  });
+  rights.forEach(r=>{
+    const p=rpos[r.id];
+    const stroke=r.gap?`stroke="#D85C4A" stroke-width="1.5" stroke-dasharray="3 3"`:'';
+    el+=`<rect x="${RX}" y="${p.y}" width="${NW}" height="${p.h}" rx="2" fill="${r.free?'none':r.color}" ${r.free?`stroke="${r.color}" stroke-dasharray="3 3"`:stroke} ${r.free?'':''}/>
+      <text x="${RX+NW+10}" y="${p.y+p.h/2+3}" font-family="JetBrains Mono" font-size="10" fill="#ECE2D3" letter-spacing="1">${r.name}</text>
+      <text x="${RX+NW+10}" y="${p.y+p.h/2+16}" font-family="JetBrains Mono" font-size="9" fill="${r.gap?'#D85C4A':'rgba(236,226,211,.45)'}">${
+        r.free? fmt(r.amt)+' UNASSIGNED' : r.id==='__ef'? fmt(r.amt)+' OF '+fmt(R.efTarget) :
+        Math.round((r.goal?r.goal.funded:1)*100)+'% FUNDED'}</text>`;
+  });
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.style.height='auto';
+  svg.innerHTML=ribbons+el;
+  svg.querySelectorAll('.rib').forEach(p=>{
+    p.addEventListener('mouseenter',()=>{
+      p.setAttribute('opacity','0.85');
+      const f=flowMeta[+p.dataset.f];
+      $('tip').textContent=`${cById[f.from].name.toUpperCase()} → ${f.toName} · ${fmt(f.amt)} TODAY`+
+        (f.fv?` → ${fmt(f.fv)} BY ${new Date().getFullYear()+f.yrs}`:'')
+        +(f.from==='crypto'&&f.to[0]==='g'?' (COUNTED AT HALF)':'');
+    });
+    p.addEventListener('mouseleave',()=>{p.setAttribute('opacity','0.42');$('tip').textContent='HOVER A RIBBON TO SEE THE ASSIGNMENT.';});
+  });
+  $('legend').innerHTML=
+    `<span><i style="background:#5BE39A"></i>MUST</span><span><i style="background:#8B7FD4"></i>WANT</span>
+     <span><i style="background:#E85BC4"></i>DREAM</span>
+     <span><i style="border:1px dashed #D85C4A;background:none"></i>DASHED RED = UNDERFUNDED</span>
+     <span>RIBBON WIDTH = TODAY'S MONEY</span>`;
+}
+
+/* ---------- render ---------- */
+let lastR=null;
+function render(){
+  const R=compute(); lastR=R;
+  // echoes
+  CLASSES.forEach(c=>{const e=$('ae_'+c.id);if(e)e.textContent=(+S.assets[c.id]||0)>0?fmt(+S.assets[c.id]):'';});
+  $('incE').textContent=S.inc>0?fmt(S.inc)+' / MO':'';
+  $('expE').textContent=S.exp>0?fmt(S.exp)+' / MO':'';
+  S.goals.forEach((g,i)=>{const e=$('gce_'+i);if(e)e.textContent=g.cost>0?fmt(g.cost):'';});
+  const sur=R.surplus;
+  $('flowout').innerHTML=`MONTHLY SURPLUS&nbsp;&nbsp;<b class="${sur>=0?'gr':'rd'}">${sur>=0?'+':'−'}${fmt(Math.abs(sur))}</b>`+
+    (S.wiInc>0?`<span style="color:var(--faint)"> · INCL. ${fmt(S.wiInc)} WHAT-IF</span>`:'');
+
+  drawMap(R);
+
+  // runway
+  const pct=R.efTarget>0? Math.min(100,R.efAlloc/R.efTarget*100):0;
+  $('roRun').textContent=R.runway.toFixed(1)+' MO';
+  $('roRun').className='v '+(R.efGap<=0?'gr':R.runway>=3?'mg':'rd');
+  $('runFill').style.width=pct+'%';
+  $('runFill').className='fill '+(R.efGap<=0?'':R.runway>=3?'mid':'rd');
+  $('runTick').style.left='100%';
+  $('roRunS').textContent=`TARGET ${R.months.toFixed(1)} MO (${fmt(R.efTarget)}) · `+
+    (R.efGap>0?`SHORT ${fmt(R.efGap)} — PARK ${fmt(R.efMonthly)}/MO FOR A YEAR`:'FULLY PARKED IN CASH + DEPOSITS');
+
+  // missing salary
+  $('roMiss').textContent=R.missing>0.5? '+'+fmt(R.missing)+'/MO' : 'NONE';
+  $('roMiss').className='v '+(R.missing>0.5?'mg':'gr');
+  $('roMissS').textContent=R.missing>0.5
+    ? `MUSTS NEED ${fmt(R.needMust)}/MO; SURPLUS COVERS ${fmt(Math.max(0,R.surplus))}. THE REST IS A SIDE HUSTLE.`
+    : `SURPLUS COVERS EVERY MUST. FUNDING EVERYTHING (WANTS + DREAMS) NEEDS ${fmt(R.needAll)}/MO`+(R.missingAll>0.5?` — ${fmt(R.missingAll)}/MO MORE THAN YOU HAVE.`:'.');
+
+  // free agents
+  $('roFree').textContent=R.free>0.5?fmt(R.free):fmt(0);
+  $('roFree').className='v '+(R.free>0.5?'':'gr');
+  $('roFreeS').textContent=R.free>0.5?'MONEY WITH NO JOB YET — POINT IT AT THE BIGGEST GAP.':'EVERY UNIT OF MONEY IS EMPLOYED.';
+
+  // goal cards
+  $('gcards').innerHTML=R.goals.map(g=>{
+    const p=Math.min(100,Math.round(g.funded*100));
+    const cls=p>=100?'':p>=50?'mid':'low';
+    return `<div class="gc">
+      <div class="gk"><span class="gn">${g.name}</span><span class="gp ${g.pri}">${g.pri.toUpperCase()}</span></div>
+      <div class="gfv">${fmt(g.cost)} TODAY → <b style="color:var(--bone)">${fmt(g.fv)}</b> IN ${g.yrs}Y</div>
+      <div class="bar"><b class="${cls}" style="width:${p}%"></b></div>
+      <div class="gneed">${p}% FUNDED · ${g.monthly>0.5?`NEEDS <b>+${fmt(g.monthly)}/MO</b>`:`<b class="ok">NO TOP-UP NEEDED</b>`}</div>
+    </div>`;}).join('');
+
+  // what-if labels
+  $('wiRetV').textContent=(S.wiRet>=0?'+':'')+S.wiRet+'%';
+  $('wiInfV').textContent=S.inf+'%';
+  $('wiIncV').textContent='+'+fmt(S.wiInc);
+}
+
+/* ---------- verdict ---------- */
+function verdictOf(R){
+  const run=R.efGap<=0;
+  if(R.surplus<0) return {t:'THE BOOKS ARE BLEEDING',
+    d:`You spend ${fmt(Math.abs(R.surplus))} more than you earn each month. No allocation trick survives that — the machine refuses to decorate a hole. Close the gap, then come back for the map.`};
+  if(R.missing>0.5) return {t:'THE MISSING SALARY: '+fmt(R.missing)+'/MO',
+    d:`Your pile and your surplus don't reach your must-haves${run?'':' — and the emergency fund is still short'}. That's not a verdict on your character; it's a target. Find ${fmt(R.missing)} a month of new income — a raise, a rate hike, a side hustle — and every must on this board turns green.`};
+  if(R.missingAll>0.5) return {t:'MUSTS SAFE, DREAMS HUNGRY',
+    d:`Every must-have is funded by what you own and what you save. The wants and dreams still ask for ${fmt(R.missingAll)}/mo more than the surplus holds. Reasonable people either earn it, or let a dream stay a dream. The machine doesn't judge; it only prices.`};
+  if(R.free>0.5) return {t:'EVERY GOAL EMPLOYED — WITH CHANGE',
+    d:`Everything on the right is funded and ${fmt(R.free)} still sits on the bench. Idle money is a quiet leak: promote it to the longest goal, or invent a better dream. This is the rarest verdict the machine gives.`};
+  return {t:'EVERY RUPEE EMPLOYED',
+    d:`Emergency fund parked, every goal covered between the pile and the surplus. Nothing idle, nothing starved. Frame this one — most players never see it.`};
+}
+
+/* ---------- wiring ---------- */
+function wireStatic(){
+  $('inc').addEventListener('input',e=>{S.inc=+e.target.value||0;render();});
+  $('exp').addEventListener('input',e=>{S.exp=+e.target.value||0;render();});
+  $('stab').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    S.stab=+b.dataset.v;$('stab').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));render();}));
+  $('earners').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    S.earners=+b.dataset.v;$('earners').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));render();}));
+  $('depUp').addEventListener('click',()=>{S.deps=Math.min(9,S.deps+1);$('depV').textContent=S.deps;render();});
+  $('depDn').addEventListener('click',()=>{S.deps=Math.max(0,S.deps-1);$('depV').textContent=S.deps;render();});
+  $('wiRet').addEventListener('input',e=>{S.wiRet=+e.target.value;render();});
+  $('wiInf').addEventListener('input',e=>{S.inf=+e.target.value;render();});
+  $('wiInc').addEventListener('input',e=>{S.wiInc=+e.target.value*DEFAULTS[CUR].wiIncStep;render();});
+  $('lock').addEventListener('click',()=>{
+    const R=lastR||compute(), v=verdictOf(R);
+    $('vt').textContent=v.t;
+    $('vl').textContent=`RUNWAY ${R.runway.toFixed(1)}/${R.months.toFixed(1)} MO · MUSTS ${mustPct(R)}% MAPPED · MISSING ${R.missing>0.5?fmt(R.missing)+'/MO':'NOTHING'}`;
+    $('vp').textContent=v.d;
+    lastLine=`Every Rupee a Job: ${v.t.toLowerCase()} · runway ${R.runway.toFixed(1)}/${R.months.toFixed(1)}mo · musts ${mustPct(R)}% mapped`;
+    $('vd').classList.add('on');
+    $('vd').scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+  $('share').addEventListener('click',()=>share(lastLine));
+  $('again').addEventListener('click',()=>{$('vd').classList.remove('on');});
+  $('reset').addEventListener('click',()=>{loadDefaults();hydrate();toast('Books reopened. Demo numbers restored.');});
+  $('curINR').addEventListener('click',()=>setCur('INR'));
+  $('curUSD').addEventListener('click',()=>setCur('USD'));
+}
+function mustPct(R){
+  const m=R.goals.filter(g=>g.pri==='must');
+  if(!m.length) return 100;
+  const fv=m.reduce((s,g)=>s+g.fv,0), cov=m.reduce((s,g)=>s+g.coveredFV,0);
+  return fv>0?Math.round(cov/fv*100):100;
+}
+function setCur(c){
+  if(CUR===c) return;
+  CUR=c;
+  $('curINR').classList.toggle('on',c==='INR');$('curINR').setAttribute('aria-pressed',c==='INR');
+  $('curUSD').classList.toggle('on',c==='USD');$('curUSD').setAttribute('aria-pressed',c==='USD');
+  loadDefaults();hydrate();
+  toast(c==='INR'?'Switched to ₹ — Indian defaults loaded.':'Switched to $ — US defaults loaded.');
+}
+function hydrate(){
+  buildAssets();buildChips();buildGoals();buildAssume();
+  $('inc').value=S.inc;$('exp').value=S.exp;$('depV').textContent=S.deps;
+  $('wiRet').value=S.wiRet;$('wiInf').value=S.inf;$('wiInc').value=S.wiInc/DEFAULTS[CUR].wiIncStep;
+  $('wiInf').min=CUR==='INR'?2:1;$('wiInf').max=CUR==='INR'?12:8;
+  $('stab').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S.stab));
+  $('earners').querySelectorAll('button').forEach(b=>b.classList.toggle('on',+b.dataset.v===S.earners));
+  $('vd').classList.remove('on');
+  render();
+}
+let lastLine='';
+loadDefaults();wireStatic();hydrate();
+// expose the engine for spot-checks (and the curious)
+window.__rupee={compute:()=>compute(),state:S};
+</script>
+</body>
+</html>

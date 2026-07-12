@@ -245,6 +245,19 @@
 @keyframes zc-arc-taxshift {
   30%, 70% { transform: translateX(16px); }
 }
+[data-site="arcade"] .s-rupee svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+[data-site="arcade"] .s-rupee path {
+  stroke-dasharray: 210;
+  stroke-dashoffset: 210;
+  animation: zc-arc-assign 3.8s ease-in-out infinite;
+}
+[data-site="arcade"] .s-rupee .r2 { animation-delay: 0.35s; }
+[data-site="arcade"] .s-rupee .r3 { animation-delay: 0.7s; }
+@keyframes zc-arc-assign {
+  0% { stroke-dashoffset: 210; }
+  45%, 78% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -210; }
+}
 
 /* high scores */
 [data-site="arcade"] .scores {

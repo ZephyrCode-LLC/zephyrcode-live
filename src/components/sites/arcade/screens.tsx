@@ -69,4 +69,50 @@ export const SCREENS: Record<string, ReactNode> = {
       <b />
     </div>
   ),
+  rupee: (
+    <div className="screen s-rupee">
+      <svg viewBox="0 0 250 130" preserveAspectRatio="none">
+        {/* assets left, goals right, ribbons carry the money across */}
+        <rect x="22" y="18" width="7" height="30" rx="1.5" fill="#5be39a" />
+        <rect x="22" y="56" width="7" height="22" rx="1.5" fill="#8B7FD4" />
+        <rect x="22" y="86" width="7" height="26" rx="1.5" fill="#e85bc4" />
+        <rect x="221" y="24" width="7" height="40" rx="1.5" fill="#5be39a" opacity=".9" />
+        <rect
+          x="221"
+          y="74"
+          width="7"
+          height="32"
+          rx="1.5"
+          fill="none"
+          stroke="#D85C4A"
+          strokeWidth="1.5"
+          strokeDasharray="3 3"
+        />
+        <path
+          className="r1"
+          d="M29,33 C120,33 140,44 221,44"
+          fill="none"
+          stroke="#5be39a"
+          strokeWidth="7"
+          opacity=".45"
+        />
+        <path
+          className="r2"
+          d="M29,67 C120,67 140,55 221,55"
+          fill="none"
+          stroke="#8B7FD4"
+          strokeWidth="6"
+          opacity=".45"
+        />
+        <path
+          className="r3"
+          d="M29,99 C120,99 140,84 221,84"
+          fill="none"
+          stroke="#e85bc4"
+          strokeWidth="6"
+          opacity=".45"
+        />
+      </svg>
+    </div>
+  ),
 };

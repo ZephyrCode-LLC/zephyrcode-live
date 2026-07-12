@@ -54,6 +54,7 @@ export const arcadeSeed: SiteSeed = {
           plate: "/m/plate",
           cascade: "/m/cascade",
           tax: "/m/tax",
+          rupee: "/m/rupee",
         },
       },
     },
@@ -140,6 +141,14 @@ export const arcadeSeed: SiteSeed = {
       blurb:
         "What one \"quick meeting\" really costs a maker's afternoon. Bring a strong stomach.",
       position: 5,
+    },
+    {
+      slug: "rupee",
+      name: "EVERY RUPEE A JOB",
+      grammar: "GRAMMAR · THE ASSIGNMENT",
+      blurb:
+        "Pile up everything you own; line up everything you want. The machine assigns each asset its job — and names the salary you're missing.",
+      position: 6,
     },
   ],
 };
