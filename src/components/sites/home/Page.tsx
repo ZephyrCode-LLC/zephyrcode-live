@@ -617,16 +617,13 @@ export default async function HomeSite() {
                 />
               ))}
             </div>
-            <div className="op-rail">
-              <ToptalBadge />
-              <div className="timetable rv" aria-label="The audit delivery clock">
-                {operator.timetable.map((r) => (
-                  <div className="row" key={r.h}>
-                    <span className="h">{r.h}</span>
-                    <span className="w">{r.w}</span>
-                  </div>
-                ))}
-              </div>
+            <div className="timetable rv" aria-label="The audit delivery clock">
+              {operator.timetable.map((r) => (
+                <div className="row" key={r.h}>
+                  <span className="h">{r.h}</span>
+                  <span className="w">{r.w}</span>
+                </div>
+              ))}
             </div>
           </div>
           <div className="client-strip rv">
@@ -652,6 +649,13 @@ export default async function HomeSite() {
               </a>
             ))}
           </div>
+        </div>
+        <div className="footer-cred rv">
+          <div className="l">
+            <p className="k">Vetted talent</p>
+            <p>The studio is run by an engineer independently screened into the <b>top 3%</b> of global talent by Toptal — proof the systems work is held to an outside bar.</p>
+          </div>
+          <ToptalBadge />
         </div>
         <div className="footer-writing">
           <a href="https://priyanshusekhar.substack.com/" target="_blank" rel="noopener">
