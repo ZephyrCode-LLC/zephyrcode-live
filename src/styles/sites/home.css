@@ -375,6 +375,9 @@
 [data-site="home"] .op-grid .blurb { color: var(--bone-dim); font-size: 1.06rem; }
 [data-site="home"] .op-grid .blurb b { color: var(--bone); font-weight: 600; }
 [data-site="home"] .op-grid .blurb em { color: var(--brass); }
+/* right rail of the operator grid: the Toptal "vetted" badge above the discipline clock */
+[data-site="home"] .op-rail { display: flex; flex-direction: column; gap: clamp(24px, 3vw, 32px); }
+[data-site="home"] .op-badge { display: flex; justify-content: center; }
 [data-site="home"] .timetable { border: 1px solid var(--line); background: rgba(13, 11, 9, 0.7); font-family: var(--mono); }
 [data-site="home"] .timetable .row { display: flex; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid var(--line-soft); font-size: 12px; letter-spacing: 0.12em; }
 [data-site="home"] .timetable .row:last-child { border-bottom: none; }

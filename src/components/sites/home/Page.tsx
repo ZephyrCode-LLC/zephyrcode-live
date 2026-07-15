@@ -24,6 +24,7 @@ import { SystemsDeck } from "@/components/sites/home/SystemsDeck";
 import { StudioToys } from "@/components/sites/home/StudioToys";
 import { MethodTrack } from "@/components/sites/home/MethodTrack";
 import { StoriesTabs } from "@/components/sites/home/StoriesTabs";
+import { ToptalBadge } from "@/components/sites/home/ToptalBadge";
 
 const Cta = z.object({ label: z.string(), href: z.string(), style: z.string().optional() });
 const Chrome = z.object({
@@ -616,13 +617,16 @@ export default async function HomeSite() {
                 />
               ))}
             </div>
-            <div className="timetable rv" aria-label="The audit delivery clock">
-              {operator.timetable.map((r) => (
-                <div className="row" key={r.h}>
-                  <span className="h">{r.h}</span>
-                  <span className="w">{r.w}</span>
-                </div>
-              ))}
+            <div className="op-rail">
+              <ToptalBadge />
+              <div className="timetable rv" aria-label="The audit delivery clock">
+                {operator.timetable.map((r) => (
+                  <div className="row" key={r.h}>
+                    <span className="h">{r.h}</span>
+                    <span className="w">{r.w}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <div className="client-strip rv">
