@@ -465,12 +465,12 @@
 [data-site="home"] .cmap a:hover .u { color: var(--accent); }
 [data-site="home"] .cmap .what { font-size: 0.85rem; font-style: italic; color: var(--bone-faint); white-space: nowrap; }
 /* footer credibility strip — the Toptal "top 3%" badge + a one-line context */
-[data-site="home"] .footer-cred { max-width: var(--maxw); margin: 40px auto 0; padding-top: 30px; border-top: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; gap: clamp(24px, 5vw, 56px); flex-wrap: wrap; }
-[data-site="home"] .footer-cred .l { max-width: 48ch; }
+[data-site="home"] .footer-cred { max-width: var(--maxw); margin: 36px auto 0; padding-top: 22px; border-top: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; gap: clamp(24px, 4vw, 48px); flex-wrap: wrap; }
+[data-site="home"] .footer-cred .l { flex: 1 1 auto; max-width: 40rem; }
 [data-site="home"] .footer-cred .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.3em; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
 [data-site="home"] .footer-cred .l p:not(.k) { font-size: 0.95rem; color: var(--bone-dim); line-height: 1.62; }
 [data-site="home"] .footer-cred .l p b { color: var(--bone); font-weight: 600; }
-[data-site="home"] .tt-badge { flex: none; }
+[data-site="home"] .tt-badge { flex: none; zoom: 0.8; }
 [data-site="home"] .footer-writing { max-width: var(--maxw); margin: 40px auto 0; padding-top: 26px; border-top: 1px solid var(--line-soft); }
 [data-site="home"] .footer-writing a { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--bone-dim); text-decoration: none; transition: color 0.2s ease; }
 [data-site="home"] .footer-writing a b { color: var(--accent); font-weight: 500; }
