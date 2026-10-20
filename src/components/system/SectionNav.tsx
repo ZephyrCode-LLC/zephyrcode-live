@@ -75,8 +75,9 @@ function settleOn(id: string, behavior: ScrollBehavior) {
 
 /** Smooth-scroll a section to just under the header (instant under reduced motion). The hash is
  *  mirrored with replaceState — like DoorGate does for ?door= — so a section link is copyable
- *  without stacking history entries or involving the router. */
-function goTo(id: string): boolean {
+ *  without stacking history entries or involving the router. The hero's star chart jumps through
+ *  this too, so both land a section in the same place. */
+export function goTo(id: string): boolean {
   const el = document.getElementById(id);
   if (!el || el.offsetHeight === 0) return false;
   const behavior: ScrollBehavior = reducedMotion() ? "instant" : "smooth";

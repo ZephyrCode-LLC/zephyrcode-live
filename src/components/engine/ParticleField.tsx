@@ -18,6 +18,7 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { goTo } from "@/components/system/SectionNav";
 import "@/styles/sites/home-starmap.css";
 
 export type Grade = [number[], number[], number];
@@ -928,11 +929,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     const onStarEnter = (e: Event) => { mat.uniforms.uHover.value = +((e.currentTarget as HTMLElement).dataset.star ?? -1); };
     const onStarLeave = () => { mat.uniforms.uHover.value = -1; };
     const onStarClick = (e: MouseEvent) => {
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return; // new tab etc. stays native
       e.preventDefault();
       const id = (e.currentTarget as HTMLAnchorElement).getAttribute("href")!.slice(1);
-      const target = document.getElementById(id);
-      if (!target || id === "signal") return;
-      target.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" }); // the field warps there
+      if (id !== "signal") goTo(id); // the field warps there
     };
     starEls.forEach((el, s) => {
       const accent = (document.getElementById(STAR_IDS[s]) as HTMLElement | null)?.dataset.accent;
