@@ -1,4 +1,5 @@
 import "@/styles/sites/stories.css";
+import type { CSSProperties } from "react";
 import { z } from "zod";
 import { dataOf, getBlocks, getSites, getStoryShorts } from "@/lib/content";
 import { StoriesStage, type GalleryStory } from "@/components/sites/stories/StoriesStage";
@@ -10,13 +11,24 @@ import { Vignette } from "@/components/system/Vignette";
 
 /**
  * stories.zephyrcode.live — the page is pure tech: hero + the interactive stage
- * (fridge board + accordion) + the dishwasher. Every story is a Supabase
- * story_shorts row; this file holds zero content strings.
+ * (fridge board + accordion) + a long-read signpost + the dishwasher. Every
+ * story is a Supabase story_shorts row; this file holds zero content strings.
  */
 
 const Crumb = z.object({ text: z.string() });
 const Hero = z.object({ eyebrow: z.string(), h1Html: z.string(), lede: z.string() });
 const Dishwasher = z.object({ h3: z.string(), sub: z.string() });
+/** A signpost out to long-form work that has its own reader (not a short). */
+const LongRead = z.object({
+  k: z.string(),
+  title: z.string(),
+  dek: z.string(),
+  meta: z.string(),
+  cta: z.string(),
+  href: z.string().url(),
+  accent: z.string(),
+  accent2: z.string(),
+});
 
 /** Everything a published short needs for the card + the fridge board it themes. */
 const StoryBody = z.object({
@@ -51,6 +63,8 @@ export default async function StoriesPage() {
   const crumb = req(dataOf(blocks, "top", Crumb), "top");
   const hero = req(dataOf(blocks, "hero", Hero), "hero");
   const dw = req(dataOf(blocks, "dishwasher", Dishwasher), "dishwasher");
+  // Optional, unlike the blocks above: deleting the row retires the signpost.
+  const longread = dataOf(blocks, "longread", LongRead);
 
   // Published (status === null) → the interactive stage. Anything with a status
   // (outline, in edit) is still rinsing in the dishwasher.
@@ -73,6 +87,26 @@ export default async function StoriesPage() {
         <Signature />
 
         <StoriesStage stories={done} />
+
+        {longread && (
+          <section
+            className="longread rv"
+            aria-label={longread.k}
+            style={{ "--sel": longread.accent, "--sel2": longread.accent2 } as CSSProperties}
+          >
+            <p className="gk">{longread.k}</p>
+            <a className="lr" href={longread.href} target="_blank" rel="noopener">
+              <span className="lr-title">{longread.title}</span>
+              <span className="lr-dek">{longread.dek}</span>
+              <span className="lr-foot">
+                <span className="lr-meta">{longread.meta}</span>
+                <span className="lr-go">
+                  {longread.cta} <span aria-hidden>&#8599;</span>
+                </span>
+              </span>
+            </a>
+          </section>
+        )}
 
         {rinsing.length > 0 && (
           <section className="dw rv">

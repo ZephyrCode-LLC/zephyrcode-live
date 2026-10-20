@@ -76,6 +76,23 @@ export const storiesSeed: SiteSeed = {
         sub: "SHORTS CURRENTLY BEING RINSED · TITLES MAY SETTLE IN TRANSIT",
       },
     },
+    {
+      // A signpost, not a short: the essay has its own reader app, so it links out
+      // instead of becoming a story_shorts row. accent/accent2 are the essay's two inks.
+      section: "longread",
+      kind: "link",
+      position: 4,
+      data: {
+        k: "Also from the desk · a long read",
+        title: "The Staircase — How China climbed and India leapt",
+        dek: "An illustrated essay on the great divergence, 1978–2026",
+        meta: "9 chapters · 25 figures · ~31 min",
+        cta: "Read the essay",
+        href: "https://staircase.zephyrcode.live",
+        accent: "#C23B22",
+        accent2: "#B5821C",
+      },
+    },
   ],
   storyShorts: [
     pub(PURPLE_COW, 1, true, {
