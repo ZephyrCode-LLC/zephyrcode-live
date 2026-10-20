@@ -1,0 +1,37 @@
+/* The pointer lantern on the cards. Spotlight.tsx sets --lx/--ly (the pointer, in the card's box)
+   and --lit on cards within reach. One ::after per card (their ::before is the accent bar): a
+   radial light in the card's room colour, masked to a bright 1px rim plus a faint wash across the
+   face. `isolation` makes each card its own stacking context, so z-index:-1 paints the light above
+   the card's fill and below its text. */
+
+[data-site="home"] :is(.ma-card, .os-card) { --spot: var(--accent); }
+[data-site="home"] .short-card { --spot: var(--sc); }
+[data-site="home"] .sp-card { --spot: var(--sac); }
+[data-site="home"] :is(.sys-panel-in, .door) { --spot: var(--dc); }
+[data-site="home"] .audit-card { --spot: var(--audit-accent); }
+
+@media (hover: hover) and (pointer: fine) {
+  [data-site="home"] :is(.ma-card, .short-card, .sp-card, .sys-panel-in, .os-card, .audit-card, .door) {
+    position: relative;
+    isolation: isolate;
+  }
+  [data-site="home"] :is(.ma-card, .short-card, .sp-card, .sys-panel-in, .os-card, .audit-card, .door)::after {
+    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    padding: 1px; border-radius: inherit;
+    background: radial-gradient(
+      380px circle at var(--lx, 50%) var(--ly, 50%),
+      color-mix(in srgb, var(--spot, var(--accent)) 82%, white),
+      color-mix(in srgb, var(--spot, var(--accent)) 42%, transparent) 36%,
+      transparent 72%
+    );
+    /* top → bottom: a faint wash over the face, added to the rim (whole box minus its content box) */
+    mask: linear-gradient(rgb(0 0 0 / 0.13) 0 0), linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: add, exclude, add;
+    opacity: var(--lit, 0);
+    transition: opacity 0.45s var(--ease-settle, ease);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] :is(.ma-card, .short-card, .sp-card, .sys-panel-in, .os-card, .audit-card, .door)::after { transition: none; }
+}

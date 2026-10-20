@@ -6,6 +6,7 @@ import { RevealManager } from "@/components/system/Reveal";
 import { EtchManager } from "@/components/system/Etch";
 import { SceneAccent } from "@/components/system/SceneAccent";
 import { SectionNav } from "@/components/system/SectionNav";
+import { Spotlight } from "@/components/system/Spotlight";
 import { DoorGate } from "@/components/system/DoorGate";
 import { doorsFor, DOORS } from "@/components/system/doors";
 
@@ -195,6 +196,7 @@ export default async function HomeSite() {
       <RevealManager />
       <EtchManager />
       <SceneAccent />
+      <Spotlight />
       <DoorGate />
 
       <header className="top">
