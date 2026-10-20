@@ -18,11 +18,30 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import "@/styles/sites/home-starmap.css";
 
 export type Grade = [number[], number[], number];
 
+/** The hero's star chart: one star per section, in page order (same ids + labels as the section nav). */
+const STAR_IDS = ["signal", "doors", "method", "audits", "arena", "sage", "stories", "kshetra", "samhita", "studio", "arcade", "systems", "library", "operator"];
+const STAR_LABELS = ["You are here", "Doors", "Method", "Audits", "Arena", "Sage", "Stories", "Kshetra", "Samhita", "Studio", "Arcade", "Systems", "Library", "Maker"];
+// x, y, magnitude — laid out for the 1440-wide view, hugging its right edge and clear of the
+// headline column; the figure climbs from "you are here" (bottom) to the maker (top).
+const STARS: Array<[number, number, number]> = [
+  [7.5, -12.0, 1.45], [11.5, -9.8, 1.1], [15.5, -11.3, 0.9], [19.0, -8.6, 1.0], [22.0, -5.4, 0.95],
+  [18.2, -4.0, 0.85], [14.6, -2.2, 1.0], [12.4, 1.2, 0.9], [16.0, 3.4, 0.85], [20.8, 2.0, 0.9],
+  [22.8, 6.0, 0.95], [19.4, 8.6, 0.9], [14.8, 7.4, 0.85], [17.2, 12.0, 1.15],
+];
+// which side of its star each label sits on, chosen so labels stay outside the figure
+const CHART_CX = 15.15; // the chart's centre column; portrait screens turn it about (CHART_CX, 0)
+const LABEL_LEFT = [1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1];
+const LINKS: Array<[number, number]> = [
+  [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [4, 9], [6, 12],
+];
+
 export default function ParticleField({ grades }: { grades: Grade[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -530,9 +549,61 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return a;
     }
 
-    void fFunnel; void fFlame; void fWave; void fRing; // superseded by the scene formations below
+
+    // HERO — the studio as a star chart. Each star is a section, lit in its room's own colour
+    // (read from the scene's data-accent) with a core and diffraction spikes; links run in page
+    // order; a faint atlas ring frames the figure; the remaining particles are the ember dust.
+    // `starAttr` (rgb tint + role) and `starIdx` only mean anything while this formation shows.
+    const starAttr = new Float32Array(N * 4); // role: 0 dust · .3 ring · .45 link · .85 spike · 1 core
+    const starIdx = new Float32Array(N).fill(-1);
+    const accents = (Array.prototype.slice.call(document.querySelectorAll(".scene")) as HTMLElement[]).map(
+      (el) => new THREE.Color(el.getAttribute("data-accent") || "#e85d2a")
+    );
+    function fConstellation() {
+      const a = new Float32Array(N * 3);
+      const k9 = N / 9000;
+      let i = 0;
+      const put = (x: number, y: number, z: number, c: THREE.Color, role: number, si: number) => {
+        if (i >= N) return;
+        a[i * 3] = x; a[i * 3 + 1] = y; a[i * 3 + 2] = z;
+        starAttr[i * 4] = c.r; starAttr[i * 4 + 1] = c.g; starAttr[i * 4 + 2] = c.b; starAttr[i * 4 + 3] = role;
+        starIdx[i] = si;
+        i++;
+      };
+      STARS.forEach(([x, y, mag], si) => {
+        const c = accents[si] ?? accents[0];
+        const nCore = Math.round(90 * mag * k9), nSpike = Math.round(64 * mag * k9);
+        for (let k = 0; k < nCore; k++) {
+          const r = 0.16 * mag * Math.sqrt(-2 * Math.log(Math.random() + 1e-6)), th = Math.random() * 6.283;
+          put(x + r * Math.cos(th), y + r * Math.sin(th), rnd(-0.15, 0.15), c, 1, si);
+        }
+        for (let k = 0; k < nSpike; k++) {
+          // an X-shaped glint (diagonal, so the arms never run through a label beside the star)
+          const u = Math.random() * 2 - 1, t = (Math.sign(u) * u * u * 1.15 * mag) / Math.SQRT2, d = k % 2 === 0 ? 1 : -1;
+          put(x + t + rnd(-0.025, 0.025), y + d * t + rnd(-0.025, 0.025), 0, c, 0.85, si);
+        }
+      });
+      LINKS.forEach(([p, q]) => {
+        const [x0, y0] = STARS[p], [x1, y1] = STARS[q];
+        const n = Math.round(Math.hypot(x1 - x0, y1 - y0) * 7 * k9);
+        for (let k = 0; k < n; k++) {
+          const t = 0.1 + Math.random() * 0.8; // a gap at each end, so the stars read as stars
+          put(x0 + (x1 - x0) * t + rnd(-0.04, 0.04), y0 + (y1 - y0) * t + rnd(-0.04, 0.04), 0, accents[p].clone().lerp(accents[q], t), 0.45, -1);
+        }
+      });
+      const atlas = new THREE.Color(0.72, 0.64, 0.56);
+      for (let k = 0, n = Math.round(700 * k9); k < n; k++) {
+        const th = Math.random() * 6.283, rr = k % 3 === 0 ? 14.6 : 11.2, x = 15.6 + rr * 1.08 * Math.cos(th), y = rr * Math.sin(th);
+        if (x < 8.5) continue; // the atlas ring never runs behind the headline
+        put(x, y, 0, atlas, 0.3, -1);
+      }
+      while (i < N) put(rnd(-27, 27), rnd(-16, 16), rnd(-12, 6), atlas, 0, -1); // the ember dust
+      return a;
+    }
+
+    void fFunnel; void fFlame; void fWave; void fRing; void fWind; // superseded by the scene formations below
     const T = [
-      fWind(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
+      fConstellation(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
       fLamp(), fConch(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), fMaker(),
     ];
     const GRADE = grades;
@@ -560,6 +631,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     geo.setAttribute("aRand", new THREE.BufferAttribute(aRand, 1));
     geo.setAttribute("aU", new THREE.BufferAttribute(aU, 1));
     geo.setAttribute("aLoop", new THREE.BufferAttribute(aLoop, 3));
+    geo.setAttribute("aStar", new THREE.BufferAttribute(starAttr, 4));
+    geo.setAttribute("aSi", new THREE.BufferAttribute(starIdx, 1));
 
     // the ∞ loop's arc-length → θ table, so the shader streams particles at an even pace
     const loopLUT = new THREE.DataTexture(sToTheta, KI, 1, THREE.RedFormat, THREE.FloatType);
@@ -594,20 +667,30 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         uLoopWH: { value: new THREE.Vector2(LOOP_W, LOOP_H) },
         uLoopFlow: { value: LOOP_FLOW },
         uWindY: { value: 1 },
+        uStarShift: { value: 0 },
+        uStarShiftY: { value: 0 },
+        uStarTurn: { value: 0 },
+        uHover: { value: -1 },
       },
       vertexShader: /* glsl */ `
-        attribute vec3 aTo; attribute float aRand; attribute float aU; attribute vec3 aLoop;
-        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uWindY;
+        attribute vec3 aTo; attribute float aRand; attribute float aU; attribute vec3 aLoop; attribute vec4 aStar; attribute float aSi;
+        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uWindY, uStarShift, uStarShiftY, uStarTurn, uHover;
         uniform vec2 uPtr, uLoopWH;
         uniform sampler2D uLoopLUT;
-        varying float vMix, vSeed, vLight, vSweep, vDof, vArc;
+        varying float vMix, vSeed, vLight, vSweep, vDof, vArc, vStarW, vHot, vDust;
         varying vec2 vLdir;
+        varying vec3 vTint;
         const float PI = 3.14159265;
 
         // each scene's living motion — the same choreography v3 ran per particle on the CPU
         vec3 live(vec3 p, float s, float t) {
-          if (s < 0.5) {                                   // 00 SIGNAL: wind
-            p.y *= uWindY; // the wind fills the screen's height even where drawings are fit to its width
+          if (s < 0.5 && aStar.w > 0.01) {                 // 00 SIGNAL: the star chart holds still (its labels
+            const float CX = ${CHART_CX.toFixed(2)};      // are pinned to it) and hugs the right edge — or, on
+            if (uStarTurn > 0.5) p.xy = vec2(CX + p.y, CX - p.x); // portrait, turns a quarter and rides the page
+            p.x += uStarShift;
+            p.y += uStarShiftY;
+          } else if (s < 0.5) {                            // 00 SIGNAL: the ember dust drifts
+            p.y *= uWindY; // the dust fills the screen's height even where drawings are fit to its width
             vec3 q = p;
             p.x += sin(t * 0.32 + q.y * 0.21 + aRand * 4.0) * 2.6;
             p.y += cos(t * 0.27 + q.x * 0.17 + aRand * 1.7) * 1.5;
@@ -652,6 +735,13 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           p.z += arc * (aRand - 0.5) * 9.0;
           vArc = arc;
 
+          // the star chart's own light: tinted stars, brighter cores, a flare on the hovered star
+          float w0 = (uFrom < 0.5 ? 1.0 - m : 0.0) + (uTo < 0.5 ? m : 0.0);
+          vTint = aStar.rgb;
+          vStarW = aStar.w * w0;
+          vDust = aStar.w < 0.01 ? w0 : 0.0; // the ember dust steps back while the chart is up
+          vHot = (uHover > -0.5 && abs(aSi - uHover) < 0.5) ? w0 : 0.0;
+
           vMix = aU; // gradient position along the drawing (uGrad picks ordered vs speckled)
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           vec4 clip = projectionMatrix * mv;
@@ -671,7 +761,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
 
           // focus plane at the formation: points off it grow soft and dim (a little depth of field)
           vDof = clamp(abs(mv.z + 34.0) / 11.0, 0.0, 1.0);
-          gl_PointSize = uSize * (0.42 + aRand * 0.8) * (300.0 / -mv.z) * (1.0 + vDof * 1.3) * (1.0 + arc * 0.25);
+          gl_PointSize = uSize * (0.42 + aRand * 0.8) * (300.0 / -mv.z) * (1.0 + vDof * 1.3) * (1.0 + arc * 0.25) * (1.0 + vStarW * 0.5 + vHot * 0.45);
           gl_Position = clip;
         }
       `,
@@ -679,8 +769,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         precision highp float;
         uniform vec3 uColA, uColB;
         uniform float uTime, uAlpha, uGrad;
-        varying float vMix, vSeed, vLight, vSweep, vDof, vArc;
+        varying float vMix, vSeed, vLight, vSweep, vDof, vArc, vStarW, vHot, vDust;
         varying vec2 vLdir;
+        varying vec3 vTint;
         void main() {
           vec2 c = gl_PointCoord * 2.0 - 1.0;
           float r2 = dot(c, c);
@@ -693,10 +784,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           float diff = 0.5 + 0.5 * max(dot(n, L), 0.0);
           float spec = pow(max(dot(reflect(-L, n), vec3(0.0, 0.0, 1.0)), 0.0), 16.0);
           vec3 base = mix(uColA, uColB, clamp(mix(vSeed, vMix, uGrad), 0.0, 1.0));
-          float tw = 0.84 + 0.16 * sin(uTime * 2.2 + vSeed * 43.7);
-          float lift = 1.0 + vLight * 2.6 + vSweep * 0.75;
+          base = mix(base, vTint, clamp(vStarW * 1.15, 0.0, 1.0));
+          // stars scintillate; everything else breathes gently
+          float tw = mix(0.84 + 0.16 * sin(uTime * 2.2 + vSeed * 43.7), 0.7 + 0.3 * sin(uTime * 3.4 + vSeed * 61.0), step(0.8, vStarW));
+          float lift = 1.0 + vLight * 2.6 + vSweep * 0.75 + vStarW * 1.25 + vHot * 2.4;
           vec3 col = base * diff * lift + spec * (0.18 + vLight * 0.9 + vSweep * 0.3) + vSweep * vec3(0.06, 0.05, 0.04);
-          float a = (core + halo) * tw * uAlpha * (1.0 - vDof * 0.5) * (1.0 - vArc * 0.18);
+          float a = (core + halo) * tw * uAlpha * (1.0 - vDof * 0.5) * (1.0 - vArc * 0.18) * (1.0 - vDust * 0.5);
           gl_FragColor = vec4(col * a, a);
         }
       `,
@@ -745,6 +838,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         last = Math.max(0, el.offsetTop + el.offsetHeight / 2 - window.innerHeight / 2);
         return last;
       });
+      if (keys.length > 1) keys[0] = Math.min(Math.max(keys[0], chartHold), keys[1] * 0.6);
     }
     let fTarget = 0;
     let fSmooth = 0;
@@ -764,8 +858,89 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       fTarget = f;
     }
     window.addEventListener("scroll", onScroll, { passive: true });
-    const onRegate = () => { computeKeys(); onScroll(); };
+    const onRegate = () => { computeKeys(); onScroll(); placeLabels(); };
     window.addEventListener("zc:regate", onRegate);
+
+    /* ---------- the star chart's labels: real links pinned over each star ---------- */
+    const map = mapRef.current;
+    const starEls = map ? (Array.prototype.slice.call(map.querySelectorAll("a")) as HTMLAnchorElement[]) : [];
+    const starV = new THREE.Vector3();
+    let starShift = 0;
+    let starShiftY = 0;
+    let starTurn = false;
+    let starLift = 0; // portrait: how far the page has carried the chart up, in chart units
+    let chartHold = 0; // portrait: the scroll the chart holds its shape until, so it's seen whole
+    let starFit = 1;
+    let chartVisW = 0;
+    let chartVisH = 0;
+    const heroText = Array.prototype.slice.call(
+      document.querySelectorAll("#signal h1, #signal .lede, #signal .hero-cta, #signal .eyebrow, #signal .scrollcue")
+    ) as HTMLElement[];
+    const project = (s: number) => {
+      const [x, y] = starTurn ? [CHART_CX + STARS[s][1], CHART_CX - STARS[s][0]] : STARS[s]; // as the shader places it
+      starV.set((x + starShift) * starFit, (y + starShiftY + starLift) * starFit, 0).project(camera);
+      return [((starV.x + 1) / 2) * window.innerWidth, ((1 - starV.y) / 2) * window.innerHeight];
+    };
+    // Labels that would land on the hero's text stay hidden until their star is hovered; labels
+    // near the right edge read leftwards. Door-hidden sections dim and stop taking clicks.
+    function placeLabels() {
+      const rects = heroText.map((el) => el.getBoundingClientRect());
+      starEls.forEach((el, s) => {
+        const [x, y] = project(s);
+        const scene = document.getElementById(STAR_IDS[s]);
+        el.classList.toggle("off", !!scene && scene.offsetHeight === 0);
+        el.classList.toggle("left", (!starTurn && !!LABEL_LEFT[s]) || x > window.innerWidth - 150);
+        const lx0 = el.classList.contains("left") ? x - 150 : x + 14, lx1 = lx0 + 136;
+        el.classList.toggle("quiet", rects.some((r) => lx1 > r.left && lx0 < r.right && y + 8 > r.top && y - 8 < r.bottom));
+      });
+    }
+    // Landscape: the chart hugs the right edge, its rightmost column where it sits at 1440. Portrait:
+    // the headline and buttons take the width and (on a phone) the whole first screen, and the tall
+    // figure ran behind both. So it turns a quarter, reading left to right from "you are here", into
+    // the slot home-starmap.css leaves under the hero's text: the page carries it up as you scroll
+    // (starLift), and the field holds it whole until it's well in view (chartHold) before it
+    // dissolves into DOORS.
+    function placeChart() {
+      if (!chartVisH) return;
+      const h = window.innerHeight;
+      starTurn = camera.aspect <= 1; // matches the slot's (max-aspect-ratio: 1/1)
+      chartHold = 0;
+      if (!starTurn) {
+        starShift = chartVisW / 2 / starFit - 24.2;
+        starShiftY = 0;
+      } else {
+        const floor = Math.max(h * 0.6, ...heroText.map((el) => el.getBoundingClientRect().bottom + window.scrollY)) + 14;
+        const band = 17 * (h / chartVisH) * starFit; // px: the turned figure is ±7.65 units tall, plus glints
+        const hero = document.getElementById("signal");
+        const slotEnd = hero ? hero.getBoundingClientRect().bottom + window.scrollY : h;
+        const bandY = (floor + Math.max(slotEnd, floor + band)) / 2; // page px: centred in the slot
+        starShift = -CHART_CX;
+        starShiftY = ((0.5 - bandY / h) * chartVisH) / starFit;
+        chartHold = Math.max(0, bandY - h * 0.6);
+      }
+      mat.uniforms.uStarShift.value = starShift;
+      mat.uniforms.uStarTurn.value = starTurn ? 1 : 0;
+      placeLabels();
+    }
+    // the hero's text reflows when its webfonts land, which moves where the chart sits
+    const heroRO = new ResizeObserver(() => { placeChart(); computeKeys(); onScroll(); });
+    heroText.forEach((el) => heroRO.observe(el));
+    const onStarEnter = (e: Event) => { mat.uniforms.uHover.value = +((e.currentTarget as HTMLElement).dataset.star ?? -1); };
+    const onStarLeave = () => { mat.uniforms.uHover.value = -1; };
+    const onStarClick = (e: MouseEvent) => {
+      e.preventDefault();
+      const id = (e.currentTarget as HTMLAnchorElement).getAttribute("href")!.slice(1);
+      const target = document.getElementById(id);
+      if (!target || id === "signal") return;
+      target.scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "start" }); // the field warps there
+    };
+    starEls.forEach((el, s) => {
+      const accent = (document.getElementById(STAR_IDS[s]) as HTMLElement | null)?.dataset.accent;
+      if (accent) el.style.setProperty("--star", accent);
+      el.addEventListener("pointerenter", onStarEnter);
+      el.addEventListener("pointerleave", onStarLeave);
+      el.addEventListener("click", onStarClick);
+    });
 
     /* ---------- pointer: camera parallax + the lantern ---------- */
     let mx = 0.5,
@@ -810,6 +985,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       points.scale.set(fit, fit, 1);
       const visH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 34;
       mat.uniforms.uWindY.value = Math.max(1, (visH * 0.5) / (16 * fit));
+      starFit = fit;
+      chartVisW = visW;
+      chartVisH = visH;
+      placeChart();
       mat.uniforms.uSize.value = (w < 700 ? 1.0 : 1.15) * Math.sqrt(fit) * DPR; // ×DPR: the same dot size on every screen
       mat.uniforms.uAlpha.value = w < 700 ? 0.62 : 0.9; // text sits over the field on phones
       mat.uniforms.uAspect.value = camera.aspect;
@@ -865,6 +1044,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         }
       }
 
+      let mapVis = Math.max(0, 1 - fSmooth * 2.4);
       if (warp) {
         let k = Math.min(1, (now - warp.start) / WARP_MS);
         // a nav click smooth-scrolls, so the destination keeps moving for a moment: while still
@@ -880,6 +1060,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         U.uTo.value = warp.to;
         U.uMix.value = k;
         gradeLerp(GRADE[warp.from], GRADE[warp.to], k * k * (3 - 2 * k));
+        mapVis = warp.from === 0 ? 1 - Math.min(1, k * 2.4) : warp.to === 0 ? Math.max(0, k * 2 - 1) : 0;
         if (k >= 1) {
           fSmooth = warp.to; // land; if the reader kept scrolling, the next frame carries on from here
           warp = null;
@@ -923,6 +1104,19 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       camera.position.y = cy;
       camera.lookAt(0, 0, 0);
 
+      starLift = starTurn ? ((window.scrollY / window.innerHeight) * chartVisH) / starFit : 0;
+      mat.uniforms.uStarShiftY.value = starShiftY + starLift;
+      if (map && starEls.length) {
+        map.style.opacity = mapVis.toFixed(3);
+        map.style.visibility = mapVis < 0.02 ? "hidden" : "visible";
+        if (mapVis >= 0.02) {
+          for (let s = 0; s < starEls.length; s++) {
+            const [x, y] = project(s);
+            starEls[s].style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+          }
+        }
+      }
+
       composer.render();
     }
     raf = requestAnimationFrame(frame);
@@ -932,6 +1126,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       clearTimeout(lateKeys);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("zc:regate", onRegate);
+      heroRO.disconnect();
+      starEls.forEach((el) => {
+        el.removeEventListener("pointerenter", onStarEnter);
+        el.removeEventListener("pointerleave", onStarLeave);
+        el.removeEventListener("click", onStarClick);
+      });
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("pointerdown", onTap);
       document.documentElement.removeEventListener("mouseleave", onLeave);
@@ -944,5 +1144,18 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     };
   }, [grades]);
 
-  return <canvas ref={canvasRef} id="field" aria-hidden="true" />;
+  // The star labels duplicate the section nav for pointer users (the nav is the accessible path),
+  // so they're hidden from assistive tech and out of the tab order.
+  return (
+    <>
+      <canvas ref={canvasRef} id="field" aria-hidden="true" />
+      <div className="starmap" ref={mapRef} aria-hidden="true">
+        {STAR_IDS.map((id, s) => (
+          <a key={id} href={`#${id}`} tabIndex={-1} data-star={s} className={s === 0 ? "here" : undefined}>
+            <span>{s === 0 ? STAR_LABELS[0] : `${String(s + 1).padStart(2, "0")} ${STAR_LABELS[s]}`}</span>
+          </a>
+        ))}
+      </div>
+    </>
+  );
 }
