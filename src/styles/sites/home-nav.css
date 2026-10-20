@@ -1,0 +1,268 @@
+/* zephyrcode.live (home) — section navigation (SectionNav.tsx)
+   Desktop >900px: the constellation rail.  <=900px: a section pill + bottom sheet.
+   Motion uses motion.css tokens only (--ease-settle / --dur-*), which collapse to ~0 under
+   prefers-reduced-motion; the explicit reduced-motion block at the end is belt and braces. */
+
+/* ============================================================
+   DESKTOP RAIL
+   Geometry: every row is --row tall and the spine runs through the centre of the node column, so
+   node k sits at (k + .5) * --row. JS only writes --pf (0..1 progress along the spine); the fill is
+   scaleY(--pf) and the comet translateY(--pf * spine length) — both compositor-only.
+   ============================================================ */
+[data-site="home"] .snav {
+  --row: 28px;
+  --node: 14px;
+  --pf: 0;
+  /* node + fill colours; a picked door re-tints them below */
+  --nd-idle: color-mix(in srgb, var(--bone) 48%, transparent);
+  --nd-past: color-mix(in srgb, var(--accent) 55%, transparent);
+  --fill-a: color-mix(in srgb, var(--accent) 30%, transparent);
+  --fill-b: var(--accent);
+  position: fixed; left: clamp(10px, 2.2vw, 30px); top: 50%; transform: translateY(-50%);
+  z-index: 40;
+}
+@media (max-height: 759px) { [data-site="home"] .snav { --row: 24px; } }
+@media (max-height: 519px) { [data-site="home"] .snav { --row: 20px; } }
+
+[data-site="home"] .snav-list { list-style: none; display: grid; grid-auto-rows: var(--row); }
+[data-site="home"] .snav-list li { display: block; }
+
+/* spine: faint track + accent fill + comet head */
+[data-site="home"] .snav-spine {
+  position: absolute; z-index: 0; pointer-events: none;
+  left: calc(var(--node) / 2 - 0.5px); top: calc(var(--row) / 2);
+  width: 1px; height: calc((var(--n) - 1) * var(--row));
+  background: var(--line);
+}
+[data-site="home"] .snav-fill {
+  position: absolute; inset: 0; transform-origin: 50% 0; transform: scaleY(var(--pf));
+  background: linear-gradient(to bottom, var(--fill-a), var(--fill-b));
+  transition: transform var(--dur-move) var(--ease-settle);
+}
+[data-site="home"] .snav-comet {
+  position: absolute; left: 50%; top: 0; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 45%, white);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent),
+    0 0 10px 2px color-mix(in srgb, var(--accent) 75%, transparent),
+    0 0 24px 6px color-mix(in srgb, var(--accent) 34%, transparent);
+  transform: translateY(calc(var(--pf) * (var(--n) - 1) * var(--row)));
+  transition: transform var(--dur-move) var(--ease-settle);
+}
+
+[data-site="home"] .snav a {
+  position: relative; z-index: 1; display: flex; align-items: center; gap: 8px;
+  height: var(--row); padding-right: 12px; border-radius: 3px;
+  color: var(--bone); text-decoration: none; -webkit-tap-highlight-color: transparent;
+}
+[data-site="home"] .snav a:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; background: color-mix(in srgb, var(--accent) 10%, transparent); }
+
+/* node: a dot that hands over to a 4-point star when its section is the active one */
+[data-site="home"] .snav-node {
+  position: relative; flex: none; display: grid; place-items: center; width: var(--node); height: var(--node);
+  transition: transform var(--dur-move) var(--ease-settle), filter var(--dur-move) var(--ease-settle);
+}
+[data-site="home"] .snav-node .nd {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--nd-idle);
+  transition: transform var(--dur-move) var(--ease-settle), opacity var(--dur-move) var(--ease-settle), background var(--dur-move) var(--ease-settle);
+}
+[data-site="home"] .snav-node .ns {
+  position: absolute; width: 13px; height: 13px; background: var(--accent); opacity: 0;
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  transform: scale(0.2) rotate(-90deg);
+  transition: transform var(--dur-settle) var(--ease-settle), opacity var(--dur-move) var(--ease-settle);
+}
+[data-site="home"] .snav a.is-past .nd { background: var(--nd-past); }
+/* clip-path would clip a box-shadow, so the glow is a drop-shadow on the wrapper */
+[data-site="home"] .snav a.is-on .snav-node { filter: drop-shadow(0 0 5px var(--accent)) drop-shadow(0 0 11px color-mix(in srgb, var(--accent) 60%, transparent)); }
+[data-site="home"] .snav a.is-on .nd { transform: scale(0); opacity: 0; }
+[data-site="home"] .snav a.is-on .ns { transform: scale(1) rotate(0deg); opacity: 1; }
+
+[data-site="home"] .snav-num {
+  flex: none; width: 16px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; line-height: 1;
+  font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--bone) 50%, transparent);
+  text-shadow: 0 0 6px rgba(6, 4, 3, 0.95);
+}
+[data-site="home"] .snav-t {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; line-height: 1; white-space: nowrap;
+  color: color-mix(in srgb, var(--bone) 90%, transparent);
+  text-shadow: 0 0 5px rgba(6, 4, 3, 0.96), 0 0 2px rgba(6, 4, 3, 0.9);
+  transition: color var(--dur-move) var(--ease-settle), transform var(--dur-move) var(--ease-settle), letter-spacing var(--dur-move) var(--ease-settle);
+}
+[data-site="home"] .snav a.is-on .snav-t { color: var(--accent); letter-spacing: 0.24em; }
+
+/* hover / focus: label brightens and nudges right, node swells */
+[data-site="home"] .snav a:hover .snav-t,
+[data-site="home"] .snav a:focus-visible .snav-t { color: var(--bone); transform: translateX(3px); }
+[data-site="home"] .snav a.is-on:hover .snav-t,
+[data-site="home"] .snav a.is-on:focus-visible .snav-t { color: color-mix(in srgb, var(--accent) 65%, var(--bone)); }
+[data-site="home"] .snav a:hover .snav-node,
+[data-site="home"] .snav a:focus-visible .snav-node { transform: scale(1.25); }
+[data-site="home"] .snav a:hover .nd { background: var(--bone); }
+
+[data-site="home"] .snav-count {
+  margin: 12px 0 0 calc(var(--node) + 8px); font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.14em; line-height: 1;
+  font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--bone) 50%, transparent);
+  text-shadow: 0 0 6px rgba(6, 4, 3, 0.95);
+}
+[data-site="home"] .snav-count b { font-weight: 500; color: var(--accent); display: inline-block; animation: snav-tick var(--dur-move) var(--ease-settle) both; }
+@keyframes snav-tick { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+[data-site="home"] .snav-lab { display: flex; align-items: center; gap: 8px; border-radius: 3px; }
+
+/* Compact A — short windows (<620px tall) on a wide screen: numbers stay, only the labels fold
+   away; the active label, and any label under hover/focus, opens on a dark chip so it stays
+   legible over page text. */
+@media (max-height: 619px) and (min-width: 1320px) {
+  [data-site="home"] .snav-t {
+    max-width: 0; padding: 4px 0; overflow: hidden; opacity: 0; border-radius: 3px;
+    transition: max-width var(--dur-move) var(--ease-settle), opacity var(--dur-flick) var(--ease-settle), padding var(--dur-move) var(--ease-settle),
+      color var(--dur-move) var(--ease-settle), transform var(--dur-move) var(--ease-settle), letter-spacing var(--dur-move) var(--ease-settle);
+  }
+  [data-site="home"] .snav a.is-on .snav-t,
+  [data-site="home"] .snav a:hover .snav-t,
+  [data-site="home"] .snav a:focus-visible .snav-t {
+    max-width: 14em; opacity: 1; padding: 4px 8px;
+    background: color-mix(in srgb, var(--ink) 86%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+}
+
+/* Compact B — narrower desktops (901-1319px): the content column starts within ~46-146px of the
+   edge, so any permanent text (labels, numbers, the counter) would sit on top of page copy. The
+   rail is nodes only (a ~14px footprint — the star, fill and comet still show position); the
+   "07  KSHETRA" label opens on one dark chip only while a row is hovered or focused. */
+@media (min-width: 901px) and (max-width: 1319px) {
+  [data-site="home"] .snav-count { display: none; }
+  [data-site="home"] .snav-lab {
+    max-width: 0; overflow: hidden; opacity: 0; padding: 4px 0;
+    transition: max-width var(--dur-move) var(--ease-settle), opacity var(--dur-flick) var(--ease-settle), padding var(--dur-move) var(--ease-settle);
+  }
+  [data-site="home"] .snav a:hover .snav-lab,
+  [data-site="home"] .snav a:focus-visible .snav-lab {
+    max-width: 20em; opacity: 1; padding: 4px 8px;
+    background: color-mix(in srgb, var(--ink) 86%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+}
+
+/* ---- door gating ----
+   The scene itself is display:none (home.css); here the matching rail/sheet links dim and stop
+   taking the pointer. Selector form (not aria-disabled alone) so a door stamped by the pre-paint
+   boot script is already dimmed before hydration. SectionNav adds aria-disabled + tabindex=-1. */
+[data-site="home"][data-door="engineers"] :is(.snav, .snav-m) a:not([data-doors~="engineers"]):not([data-doors~="*"]),
+[data-site="home"][data-door="teams"]     :is(.snav, .snav-m) a:not([data-doors~="teams"]):not([data-doors~="*"]),
+[data-site="home"][data-door="creators"]  :is(.snav, .snav-m) a:not([data-doors~="creators"]):not([data-doors~="*"]),
+[data-site="home"][data-door="body"]      :is(.snav, .snav-m) a:not([data-doors~="body"]):not([data-doors~="*"]),
+[data-site="home"][data-door="readers"]   :is(.snav, .snav-m) a:not([data-doors~="readers"]):not([data-doors~="*"]),
+[data-site="home"] :is(.snav, .snav-m) a[aria-disabled="true"] { opacity: 0.26; filter: grayscale(0.7); pointer-events: none; }
+/* a picked door tints the spine and the passed/idle nodes to its colour */
+[data-site="home"][data-door]:not([data-door="__all"]) .snav {
+  --fill-a: color-mix(in srgb, var(--door-accent) 30%, transparent);
+  --fill-b: var(--door-accent);
+  --nd-past: color-mix(in srgb, var(--door-accent) 62%, transparent);
+  --nd-idle: color-mix(in srgb, var(--door-accent) 38%, var(--bone-faint));
+}
+/* always-on essentials keep a faint ring so they read as the door's fixed spine */
+[data-site="home"][data-door]:not([data-door="__all"]) .snav a[data-doors~="*"] .nd { outline: 1px solid color-mix(in srgb, var(--door-accent) 40%, transparent); outline-offset: 2px; }
+
+/* ============================================================
+   PHONES & TABLETS — pill + bottom sheet
+   ============================================================ */
+[data-site="home"] .snav-m { display: none; --pp: 0; }
+[data-site="home"] .snav-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+@media (max-width: 900px) {
+  [data-site="home"] .snav { display: none; }
+  [data-site="home"] .snav-m { display: block; }
+}
+
+[data-site="home"] .snav-pill {
+  position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); z-index: 60;
+  display: flex; align-items: center; gap: 10px;
+  min-height: 46px; max-width: min(60vw, 300px); padding: 0 14px 0 16px; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 999px; background: rgba(13, 11, 9, 0.95); color: var(--bone);
+  font: 500 11px/1 var(--mono); letter-spacing: 0.16em; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  /* hidden until the reader is past ~60% of the hero */
+  opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%, 14px);
+  transition:
+    opacity var(--dur-settle) var(--ease-settle),
+    transform var(--dur-settle) var(--ease-settle),
+    visibility 0s linear var(--dur-settle);
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  [data-site="home"] .snav-pill { background: rgba(13, 11, 9, 0.6); -webkit-backdrop-filter: blur(12px) saturate(1.3); backdrop-filter: blur(12px) saturate(1.3); }
+}
+[data-site="home"] .snav-pill.is-on {
+  opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, 0);
+  transition-delay: 0s;
+}
+[data-site="home"] .snav-pill.is-on:active { transform: translate(-50%, 0) scale(0.97); transition-duration: var(--dur-flick); }
+[data-site="home"] .snav-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+[data-site="home"] .snav-pill-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 80%, transparent); }
+[data-site="home"] .snav-pill-cur { display: flex; align-items: baseline; gap: 8px; min-width: 0; animation: snav-tick var(--dur-move) var(--ease-settle) both; }
+[data-site="home"] .snav-pill-n { flex: none; color: color-mix(in srgb, var(--bone) 55%, transparent); font-variant-numeric: tabular-nums; }
+[data-site="home"] .snav-pill-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+[data-site="home"] .snav-pill-chev { flex: none; color: color-mix(in srgb, var(--bone) 70%, transparent); }
+/* overall page progress as a 2px hairline along the bottom edge */
+[data-site="home"] .snav-pill-bar { position: absolute; left: 18px; right: 18px; bottom: 0; height: 2px; background: var(--line-soft); }
+[data-site="home"] .snav-pill-bar i { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(var(--pp)); }
+
+[data-site="home"] .snav-backdrop {
+  position: fixed; inset: 0; z-index: 90; background: rgba(6, 4, 3, 0.64); touch-action: none;
+  opacity: 0; visibility: hidden;
+  transition: opacity var(--dur-move) var(--ease-settle), visibility 0s linear var(--dur-move);
+}
+[data-site="home"] .snav-backdrop.is-open { opacity: 1; visibility: visible; transition-delay: 0s; }
+
+[data-site="home"] .snav-sheet {
+  position: fixed; left: 50%; bottom: 0; z-index: 91; width: min(100%, 560px);
+  max-height: 82vh; max-height: min(82dvh, 700px);
+  display: flex; flex-direction: column; outline: none;
+  border: 1px solid var(--line); border-bottom: 0; border-radius: 20px 20px 0 0;
+  background: rgba(15, 12, 10, 0.97); color: var(--bone);
+  transform: translate(-50%, 100%); visibility: hidden;
+  transition: transform calc(var(--dur-move) * 1.5) var(--ease-settle), visibility 0s linear calc(var(--dur-move) * 1.5);
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  [data-site="home"] .snav-sheet { background: rgba(15, 12, 10, 0.86); -webkit-backdrop-filter: blur(18px) saturate(1.2); backdrop-filter: blur(18px) saturate(1.2); }
+}
+[data-site="home"] .snav-sheet.is-open { transform: translate(-50%, 0); visibility: visible; transition-delay: 0s; }
+
+[data-site="home"] .snav-head { position: relative; flex: none; padding: 10px 20px 12px; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+[data-site="home"] .snav-head:active { cursor: grabbing; }
+[data-site="home"] .snav-grab { display: block; width: 38px; height: 4px; margin: 0 auto 14px; border-radius: 2px; background: rgba(236, 226, 211, 0.3); }
+[data-site="home"] .snav-title { font: 500 11px/1.2 var(--mono); letter-spacing: 0.22em; text-transform: uppercase; color: color-mix(in srgb, var(--bone) 70%, transparent); text-shadow: none; padding-right: 48px; }
+[data-site="home"] .snav-close {
+  position: absolute; right: 8px; bottom: 0; width: 44px; height: 44px; display: grid; place-items: center;
+  border: 0; border-radius: 50%; background: none; color: var(--bone-dim); cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background var(--dur-flick) var(--ease-settle), color var(--dur-flick) var(--ease-settle);
+}
+[data-site="home"] .snav-close:hover, [data-site="home"] .snav-close:active { background: rgba(236, 226, 211, 0.1); color: var(--bone); }
+[data-site="home"] .snav-close:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+[data-site="home"] .snav-rows {
+  list-style: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 2px 10px calc(14px + env(safe-area-inset-bottom));
+}
+[data-site="home"] .snav-row {
+  --sc: var(--accent);
+  position: relative; display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 16px 0 18px; border-radius: 12px;
+  color: var(--bone); text-decoration: none; -webkit-tap-highlight-color: transparent;
+  transition: background var(--dur-flick) var(--ease-settle);
+}
+[data-site="home"] .snav-row:active { background: rgba(236, 226, 211, 0.08); }
+[data-site="home"] .snav-row:focus-visible { outline: 2px solid var(--sc); outline-offset: -2px; }
+[data-site="home"] .snav-row .rn { flex: none; width: 22px; font: 400 11px/1 var(--mono); font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--bone) 50%, transparent); }
+[data-site="home"] .snav-row .rt { flex: 1 1 auto; min-width: 0; font: 500 14px/1.2 var(--mono); letter-spacing: 0.16em; }
+[data-site="home"] .snav-row .rd { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--sc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--sc) 18%, transparent); }
+[data-site="home"] .snav-row.is-on { background: color-mix(in srgb, var(--sc) 14%, transparent); }
+[data-site="home"] .snav-row.is-on::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 2px; background: var(--sc); }
+[data-site="home"] .snav-row.is-on .rt { color: var(--sc); }
+[data-site="home"] .snav-row.is-on .rd { box-shadow: 0 0 0 3px color-mix(in srgb, var(--sc) 28%, transparent), 0 0 12px var(--sc); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-site="home"] :is(.snav, .snav-m) *, [data-site="home"] .snav-sheet, [data-site="home"] .snav-backdrop, [data-site="home"] .snav-pill {
+    transition: none !important; animation: none !important;
+  }
+}

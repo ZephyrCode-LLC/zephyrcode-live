@@ -1,9 +1,11 @@
 import { z } from "zod";
 import "@/styles/sites/home.css";
+import "@/styles/sites/home-nav.css";
 import { dataOf, getBlocks, getSite, getStoryShorts } from "@/lib/content";
 import { RevealManager } from "@/components/system/Reveal";
 import { EtchManager } from "@/components/system/Etch";
 import { SceneAccent } from "@/components/system/SceneAccent";
+import { SectionNav } from "@/components/system/SectionNav";
 import { DoorGate } from "@/components/system/DoorGate";
 import { doorsFor, DOORS } from "@/components/system/doors";
 
@@ -204,14 +206,7 @@ export default async function HomeSite() {
         </a>
       </header>
 
-      <nav className="rail" aria-label="Scenes">
-        {chrome.rail.map((r, i) => (
-          <a key={r.href} href={r.href} data-r={i} data-doors={doorsFor(r.href.replace("#", ""))}>
-            <span className="d" />
-            <span className="t">{r.t}</span>
-          </a>
-        ))}
-      </nav>
+      <SectionNav items={chrome.rail} />
 
       <main>
         <section className="scene hero" id="signal" data-doors={doorsFor("signal")} data-scene="0" data-accent="#e85d2a">

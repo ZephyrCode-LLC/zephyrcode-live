@@ -40,17 +40,6 @@
 }
 [data-site="home"] .top-cta:hover { color: var(--ink); background: var(--accent); border-color: var(--accent); }
 
-/* ---- scene rail ---- */
-[data-site="home"] .rail { position: fixed; left: clamp(10px, 2.2vw, 30px); top: 50%; transform: translateY(-50%); z-index: 40; display: flex; flex-direction: column; gap: 22px; }
-[data-site="home"] .rail a { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--bone-faint); }
-[data-site="home"] .rail .d { width: 7px; height: 7px; border-radius: 50%; background: var(--bone-faint); transition: all 0.3s ease; flex: none; }
-[data-site="home"] .rail .t { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.22em; color: var(--bone-dim); transition: color 0.3s ease; white-space: nowrap; }
-[data-site="home"] .rail a:hover .t { color: var(--bone); }
-[data-site="home"] .rail a.on { color: var(--accent); }
-[data-site="home"] .rail a.on .d { background: var(--accent); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 80%, transparent); }
-[data-site="home"] .rail a.on .t { color: var(--accent); }
-@media (max-width: 900px) { [data-site="home"] .rail { display: none; } }
-
 /* ---- scenes ---- */
 [data-site="home"] .scene { position: relative; z-index: 10; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
 /* inset top/bottom = 0 so a scene's dark vignette never bleeds vertically onto
@@ -629,36 +618,6 @@
 [data-site="home"] .sage-point:hover::after { transform: translateX(100%); }
 @media (prefers-reduced-motion: reduce) { [data-site="home"] .sf-ring { animation: none; } [data-site="home"] .sage-point { transition: none; } }
 
-/* ---- rail v2: constellation spine ---- */
-[data-site="home"] .rail { --rp: 0%; }
-[data-site="home"] .rail::before, [data-site="home"] .rail::after {
-  content: ""; position: absolute; left: 3px; top: 14px; bottom: 14px; width: 1px;
-}
-[data-site="home"] .rail::before { background: var(--line-soft); }
-[data-site="home"] .rail::after {
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--accent) 65%, transparent), var(--accent));
-  height: var(--rp); bottom: auto; transition: height 0.5s ease;
-  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 45%, transparent);
-}
-[data-site="home"] .rail a { position: relative; z-index: 1; }
-[data-site="home"] .rail .d {
-  width: 7px; height: 7px; border-radius: 0; background: var(--bone-faint);
-  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
-  transition: transform 0.35s ease, background 0.35s ease, filter 0.35s ease;
-}
-[data-site="home"] .rail a.past .d { background: color-mix(in srgb, var(--accent) 55%, var(--bone-faint)); }
-[data-site="home"] .rail a.past .t { color: var(--bone-dim); }
-[data-site="home"] .rail a.on .d {
-  background: var(--accent); transform: scale(1.9) rotate(90deg);
-  filter: drop-shadow(0 0 6px var(--accent)); box-shadow: none;
-}
-[data-site="home"] .rail a.on .t { color: var(--accent); letter-spacing: 0.28em; }
-[data-site="home"] .rail .t { transition: color 0.3s ease, letter-spacing 0.3s ease; }
-@media (prefers-reduced-motion: reduce) {
-  [data-site="home"] .rail::after { transition: none; }
-  [data-site="home"] .rail .d, [data-site="home"] .rail .t { transition: none; }
-}
-
 /* ---- doors: the audience router ---- */
 [data-site="home"] .doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 30px; }
 [data-site="home"] .door {
@@ -745,16 +704,6 @@
 [data-site="home"] .doorchip b { color: var(--door-accent, var(--accent)); text-transform: uppercase; }
 [data-site="home"] .doorchip button { background: none; border: 0; cursor: pointer; font: inherit; color: var(--bone-faint); border-left: 1px solid var(--line-soft); padding: 2px 12px; letter-spacing: .1em; }
 [data-site="home"] .doorchip button:hover { color: var(--door-accent, var(--accent)); }
-
-/* --- rail: dim off-door links, tint the whole rail to the door --- */
-[data-site="home"][data-door="engineers"] .rail a:not([data-doors~="engineers"]):not([data-doors~="*"]),
-[data-site="home"][data-door="teams"]     .rail a:not([data-doors~="teams"]):not([data-doors~="*"]),
-[data-site="home"][data-door="creators"]  .rail a:not([data-doors~="creators"]):not([data-doors~="*"]),
-[data-site="home"][data-door="body"]      .rail a:not([data-doors~="body"]):not([data-doors~="*"]),
-[data-site="home"][data-door="readers"]   .rail a:not([data-doors~="readers"]):not([data-doors~="*"]) { opacity: .26; filter: grayscale(.7); pointer-events: none; }
-[data-site="home"][data-door]:not([data-door="__all"]) .rail::after { background: linear-gradient(to bottom, color-mix(in srgb, var(--door-accent) 65%, transparent), var(--door-accent)); }
-[data-site="home"][data-door]:not([data-door="__all"]) .rail a:not(.on) .d { background: color-mix(in srgb, var(--door-accent) 40%, var(--bone-faint)); }
-[data-site="home"][data-door] .rail a[data-doors~="*"] .d { outline: 1px solid color-mix(in srgb, var(--door-accent) 40%, transparent); outline-offset: 2px; }
 
 /* --- drop the "0X ·" scene numbers (door subsets are non-contiguous) --- */
 [data-site="home"] .eyebrow .n { display: none; }

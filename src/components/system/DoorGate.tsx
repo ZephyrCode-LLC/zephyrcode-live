@@ -13,7 +13,7 @@ import { DOORS, HUB_ACCENT, doorsFor } from "@/components/system/doors";
  * the chosen door card widens and highlights, the rest tuck below it.
  *
  * Mechanism: a single `data-door` attr on the root drives static CSS keyed off
- * each scene/rail's `data-doors` token list. No attr = everything shown (also
+ * each scene/nav-link's `data-doors` token list. No attr = everything shown (also
  * what SEO/no-JS get, since the boot script only stamps a *remembered* choice).
  * "Everything" (data-door=__all) and the chip's "reveal everything" always
  * un-focus. This component renders only the persistent "reading as X" chip and
@@ -26,16 +26,6 @@ const reduce = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-r
 
 export function DoorGate() {
   const [active, setActive] = useState<string | null>(null); // door key, "__all", or null (unpicked)
-
-  function markRail(el: HTMLElement) {
-    const door = el.getAttribute("data-door");
-    el.querySelectorAll<HTMLAnchorElement>(".rail a").forEach((a) => {
-      const tokens = (a.getAttribute("data-doors") || "").split(/\s+/);
-      const off = !!door && door !== "__all" && !tokens.includes("*") && !tokens.includes(door);
-      a.setAttribute("aria-disabled", off ? "true" : "false");
-      a.tabIndex = off ? -1 : 0;
-    });
-  }
 
   // reflect the picked door into the doors section: widen + highlight the match,
   // let the rest recede below it.
@@ -62,8 +52,9 @@ export function DoorGate() {
       el.setAttribute("data-door", key);
       el.style.setProperty("--door-accent", key === "__all" ? HUB_ACCENT : DOORS[key].accent);
     }
-    markRail(el);
     markSection(el, key === "none" ? null : key);
+    // SectionNav listens for this and re-reads which scenes the door left visible
+    // (it owns the nav links' aria-disabled / tabindex).
     window.dispatchEvent(new Event("zc:regate"));
     setActive(key === "none" ? null : key);
   }
