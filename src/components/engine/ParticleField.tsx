@@ -1,16 +1,23 @@
 "use client";
 
 /**
- * THE FIELD — one particle system, six formations; the scroll is the score.
- * Exact port of the homepage engine (BRIEF §6): 9000/4200 particles, six
- * formations (wind → funnel/lattice → flame → cube lattice → fire/violet
- * wave → breathing ring), scroll keyframes with inertia, mouse parallax,
- * per-scene color grades, DPR cap 2.5/2, crisp-core fragment shader.
+ * THE FIELD — one particle system, fourteen formations; the scroll is the score.
+ * v4 (2026-10-20): the morph, each scene's living motion and the light all run on the GPU —
+ * the CPU swaps two formation buffers at scene boundaries and sets a few uniforms per frame.
+ * Particles are lit beads (sphere-shaded, a pointer "lantern" that lights and parts them, a
+ * light sweep as each formation settles), transitions are staggered and ride a curl-like flow,
+ * and an HDR pipeline (half-float target → bloom on desktop → hue-preserving tonemap) keeps
+ * dense overlaps glowing in their own colour instead of burning white.
+ * The formation drawings below are unchanged from v3 (user-approved shapes).
  * Dynamically imported (ssr:false) — never blocks LCP.
  */
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
 export type Grade = [number[], number[], number];
 
@@ -25,7 +32,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     try {
       renderer = new THREE.WebGLRenderer({
         canvas,
-        alpha: true,
+        alpha: false, // opaque: the final pass composites the page background itself
         antialias: false,
         powerPreference: "high-performance",
       });
@@ -34,9 +41,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return;
     }
 
-    const DPR = Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 2 : 2.5);
+    const DPR = Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.75 : 2); // HDR targets scale with DPR²
     renderer.setPixelRatio(DPR);
-    renderer.setClearColor(0x000000, 0);
+    renderer.setClearColor(0x000000, 1);
 
     const scene3d = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 200);
@@ -530,72 +537,204 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     ];
     const GRADE = grades;
 
-    /* ---------- geometry + shader ---------- */
+    /* ---------- geometry: two formation slots, morphed on the GPU ---------- */
+    // `position` holds the formation we're leaving and `aTo` the one we're heading to. The CPU
+    // only swaps those two buffers when the scroll crosses into a new pair of scenes; every
+    // per-frame motion (the morph, each scene's living motion, the light) runs in the shader.
+    // (v3 moved all 9000 points in JS every frame and lerped them in straight lines.)
     const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(T[0]);
+    const fromAttr = new THREE.BufferAttribute(new Float32Array(T[0]), 3).setUsage(THREE.DynamicDrawUsage);
+    const toAttr = new THREE.BufferAttribute(new Float32Array(T[1]), 3).setUsage(THREE.DynamicDrawUsage);
     const aRand = new Float32Array(N);
     const aU = new Float32Array(N);
+    const aLoop = new Float32Array(N * 3);
     for (let i = 0; i < N; i++) {
       aRand[i] = Math.random();
-      aU[i] = i / N;
+      aU[i] = i / N; // doubles as the particle's place on the ∞ loop (loopFrac)
+      aLoop[i * 3] = loopOn[i * 2];
+      aLoop[i * 3 + 1] = loopOn[i * 2 + 1];
+      aLoop[i * 3 + 2] = loopZ[i];
     }
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute("position", fromAttr);
+    geo.setAttribute("aTo", toAttr);
     geo.setAttribute("aRand", new THREE.BufferAttribute(aRand, 1));
     geo.setAttribute("aU", new THREE.BufferAttribute(aU, 1));
+    geo.setAttribute("aLoop", new THREE.BufferAttribute(aLoop, 3));
+
+    // the ∞ loop's arc-length → θ table, so the shader streams particles at an even pace
+    const loopLUT = new THREE.DataTexture(sToTheta, KI, 1, THREE.RedFormat, THREE.FloatType);
+    loopLUT.minFilter = loopLUT.magFilter = THREE.NearestFilter;
+    loopLUT.needsUpdate = true;
 
     const mat = new THREE.ShaderMaterial({
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      depthTest: false,
+      // premultiplied additive: the fragment already carries its own alpha, and the HDR target
+      // + hue-preserving tonemap downstream is what keeps dense overlaps from blowing out white
+      blending: THREE.CustomBlending,
+      blendSrc: THREE.OneFactor,
+      blendDst: THREE.OneFactor,
       uniforms: {
         uTime: { value: 0 },
-        uSize: { value: window.innerWidth < 700 ? 1.35 : 1.6 },
+        uMix: { value: 0 },
+        uFrom: { value: 0 },
+        uTo: { value: 1 },
+        uSize: { value: 1 },
+        uAlpha: { value: 0.9 },
+        uRM: { value: RM ? 1 : 0 },
         uGrad: { value: 0 },
-        uAlpha: { value: 0.82 },
         uColA: { value: new THREE.Color(1, 1, 1) },
         uColB: { value: new THREE.Color(1, 1, 1) },
+        uPtr: { value: new THREE.Vector2(0, 0) },
+        uPtrOn: { value: 0 },
+        uAspect: { value: 1 },
+        uSweep: { value: -1 },
+        uLoopLUT: { value: loopLUT },
+        uLoopWH: { value: new THREE.Vector2(LOOP_W, LOOP_H) },
+        uLoopFlow: { value: LOOP_FLOW },
+        uWindY: { value: 1 },
       },
-      vertexShader: [
-        "attribute float aRand; attribute float aU;",
-        "uniform float uTime; uniform float uSize; uniform float uGrad;",
-        "varying float vMix; varying float vSeed;",
-        "void main(){",
-        "  vSeed = aRand;",
-        "  vMix = mix(aRand, aU, uGrad);",
-        "  vec4 mv = modelViewMatrix * vec4(position, 1.0);",
-        "  gl_PointSize = uSize * (0.55 + aRand*0.95) * (300.0 / -mv.z);",
-        "  gl_Position = projectionMatrix * mv;",
-        "}",
-      ].join("\n"),
-      fragmentShader: [
-        "precision mediump float;",
-        "uniform vec3 uColA; uniform vec3 uColB; uniform float uTime; uniform float uAlpha;",
-        "varying float vMix; varying float vSeed;",
-        "void main(){",
-        "  vec2 p = gl_PointCoord - 0.5;",
-        "  float d = length(p);",
-        "  float glow = smoothstep(0.5, 0.30, d) * 0.38;",
-        "  float core = smoothstep(0.20, 0.02, d);",
-        "  float a = glow + core;",
-        "  float fl = 0.78 + 0.22*sin(uTime*2.4 + vSeed*43.7);",
-        "  vec3 col = mix(uColA, uColB, clamp(vMix,0.0,1.0));",
-        // lift the crystals a touch lighter/warmer for a softer backdrop
-        "  col = mix(col, vec3(0.96, 0.90, 0.80), 0.16);",
-        "  gl_FragColor = vec4(col, a * fl * uAlpha);",
-        "}",
-      ].join("\n"),
+      vertexShader: /* glsl */ `
+        attribute vec3 aTo; attribute float aRand; attribute float aU; attribute vec3 aLoop;
+        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uWindY;
+        uniform vec2 uPtr, uLoopWH;
+        uniform sampler2D uLoopLUT;
+        varying float vMix, vSeed, vLight, vSweep, vDof, vArc;
+        varying vec2 vLdir;
+        const float PI = 3.14159265;
+
+        // each scene's living motion — the same choreography v3 ran per particle on the CPU
+        vec3 live(vec3 p, float s, float t) {
+          if (s < 0.5) {                                   // 00 SIGNAL: wind
+            p.y *= uWindY; // the wind fills the screen's height even where drawings are fit to its width
+            vec3 q = p;
+            p.x += sin(t * 0.32 + q.y * 0.21 + aRand * 4.0) * 2.6;
+            p.y += cos(t * 0.27 + q.x * 0.17 + aRand * 1.7) * 1.5;
+            p.z += sin(t * 0.22 + aRand * 3.1) * 1.3;
+          } else if (abs(s - 2.0) < 0.5) {                 // 02 METHOD: stream round the ∞
+            float sf = fract(aU + t * uLoopFlow);
+            float th = texture2D(uLoopLUT, vec2(sf, 0.5)).r;
+            p = vec3(uLoopWH.x * cos(th) + aLoop.x, uLoopWH.y * sin(2.0 * th) + aLoop.y, aLoop.z);
+          } else if (abs(s - 3.0) < 0.5) {                 // 03 AUDITS: the lattice turns
+            float c = cos(t * 0.1), n = sin(t * 0.1);
+            p = vec3(p.x * c - p.z * n, p.y, p.x * n + p.z * c);
+          } else if (abs(s - 4.0) < 0.5) {                 // 04 ARENA: bars tick like live values
+            p.y += sin(t * 1.5 + floor(p.x * 0.4 + 0.5) * 1.3 + aRand * 0.4) * 0.38;
+          } else if (abs(s - 5.0) < 0.5) {                 // 05 SAGE: the orbit breathes
+            p.xy *= 1.0 + sin(t * 0.9) * 0.05;
+          } else if (abs(s - 6.0) < 0.5 && p.y > -3.0) {   // 06 STORIES: the lamp's flame dances
+            p.x += sin(t * 2.6 + aRand * 7.0) * 0.3;
+            p.y += 0.12 + 0.32 * abs(sin(t * 3.1 + aRand * 9.0));
+          }
+          return p;
+        }
+
+        void main() {
+          float t = uTime;
+          vSeed = aRand;
+          vec3 A = live(position, uFrom, t);
+          vec3 B = live(aTo, uTo, t);
+
+          // staggered departure: each particle leaves on its own beat, so a scene change reads
+          // as a murmuration rather than every point sliding in lockstep
+          float lag = aRand * 0.45 * (1.0 - uRM);
+          float m = clamp((uMix - lag) / (1.0 - 0.45 * (1.0 - uRM)), 0.0, 1.0);
+          m = m * m * (3.0 - 2.0 * m);
+          vec3 p = mix(A, B, m);
+
+          // mid-flight the particles ride a smooth rotational flow and lift out of the plane —
+          // the arc is 0 at both ends, so every formation still lands exactly on its drawing
+          float arc = sin(PI * m) * (1.0 - uRM);
+          vec3 q = p * 0.11 + vec3(0.0, 0.0, t * 0.15);
+          vec3 flow = vec3(sin(q.y * 2.1 + cos(q.z * 1.7)), sin(q.z * 1.9 + cos(q.x * 2.3)), sin(q.x * 1.7 + cos(q.y * 2.0)));
+          p += flow * arc * 4.2;
+          p.z += arc * (aRand - 0.5) * 9.0;
+          vArc = arc;
+
+          vMix = aU; // gradient position along the drawing (uGrad picks ordered vs speckled)
+          vec4 mv = modelViewMatrix * vec4(p, 1.0);
+          vec4 clip = projectionMatrix * mv;
+          vec2 ndc = clip.xy / clip.w;
+
+          // the pointer is a lantern: it lights what it nears and gently parts the field
+          vec2 d = (ndc - uPtr) * vec2(uAspect, 1.0);
+          float d2 = dot(d, d);
+          vLight = exp(-d2 / 0.07) * uPtrOn;
+          vLdir = uPtrOn > 0.01 ? normalize(-d + vec2(0.0001)) : vec2(-0.55, 0.8);
+          ndc += normalize(d + vec2(0.0001)) * vec2(1.0 / uAspect, 1.0) * exp(-d2 / 0.02) * 0.035 * uPtrOn * (1.0 - uRM);
+          clip.xy = ndc * clip.w;
+
+          // a light sweep crosses each formation once as it settles
+          float s = dot(ndc, normalize(vec2(1.0, 0.55)));
+          vSweep = uSweep >= 0.0 ? exp(-pow((s - mix(-1.7, 1.7, uSweep)) * 3.0, 2.0)) : 0.0;
+
+          // focus plane at the formation: points off it grow soft and dim (a little depth of field)
+          vDof = clamp(abs(mv.z + 34.0) / 11.0, 0.0, 1.0);
+          gl_PointSize = uSize * (0.42 + aRand * 0.8) * (300.0 / -mv.z) * (1.0 + vDof * 1.3) * (1.0 + arc * 0.25);
+          gl_Position = clip;
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        precision highp float;
+        uniform vec3 uColA, uColB;
+        uniform float uTime, uAlpha, uGrad;
+        varying float vMix, vSeed, vLight, vSweep, vDof, vArc;
+        varying vec2 vLdir;
+        void main() {
+          vec2 c = gl_PointCoord * 2.0 - 1.0;
+          float r2 = dot(c, c);
+          if (r2 > 1.0) discard;
+          // a lit bead, not a bokeh blob: tight core, small halo, shaded like a tiny sphere
+          float core = exp(-r2 * mix(10.0, 4.0, vDof));
+          float halo = exp(-r2 * 3.2) * 0.16;
+          vec3 n = vec3(c.x, -c.y, sqrt(max(0.0, 1.0 - r2)));
+          vec3 L = normalize(vec3(vLdir, 0.85));
+          float diff = 0.5 + 0.5 * max(dot(n, L), 0.0);
+          float spec = pow(max(dot(reflect(-L, n), vec3(0.0, 0.0, 1.0)), 0.0), 16.0);
+          vec3 base = mix(uColA, uColB, clamp(mix(vSeed, vMix, uGrad), 0.0, 1.0));
+          float tw = 0.84 + 0.16 * sin(uTime * 2.2 + vSeed * 43.7);
+          float lift = 1.0 + vLight * 2.6 + vSweep * 0.75;
+          vec3 col = base * diff * lift + spec * (0.18 + vLight * 0.9 + vSweep * 0.3) + vSweep * vec3(0.06, 0.05, 0.04);
+          float a = (core + halo) * tw * uAlpha * (1.0 - vDof * 0.5) * (1.0 - vArc * 0.18);
+          gl_FragColor = vec4(col * a, a);
+        }
+      `,
     });
     const points = new THREE.Points(geo, mat);
+    points.frustumCulled = false; // positions are computed in the shader
     scene3d.add(points);
+
+    /* ---------- the light pipeline: HDR → bloom (desktop) → hue-preserving tonemap ---------- */
+    // Additive points into a half-float target can sum past 1 without clipping; the final pass
+    // compresses luminance but keeps hue, so where formations crowd they glow in their own
+    // colour instead of burning to white. The page background is composited in that same pass.
+    const MOBILE = window.innerWidth < 900;
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene3d, camera));
+    const bloom = MOBILE ? null : new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.34, 0.3, 0.72);
+    if (bloom) composer.addPass(bloom);
+    const bgColor = new THREE.Color(getComputedStyle(document.body).backgroundColor || "#0d0b09");
+    const finalPass = new ShaderPass({
+      uniforms: { tDiffuse: { value: null }, uBg: { value: bgColor } },
+      vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: /* glsl */ `
+        uniform sampler2D tDiffuse; uniform vec3 uBg; varying vec2 vUv;
+        vec3 toSRGB(vec3 c) { return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c)); }
+        void main() {
+          vec3 c = texture2D(tDiffuse, vUv).rgb;
+          float L = dot(c, vec3(0.2126, 0.7152, 0.0722));
+          float Lt = 1.0 - exp(-L * 1.2);
+          vec3 tm = c * (Lt / max(L, 1e-4));
+          tm = mix(tm, vec3(Lt), smoothstep(1.4, 6.0, L) * 0.3); // only the hottest cores whiten, a touch
+          gl_FragColor = vec4(toSRGB(clamp(uBg + tm, 0.0, 1.0)), 1.0);
+        }
+      `,
+    });
+    composer.addPass(finalPass);
 
     /* ---------- scroll score ---------- */
     const sceneEls = Array.prototype.slice.call(document.querySelectorAll(".scene")) as HTMLElement[];
-    const railLinks = document.querySelectorAll(".rail a");
-    function setRail(idx: number) {
-      railLinks.forEach((a) => {
-        a.classList.toggle("on", +((a as HTMLElement).dataset.r ?? -1) === idx);
-      });
-    }
     let keys: number[] = [];
     function computeKeys() {
       // A door-gated (display:none) scene has offsetParent===null; reuse the previous key so the
@@ -623,20 +762,35 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         }
       }
       fTarget = f;
-      setRail(Math.max(0, Math.min(SCENES - 1, Math.round(f))));
     }
     window.addEventListener("scroll", onScroll, { passive: true });
+    const onRegate = () => { computeKeys(); onScroll(); };
+    window.addEventListener("zc:regate", onRegate);
 
-    /* ---------- mouse parallax ---------- */
+    /* ---------- pointer: camera parallax + the lantern ---------- */
     let mx = 0.5,
       my = 0.5,
       cx = 0,
       cy = 0;
+    const ptrTarget = new THREE.Vector2(0, 0);
+    let ptrOnTarget = 0;
+    let tapUntil = 0;
     const onPointer = (e: PointerEvent) => {
       mx = e.clientX / window.innerWidth;
       my = e.clientY / window.innerHeight;
+      ptrTarget.set(mx * 2 - 1, -(my * 2 - 1));
+      if (e.pointerType === "mouse" || e.pointerType === "pen") ptrOnTarget = 1;
     };
+    // touch has no hover: a tap lights the spot for a moment instead
+    const onTap = (e: PointerEvent) => {
+      if (e.pointerType !== "touch") return;
+      ptrTarget.set((e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1));
+      tapUntil = performance.now() + 700;
+    };
+    const onLeave = () => { ptrOnTarget = 0; };
     window.addEventListener("pointermove", onPointer, { passive: true });
+    window.addEventListener("pointerdown", onTap, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
 
     /* ---------- resize ---------- */
     function onResize() {
@@ -644,9 +798,21 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const w = window.innerWidth;
       const h = window.innerHeight;
       renderer.setSize(w, h, false);
+      composer.setSize(w, h);
+      bloom?.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
-      points.scale.x = Math.min(1, Math.max(0.55, w / h / 1.7));
+      // Formations are drawn ~46 units wide. Fit them to the visible width (both axes, so
+      // nothing squashes), and shrink the points with them so narrow screens don't turn the
+      // shapes into thick ropes.
+      const visW = 2 * Math.tan((camera.fov * Math.PI) / 360) * 34 * camera.aspect;
+      const fit = Math.max(0.42, Math.min(1, visW / 44));
+      points.scale.set(fit, fit, 1);
+      const visH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 34;
+      mat.uniforms.uWindY.value = Math.max(1, (visH * 0.5) / (16 * fit));
+      mat.uniforms.uSize.value = (w < 700 ? 1.0 : 1.15) * Math.sqrt(fit) * DPR; // ×DPR: the same dot size on every screen
+      mat.uniforms.uAlpha.value = w < 700 ? 0.62 : 0.9; // text sits over the field on phones
+      mat.uniforms.uAspect.value = camera.aspect;
       computeKeys();
       onScroll();
     }
@@ -657,110 +823,98 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       onScroll();
     }, 700);
 
-    /* ---------- frame loop ---------- */
-    const posAttr = geo.attributes.position as THREE.BufferAttribute;
-    const colA = mat.uniforms.uColA.value as THREE.Color;
-    const colB = mat.uniforms.uColB.value as THREE.Color;
+    /* ---------- frame loop: a handful of uniforms, nothing per particle ---------- */
+    const U = mat.uniforms;
+    const colA = U.uColA.value as THREE.Color;
+    const colB = U.uColB.value as THREE.Color;
     const t0 = performance.now();
     let raf = 0;
+    let pair = 0; // the scene index loaded into the `position` slot (-1 = reload)
+    let swept = -1;
+    let sweepStart = 0;
+    // A long jump (the section nav, a deep link) would otherwise drag the field through every
+    // formation in between in about a second. Instead it warps: straight from where it is to
+    // where it's going, along the same flowing path a neighbouring transition takes.
+    let warp: { from: number; to: number; start: number } | null = null;
+    const WARP_MS = 1300;
+    const load = (a: number, b: number) => {
+      (fromAttr.array as Float32Array).set(T[a]);
+      (toAttr.array as Float32Array).set(T[b]);
+      fromAttr.needsUpdate = true;
+      toAttr.needsUpdate = true;
+    };
+    const gradeLerp = (ga: Grade, gb: Grade, e: number) => {
+      colA.setRGB(ga[0][0] + (gb[0][0] - ga[0][0]) * e, ga[0][1] + (gb[0][1] - ga[0][1]) * e, ga[0][2] + (gb[0][2] - ga[0][2]) * e, THREE.SRGBColorSpace);
+      colB.setRGB(ga[1][0] + (gb[1][0] - ga[1][0]) * e, ga[1][1] + (gb[1][1] - ga[1][1]) * e, ga[1][2] + (gb[1][2] - ga[1][2]) * e, THREE.SRGBColorSpace);
+      U.uGrad.value = ga[2] + (gb[2] - ga[2]) * e;
+    };
 
     function frame(now: number) {
       raf = requestAnimationFrame(frame);
       if (document.hidden || !renderer) return;
       const t = RM ? 0 : (now - t0) / 1000;
-      mat.uniforms.uTime.value = t;
+      U.uTime.value = t;
 
-      fSmooth += (fTarget - fSmooth) * (RM ? 1 : 0.06);
-      const sa = Math.max(0, Math.min(SCENES - 2, Math.floor(fSmooth)));
-      const te = Math.max(0, Math.min(1, fSmooth - sa));
-      const e = te * te * (3 - 2 * te);
-      const sb = sa + 1;
-
-      const W = (s: number) => (sa === s ? 1 - e : 0) + (sb === s ? e : 0);
-      const w0 = W(0),
-        w4 = W(4),
-        w5 = W(5),
-        w6 = W(6);
-      const rotC = Math.cos(t * 0.1),
-        rotS = Math.sin(t * 0.1);
-      const A = T[sa],
-        B = T[sb];
-      const p = posAttr.array as Float32Array;
-      const breathe = 1 + Math.sin(t * 0.9) * 0.05 * w5;
-
-      for (let i = 0; i < N; i++) {
-        const i3 = i * 3;
-        const seed = aRand[i];
-        let ax = A[i3];
-        let ay = A[i3 + 1];
-        let az = A[i3 + 2];
-        let bx = B[i3];
-        let by = B[i3 + 1];
-        let bz = B[i3 + 2];
-        // METHOD (formation 2): stream the particles live around the ∞ loop
-        if (sa === 2) { const q = loopAt(i, t); ax = q[0]; ay = q[1]; az = q[2]; }
-        if (sb === 2) { const q = loopAt(i, t); bx = q[0]; by = q[1]; bz = q[2]; }
-        if (sa === 3) {
-          const ax2 = ax * rotC - az * rotS;
-          az = ax * rotS + az * rotC;
-          ax = ax2;
+      if (!RM && !warp && Math.abs(fTarget - fSmooth) > 1.5) {
+        const from = Math.round(fSmooth),
+          to = Math.round(fTarget);
+        if (from !== to) {
+          warp = { from, to, start: now };
+          load(from, to);
+          pair = -1;
         }
-        if (sb === 3) {
-          const bx2 = bx * rotC - bz * rotS;
-          bz = bx * rotS + bz * rotC;
-          bx = bx2;
-        }
-        let px = ax + (bx - ax) * e,
-          py = ay + (by - ay) * e,
-          pz = az + (bz - az) * e;
-
-        if (!RM) {
-          let dx = Math.sin(t * 0.6 + seed * 7.0) * 0.16;
-          let dy = Math.cos(t * 0.5 + seed * 5.0) * 0.16;
-          let dz = 0;
-          if (w0 > 0) {
-            dx += Math.sin(t * 0.32 + ay * 0.21 + seed * 4.0) * 2.6 * w0;
-            dy += Math.cos(t * 0.27 + ax * 0.17 + seed * 1.7) * 1.5 * w0;
-            dz += Math.sin(t * 0.22 + seed * 3.1) * 1.3 * w0;
-          }
-          if (w4 > 0) {
-            // ARENA bars: a gentle per-column bob, like live values ticking up
-            dy += Math.sin(t * 1.5 + Math.round(px * 0.4) * 1.3 + seed * 0.4) * 0.38 * w4;
-          }
-          if (w6 > 0 && py > -3) {
-            // STORIES lamp: the flame dances (only the part above the wick)
-            dx += Math.sin(t * 2.6 + seed * 7.0) * 0.3 * w6;
-            dy += (0.12 + 0.32 * Math.abs(Math.sin(t * 3.1 + seed * 9.0))) * w6;
-          }
-          px += dx;
-          py += dy;
-          pz += dz;
-        }
-        if (w5 > 0) {
-          px *= breathe;
-          py *= breathe;
-        }
-
-        p[i3] = px;
-        p[i3 + 1] = py;
-        p[i3 + 2] = pz;
       }
-      posAttr.needsUpdate = true;
 
-      /* grade lerp */
-      const ga = GRADE[sa],
-        gb = GRADE[sb];
-      colA.setRGB(
-        ga[0][0] + (gb[0][0] - ga[0][0]) * e,
-        ga[0][1] + (gb[0][1] - ga[0][1]) * e,
-        ga[0][2] + (gb[0][2] - ga[0][2]) * e
-      );
-      colB.setRGB(
-        ga[1][0] + (gb[1][0] - ga[1][0]) * e,
-        ga[1][1] + (gb[1][1] - ga[1][1]) * e,
-        ga[1][2] + (gb[1][2] - ga[1][2]) * e
-      );
-      mat.uniforms.uGrad.value = ga[2] + (gb[2] - ga[2]) * e;
+      if (warp) {
+        let k = Math.min(1, (now - warp.start) / WARP_MS);
+        // a nav click smooth-scrolls, so the destination keeps moving for a moment: while still
+        // mostly in flight, re-aim at it rather than landing short and warping a second time
+        const aim = Math.round(fTarget);
+        if (aim !== warp.to && k < 0.6) {
+          warp.to = aim;
+          (toAttr.array as Float32Array).set(T[aim]);
+          toAttr.needsUpdate = true;
+          k = Math.min(1, (now - warp.start) / WARP_MS);
+        }
+        U.uFrom.value = warp.from;
+        U.uTo.value = warp.to;
+        U.uMix.value = k;
+        gradeLerp(GRADE[warp.from], GRADE[warp.to], k * k * (3 - 2 * k));
+        if (k >= 1) {
+          fSmooth = warp.to; // land; if the reader kept scrolling, the next frame carries on from here
+          warp = null;
+        }
+      } else {
+        fSmooth += (fTarget - fSmooth) * (RM ? 1 : 0.06);
+        const sa = Math.max(0, Math.min(SCENES - 2, Math.floor(fSmooth)));
+        const te = Math.max(0, Math.min(1, fSmooth - sa));
+        if (sa !== pair) {
+          load(sa, sa + 1);
+          pair = sa;
+        }
+        U.uFrom.value = sa;
+        U.uTo.value = sa + 1;
+        U.uMix.value = te;
+        /* grade lerp (scene colours are authored in sRGB; the pipeline works in linear) */
+        gradeLerp(GRADE[sa], GRADE[sa + 1], te * te * (3 - 2 * te));
+      }
+
+      // the settle sweep: once per arrival, when the scroll has come to rest on a scene
+      const k = Math.round(fSmooth);
+      const settled = !warp && Math.abs(fTarget - fSmooth) < 0.004 && Math.abs(fSmooth - k) < 0.012;
+      if (!RM && settled && k !== swept) {
+        swept = k;
+        sweepStart = now;
+      } else if (!settled && Math.abs(fSmooth - swept) > 0.5) {
+        swept = -1;
+      }
+      const sw = (now - sweepStart) / 1900;
+      U.uSweep.value = swept >= 0 && sw <= 1 ? sw : -1;
+
+      /* the lantern eases in and out; a tap holds it for a moment */
+      const on = ptrOnTarget || (now < tapUntil ? 1 : 0);
+      U.uPtrOn.value += (on - U.uPtrOn.value) * 0.08;
+      (U.uPtr.value as THREE.Vector2).lerp(ptrTarget, 0.18);
 
       /* camera drift */
       cx += ((mx - 0.5) * 3.2 - cx) * 0.04;
@@ -769,7 +923,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       camera.position.y = cy;
       camera.lookAt(0, 0, 0);
 
-      renderer.render(scene3d, camera);
+      composer.render();
     }
     raf = requestAnimationFrame(frame);
 
@@ -777,10 +931,15 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       cancelAnimationFrame(raf);
       clearTimeout(lateKeys);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("zc:regate", onRegate);
       window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("pointerdown", onTap);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
       window.removeEventListener("resize", onResize);
       geo.dispose();
       mat.dispose();
+      loopLUT.dispose();
+      composer.dispose();
       renderer?.dispose();
     };
   }, [grades]);
