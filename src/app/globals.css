@@ -101,5 +101,7 @@ footer a { color: var(--faint); text-decoration: none; } /* a:hover + .here gove
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .rv { opacity: 1; transform: none; }
-  *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
+  /* one 1ms run, then rest on the last frame: without the iteration cap an infinite loop (the
+     home grain, the scroll cue) kept cycling every millisecond — a strobe, not stillness */
+  *, *::before, *::after { animation-duration: 0.001s !important; animation-iteration-count: 1 !important; transition-duration: 0.001s !important; }
 }
