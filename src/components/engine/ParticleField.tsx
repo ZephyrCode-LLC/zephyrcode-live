@@ -725,7 +725,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           float swell = (k > 3.5 && uArrive >= 0.0) ? 0.45 * exp(-pow((uArrive - 3.35) / 0.3, 2.0)) : 0.0;
           float m13 = k < 0.5 ? 1.0 : on * (1.0 + (k > 3.5 ? 0.6 * uCta : 0.0)) + swell;
 
-          // light that travels along a still drawing
+          // light that travels along a still drawing (the hero's breath brings the parked particles on the line
+          // into its light, as the maker's arrival does: brightness alone barely moves a tonemapped stroke)
+          const float BREATH_INK = 0.06;
           float g0 = 0.0;
           if (uBreath >= 0.0 && uRM < 0.5) {                    // the breath: every 10 s, 6.2 s of light, leaves by the loose end
             float ph = fract(uBreath / 10.0);
@@ -736,7 +738,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           float g13 = (uArrive >= 0.0 && uArrive < 3.6 && k < 0.5) ? 0.9 * exp(-pow((aU - P) / 0.025, 2.0)) : 0.0;
           vGlow = g0 * w0 + g13 * w13;
           // the thread is faint, so the passing light brings ink of its own (the parked particles on the line join in)
-          vInk = mix(1.0, ink0, w0) * mix(1.0, aForm.y * m13 + g13 * 0.022, w13);
+          vInk = mix(1.0, ink0 + g0 * BREATH_INK, w0) * mix(1.0, aForm.y * m13 + g13 * 0.022, w13);
 
           vMix = mix(win(aU, uWinFrom), win(aU, uWinTo), m); // gradient position along the drawing (uGrad picks ordered vs speckled)
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
