@@ -110,6 +110,24 @@
 
 [data-site="home"] .snav-lab { display: flex; align-items: center; gap: 8px; border-radius: 3px; }
 
+/* ---- Pause motion (WCAG 2.2.2) — one button, two homes: under the rail counter, and at the foot of
+   the phone sheet. SectionNav sets aria-pressed; pressed = motion is paused, shown in the accent. ---- */
+[data-site="home"] .snav-motion {
+  display: flex; width: max-content; align-items: center; margin: 3px 0 0; padding: 7px 0; border: 0; border-radius: 3px;
+  background: none; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.22em; line-height: 1; white-space: nowrap;
+  color: var(--bone-faint); text-shadow: 0 0 6px rgba(6, 4, 3, 0.95);
+  transition: color var(--dur-flick) var(--ease-settle);
+}
+/* on the rail's own grid: the glyph is centred on the spine (node column), the label starts where the
+   counter text does — so the button adds no width beyond the longest section label */
+[data-site="home"] .snav-motion-ic { flex: none; display: block; width: var(--node); height: 10px; }
+[data-site="home"] .snav-motion-t { margin-left: 8px; }
+[data-site="home"] .snav-motion:hover { color: var(--bone); }
+[data-site="home"] .snav-motion[aria-pressed="true"] { color: var(--accent); }
+[data-site="home"] .snav-motion[aria-pressed="true"]:hover { color: color-mix(in srgb, var(--accent) 65%, var(--bone)); }
+[data-site="home"] .snav-motion:focus-visible { outline: 1px solid var(--accent); outline-offset: 3px; }
+
 /* Compact A — short windows (<620px tall) on a wide screen: numbers stay, only the labels fold
    away; the active label, and any label under hover/focus, opens on a dark chip so it stays
    legible over page text. */
@@ -141,6 +159,21 @@
   [data-site="home"] .snav a:hover .snav-lab,
   [data-site="home"] .snav a:focus-visible .snav-lab {
     max-width: 20em; opacity: 1; padding: 4px 8px;
+    background: color-mix(in srgb, var(--ink) 86%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  /* the Pause motion button stays (it must always be reachable) but folds to its glyph, in the node
+     column; the label opens on the same dark chip while hovered or focused */
+  [data-site="home"] .snav .snav-motion { margin-left: -5px; padding: 7px 5px; }
+  /* a lone glyph at --bone-faint all but vanishes over the field, so at rest it takes the number column's tone */
+  [data-site="home"] .snav .snav-motion:not([aria-pressed="true"]):not(:hover):not(:focus-visible) { color: color-mix(in srgb, var(--bone) 50%, transparent); }
+  [data-site="home"] .snav .snav-motion-t {
+    margin-left: 0; max-width: 0; overflow: hidden; opacity: 0; padding: 4px 0; border-radius: 3px;
+    transition: max-width var(--dur-move) var(--ease-settle), opacity var(--dur-flick) var(--ease-settle), padding var(--dur-move) var(--ease-settle), margin var(--dur-move) var(--ease-settle);
+  }
+  [data-site="home"] .snav .snav-motion:hover .snav-motion-t,
+  [data-site="home"] .snav .snav-motion:focus-visible .snav-motion-t {
+    max-width: 12em; opacity: 1; padding: 4px 8px; margin-left: 6px;
     background: color-mix(in srgb, var(--ink) 86%, transparent);
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   }
@@ -243,8 +276,13 @@
 
 [data-site="home"] .snav-rows {
   list-style: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
-  padding: 2px 10px calc(14px + env(safe-area-inset-bottom));
+  padding: 2px 10px 8px;
 }
+/* the foot carries the safe-area inset now; the motion button is a full-width 44px row under a hairline */
+[data-site="home"] .snav-foot { flex: none; padding: 4px 10px calc(6px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-soft); }
+[data-site="home"] .snav-foot .snav-motion { display: flex; width: 100%; min-height: 44px; margin: 0; padding: 0 18px; border-radius: 12px; text-shadow: none; }
+[data-site="home"] .snav-foot .snav-motion-ic { width: 10px; margin-right: 18px; } /* label lines up with the row titles */
+[data-site="home"] .snav-foot .snav-motion:focus-visible { outline-offset: -1px; }
 [data-site="home"] .snav-row {
   --sc: var(--accent);
   position: relative; display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0 16px 0 18px; border-radius: 12px;
@@ -260,6 +298,12 @@
 [data-site="home"] .snav-row.is-on::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 2px; background: var(--sc); }
 [data-site="home"] .snav-row.is-on .rt { color: var(--sc); }
 [data-site="home"] .snav-row.is-on .rd { box-shadow: 0 0 0 3px color-mix(in srgb, var(--sc) 28%, transparent), 0 0 12px var(--sc); }
+
+/* Pause motion: freeze every running CSS animation on the home page (grain, scroll-cue trace, ...).
+   The field itself listens for the zc:motion event / reads data-motion. */
+html[data-motion="paused"] [data-site="home"] *,
+html[data-motion="paused"] [data-site="home"] *::before,
+html[data-motion="paused"] [data-site="home"] *::after { animation-play-state: paused !important; }
 
 @media (prefers-reduced-motion: reduce) {
   [data-site="home"] :is(.snav, .snav-m) *, [data-site="home"] .snav-sheet, [data-site="home"] .snav-backdrop, [data-site="home"] .snav-pill {

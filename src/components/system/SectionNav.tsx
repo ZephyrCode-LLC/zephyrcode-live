@@ -20,6 +20,11 @@ import { locate, pageProgress, spinePos } from "@/components/system/sectionProgr
  * fires. home-nav.css *also* dims off-door links from data-door/data-doors so a door stamped by the
  * pre-paint boot script never flashes a full rail before hydration.
  *
+ * Pause motion (WCAG 2.2.2): one `paused` state drives both presentations' `.snav-motion` button (a
+ * button in the rail under the counter, a twin at the foot of the sheet). It lives in localStorage
+ * `zc-motion` ("paused" | "on"); with nothing stored it follows prefers-reduced-motion. The
+ * ParticleField and home-nav.css react to `<html data-motion>` and the `zc:motion` event.
+ *
  * The rail order must follow page order (it comes from the CMS chrome.rail block).
  */
 
@@ -29,6 +34,18 @@ const HEADER = 64; // clear the fixed wordmark — same clearance DoorGate.scrol
 const idOf = (href: string) => href.replace(/^#/, "");
 const num = (i: number) => String(i + 1).padStart(2, "0");
 const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const MOTION_KEY = "zc-motion";
+/** Stored choice wins; with none, paused iff the OS asks for reduced motion. */
+function readPaused(): boolean {
+  try {
+    const v = localStorage.getItem(MOTION_KEY);
+    if (v === "paused") return true;
+    if (v === "on") return false;
+  } catch {}
+  return reducedMotion();
+}
+const stampMotion = (paused: boolean) => { document.documentElement.dataset.motion = paused ? "paused" : "on"; };
 
 const READER_INPUT = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
 
@@ -99,6 +116,7 @@ export function SectionNav({ items }: { items: Item[] }) {
   const [accents, setAccents] = useState<string[]>([]); // each scene's data-accent, for the sheet dots
   const [showPill, setShowPill] = useState(false);
   const [open, setOpen] = useState(false);
+  const [paused, setPaused] = useState(false); // SSR can't know; the mount effect reads the real value
 
   const railRef = useRef<HTMLElement>(null);
   const mobileRef = useRef<HTMLDivElement>(null);
@@ -158,6 +176,21 @@ export function SectionNav({ items }: { items: Item[] }) {
       if (raf) cancelAnimationFrame(raf);
     };
   }, [items]);
+
+  /* ---------- pause motion ---------- */
+  useEffect(() => {
+    const p = readPaused();
+    setPaused(p);
+    stampMotion(p);
+  }, []);
+
+  const toggleMotion = () => {
+    const next = !paused;
+    setPaused(next);
+    try { localStorage.setItem(MOTION_KEY, next ? "paused" : "on"); } catch {}
+    stampMotion(next);
+    window.dispatchEvent(new CustomEvent("zc:motion", { detail: { paused: next } }));
+  };
 
   /* ---------- the sheet: scroll lock, focus in/out, Escape, focus trap ---------- */
   useEffect(() => {
@@ -231,6 +264,15 @@ export function SectionNav({ items }: { items: Item[] }) {
     panelRef.current.style.transform = `translate(-50%, ${d.dy}px)`;
   };
 
+  const motionButton = (
+    <button type="button" className="snav-motion" aria-pressed={paused} onClick={toggleMotion}>
+      <svg className="snav-motion-ic" viewBox="0 0 10 10" width="10" height="10" aria-hidden="true" focusable="false">
+        <path d="M2 1v8M8 1v8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="butt" />
+      </svg>
+      <span className="snav-motion-t">Pause motion</span>
+    </button>
+  );
+
   const isOff = (i: number) => off.includes(i);
   const rowClass = (i: number) => (i === active ? "is-on" : i < active ? "is-past" : "");
 
@@ -272,6 +314,7 @@ export function SectionNav({ items }: { items: Item[] }) {
         <p className="snav-count" aria-hidden="true">
           <b key={active}>{num(active)}</b> / {items.length}
         </p>
+        {motionButton}
       </nav>
 
       {/* ===== phones & tablets: section pill + bottom sheet ===== */}
@@ -351,6 +394,7 @@ export function SectionNav({ items }: { items: Item[] }) {
               </li>
             ))}
           </ol>
+          <div className="snav-foot">{motionButton}</div>
         </div>
       </div>
     </>
