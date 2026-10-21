@@ -42,6 +42,11 @@
 
 /* ---- scenes ---- */
 [data-site="home"] .scene { position: relative; z-index: 10; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--pad); min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+/* Each scene's wash reaches 20% past its column to darken the side margins. On a touch screen wider than
+   the phone breakpoint that spill made the page ~20% wider than the device (html/body overflow-x: hidden
+   doesn't stop a mobile browser panning or shrinking to fit), so main clips it at the viewport's edge.
+   clip, not hidden: hidden would make main a scroll container. */
+[data-site="home"] main { overflow-x: clip; }
 /* inset top/bottom = 0 so a scene's dark vignette never bleeds vertically onto
    its neighbours (the old -6% top reached up and shadowed the previous scene's
    bottom content — "check and fix all"). Horizontal -20% still darkens the side
