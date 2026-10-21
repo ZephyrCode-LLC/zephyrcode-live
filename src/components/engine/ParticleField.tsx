@@ -644,6 +644,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         uBreath: { value: -1 }, // hero breath clock in seconds; negative = no light
         uArrive: { value: -1 }, // maker arrival clock in seconds; -1 = not yet, 99 = already lit
         uLift13: { value: 0 }, // fu the page has carried scene 13 past (or short of) its rest scroll
+        uLift0: { value: 0 }, // fu the page has carried the hero (only on a phone whose first screen is all text)
         uCta: { value: 0 }, // the page's "Request a pilot" echoing into the lamp, 0-1
         uOrdered: { value: 0 }, // 0 = departures on each particle's own beat, 0.7 = in line order (bookend pairs)
         uWinFrom: { value: new THREE.Vector2(0, 0) }, // per-scene colour window over aU; (0,0) = off
@@ -651,7 +652,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       },
       vertexShader: /* glsl */ `
         attribute vec3 aTo; attribute float aRand; attribute float aU; attribute vec3 aLoop; attribute vec3 aForm;
-        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uIntro, uBreath, uArrive, uCta, uOrdered, uLift13;
+        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uIntro, uBreath, uArrive, uCta, uOrdered, uLift13, uLift0;
         uniform vec2 uPtr, uLoopWH, uWinFrom, uWinTo;
         uniform sampler2D uLoopLUT;
         varying float vMix, vSeed, vLight, vSweep, vDof, vArc, vInk, vGlow, vQuiet;
@@ -691,6 +692,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           // itself, so the lamp stays beside "Request a pilot" and leaves with it instead of hanging over the footer
           if (uFrom > 12.5) A.y += uLift13;
           if (uTo > 12.5) B.y += uLift13;
+          if (uFrom < 0.5) A.y += uLift0;
+          if (uTo < 0.5) B.y += uLift0;
 
           // staggered departure: each particle leaves on its own beat, so a scene change reads
           // as a murmuration rather than every point sliding in lockstep
@@ -902,6 +905,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     /* ---------- resize ---------- */
     // The view, in the units the drawings are authored in: formation units (fu) × fit = world units.
     const view = { W: 1, H: 1, visW: 1, visH: 1, fit: 1 };
+    let heroRide = false; // the hero stroke is placed on the page below the first screen and scrolls with it
     function onResize() {
       if (!renderer) return;
       const w = window.innerWidth;
@@ -1057,6 +1061,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       let segs: V2[][] = [src.lead, src.A, src.B];
       const move = (dx: number, dy: number) => { segs = segs.map((S) => S.map(([x, y]) => [x + dx, y + dy] as V2)); };
       const halfW = view.visW / view.fit / 2;
+      heroRide = false;
       if (!isPort) {
         move(
           clamp(Math.max(fuX(a.h1Right) + GAP_H1 - 16.31, 0.6 * (halfW - 24.2)), -4, halfW - 19.2),
@@ -1064,8 +1069,14 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         );
         return segs;
       }
+      // The stroke ends in the band the hero keeps under its scroll cue. On a short phone that band — and
+      // the cue itself — sit below the first screen, which is all text: rather than shrink the stroke into a
+      // curl beside the button, it is placed on the page there and rides the scroll up into view (heroRide).
       const end = src.B[3];
-      move(fuX(0.66 * view.W) - end[0], fuY(Math.min(a.cueBottom + 0.4 * (view.H - a.cueBottom), view.H - 40)) - end[1]);
+      const band = Math.max(140, 0.18 * view.H);
+      const endPy = a.cueBottom + 0.4 * Math.max(view.H - a.cueBottom, band);
+      heroRide = endPy > view.H - 40;
+      move(fuX(0.66 * view.W) - end[0], fuY(heroRide ? endPy : Math.min(endPy, view.H - 40)) - end[1]);
       const scaleAboutEnd = (k: number) => {
         const e = segs[2][3];
         segs = segs.map((S) => S.map(([x, y]) => [e[0] + (x - e[0]) * k, e[1] + (y - e[1]) * k] as V2));
@@ -1095,7 +1106,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       };
       let moved = 0;
       for (let pass = 0; pass < 3; pass++) {
-        const sh = Math.min(overlap(), 30 - moved);
+        const sh = Math.min(overlap(), (heroRide ? 60 : 30) - moved); // riding, it may hug the edge rather than shrink
         if (sh <= 0) break;
         moved += sh;
         move((sh * view.visW) / view.fit / view.W, 0);
@@ -1343,6 +1354,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         U.uArrive.value = -1;
       }
       U.uLift13.value = ((window.scrollY - rest13) * view.visH) / view.H / view.fit;
+      U.uLift0.value = heroRide ? (window.scrollY * view.visH) / view.H / view.fit : 0;
       U.uCta.value += (ctaHot - U.uCta.value) * (ctaHot > U.uCta.value ? 0.25 : 0.1); // ~150 ms in, ~400 ms out
 
       /* the lantern eases in and out; a tap holds it for a moment */
