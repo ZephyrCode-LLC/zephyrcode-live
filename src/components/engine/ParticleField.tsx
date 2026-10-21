@@ -35,6 +35,74 @@ function mulberry32(seed: number) {
   };
 }
 
+type V2 = [number, number];
+const smoothstep = (a: number, b: number, x: number) => {
+  const t = clamp((x - a) / (b - a), 0, 1);
+  return t * t * (3 - 2 * t);
+};
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+/**
+ * A chain of cubic Béziers resampled at EQUAL ARC LENGTH, so `at(u)` is the point u of the way along
+ * the whole line and particle i (u = i/N) is spaced evenly whatever the curve's speed. The normal is
+ * always (-ty, tx).
+ */
+function cubicChain(segs: V2[][], M = 2048) {
+  const pts: V2[] = [];
+  segs.forEach((S, k) => {
+    for (let j = 0; j < M; j++) {
+      if (k && !j) continue; // the joint is shared
+      const t = j / (M - 1), m = 1 - t;
+      pts.push([
+        m * m * m * S[0][0] + 3 * m * m * t * S[1][0] + 3 * m * t * t * S[2][0] + t * t * t * S[3][0],
+        m * m * m * S[0][1] + 3 * m * m * t * S[1][1] + 3 * m * t * t * S[2][1] + t * t * t * S[3][1],
+      ]);
+    }
+  });
+  const cum = new Float64Array(pts.length);
+  for (let i = 1; i < pts.length; i++) cum[i] = cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  const L = cum[cum.length - 1];
+  const at = (u: number) => {
+    const target = clamp(u, 0, 1) * L;
+    let lo = 0, hi = cum.length - 1;
+    while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (cum[mid] <= target) lo = mid; else hi = mid; }
+    const f = (target - cum[lo]) / (cum[hi] - cum[lo] || 1);
+    const a = pts[Math.max(0, lo - 1)], b = pts[Math.min(pts.length - 1, hi + 1)];
+    const dx = b[0] - a[0], dy = b[1] - a[1], n = Math.hypot(dx, dy) || 1;
+    return { x: pts[lo][0] + (pts[hi][0] - pts[lo][0]) * f, y: pts[lo][1] + (pts[hi][1] - pts[lo][1]) * f, tx: dx / n, ty: dy / n };
+  };
+  return { at, L };
+}
+
+/* ---------- 00 ONE BREATH — the hero's single calligraphic stroke ----------
+   Authored in formation units for 1440x900 (landscape) and 390x844 (portrait). The lead-in is off-frame,
+   so the line has no visible start. It enters light, presses on the upper bow, thins to a hairline at the
+   S inflection, presses hardest on the lower bow and lifts away pointing west along the CTA row: a loose
+   end, never a head. Bone above the inflection, ember below — the headline's own two inks. */
+type Cubics = { lead: V2[]; A: V2[]; B: V2[] };
+const BREATH_LAND: Cubics = {
+  lead: [[31.0, 12.2], [29.5, 11.73], [28.0, 11.27], [26.5, 10.8]],
+  A: [[26.5, 10.8], [19.0, 8.0], [15.2, 4.4], [16.6, -0.4]],
+  B: [[16.6, -0.4], [17.6, -3.9], [20.2, -9.6], [11.0, -10.7]],
+};
+const BREATH_PORT: Cubics = {
+  lead: [[23.0, -4.6], [21.6, -5.2], [20.3, -5.8], [19.0, -6.4]],
+  A: [[19.0, -6.4], [14.8, -8.6], [12.8, -11.8], [13.3, -15.6]],
+  B: [[13.3, -15.6], [13.8, -19.6], [15.4, -26.0], [5.6, -27.6]],
+};
+/** brush pressure along the line, 0.08-1: light entry, press, hairline at the inflection, hardest press, lift */
+const press = (s: number) =>
+  clamp(0.3 + 0.45 * Math.exp(-(((s - 0.3) / 0.1) ** 2)) + 0.7 * Math.exp(-(((s - 0.8) / 0.075) ** 2)) - 0.22 * Math.exp(-(((s - 0.56) / 0.05) ** 2)), 0.08, 1);
+const gaussFrom = (r: () => number) => () => Math.sqrt(-2 * Math.log(r() + 1e-9)) * Math.cos(6.2831853 * r());
+// the stroke's centre-line keeps this clear of the headline's longest line. The brush's lit edge reaches
+// ~0.55 fu left of the centre-line, and the acceptance gate wants >= 4.5 fu from any lit pixel.
+const GAP_H1 = 5.5;
+const HERO_GAIN = 1; // the one knob for the stroke's brightness (acceptance A5/A6)
+
+/** a rect in viewport px, taken at a scene's settled scroll */
+type Box = { l: number; r: number; t: number; b: number };
+type HeroAnchors = { h1Right: number; ctaY: number; cueY: number; cueBottom: number; avoid: Box[] };
+
 export default function ParticleField({ grades }: { grades: Grade[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -493,10 +561,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return a;
     }
 
-    void fFunnel; void fFlame; void fRing; // superseded by the scene formations below
-    // T[0] and T[13] are placeholders until the bookend drawings (fBreath / fTie) land.
+    void fFunnel; void fFlame; void fRing; void fWind; // superseded by the scene formations below
+    // T[0] is filled by buildBookends (fBreath); T[13] is a placeholder until fTie lands.
     const T = [
-      fWind(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
+      new Float32Array(N * 3), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
       fLamp(), fConch(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), fWave(),
     ];
     // aForm: the bookend drawings' own ink — x = hero, y = maker, z = maker kind (0 thread/parked,
@@ -765,13 +833,19 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       fTarget = f;
     }
     window.addEventListener("scroll", onScroll, { passive: true });
-    const onRegate = () => { computeKeys(); onScroll(); };
+    const onRegate = () => { computeKeys(); onScroll(); buildBookends(); };
     window.addEventListener("zc:regate", onRegate);
 
-    // the hero's text reflows when its webfonts land, which moves every scene's scroll key
-    const heroText = Array.prototype.slice.call(document.querySelectorAll("#signal h1, #signal .lede, #signal .hero-cta, #signal .eyebrow, #signal .scrollcue")) as HTMLElement[];
-    const heroRO = new ResizeObserver(() => { computeKeys(); onScroll(); });
-    heroText.forEach((el) => heroRO.observe(el));
+    // the hero's text reflows when its webfonts land: that moves every scene's scroll key, and the
+    // stroke is placed against the text, so it is rebuilt too (debounced — a reflow arrives in bursts)
+    let rebuildTimer = 0;
+    const heroRO = new ResizeObserver(() => {
+      computeKeys();
+      onScroll();
+      clearTimeout(rebuildTimer);
+      rebuildTimer = window.setTimeout(buildBookends, 120);
+    });
+    document.querySelectorAll("#signal h1, #signal .lede, #signal .hero-cta, #signal .eyebrow, #signal .scrollcue").forEach((el) => heroRO.observe(el));
 
     /* ---------- pointer: camera parallax + the lantern ---------- */
     let mx = 0.5,
@@ -799,6 +873,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     document.documentElement.addEventListener("mouseleave", onLeave);
 
     /* ---------- resize ---------- */
+    // The view, in the units the drawings are authored in: formation units (fu) × fit = world units.
+    const view = { W: 1, H: 1, visW: 1, visH: 1, fit: 1 };
     function onResize() {
       if (!renderer) return;
       const w = window.innerWidth;
@@ -814,18 +890,16 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const visW = 2 * Math.tan((camera.fov * Math.PI) / 360) * 34 * camera.aspect;
       const fit = Math.max(0.42, Math.min(1, visW / 44));
       points.scale.set(fit, fit, 1);
+      const visH = 2 * Math.tan((camera.fov * Math.PI) / 360) * 34;
+      view.W = w; view.H = h; view.visW = visW; view.visH = visH; view.fit = fit;
       mat.uniforms.uSize.value = (w < 700 ? 1.0 : 1.15) * Math.sqrt(fit) * DPR; // ×DPR: the same dot size on every screen
       mat.uniforms.uAlpha.value = w < 700 ? 0.62 : 0.9; // text sits over the field on phones
       mat.uniforms.uAspect.value = camera.aspect;
       computeKeys();
       onScroll();
+      buildBookends(); // the bookends are anchored to the page's text, so they follow every resize / rotation
     }
     window.addEventListener("resize", onResize);
-    onResize();
-    const lateKeys = setTimeout(() => {
-      computeKeys();
-      onScroll();
-    }, 700);
 
     /* ---------- frame loop: a handful of uniforms, nothing per particle ---------- */
     const U = mat.uniforms;
@@ -847,6 +921,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     // resuming carries on from there (nothing jumps either way).
     let tRun = 0;
     let tPrev = -1;
+    let introDone = false;
     // Per-scene rest values, indexed by scene. The bookends are calm: low bloom, a quarter of the pointer
     // drift (the thread at the end: none), and a colour window that parks each scene's gradient on its line.
     const BLOOM_REST = [0.2, ...Array<number>(12).fill(0.34), 0.18];
@@ -877,6 +952,140 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       colA.setRGB(ga[0][0] + (gb[0][0] - ga[0][0]) * e, ga[0][1] + (gb[0][1] - ga[0][1]) * e, ga[0][2] + (gb[0][2] - ga[0][2]) * e, THREE.SRGBColorSpace);
       colB.setRGB(ga[1][0] + (gb[1][0] - ga[1][0]) * e, ga[1][1] + (gb[1][1] - ga[1][1]) * e, ga[1][2] + (gb[1][2] - ga[1][2]) * e, THREE.SRGBColorSpace);
       U.uGrad.value = ga[2] + (gb[2] - ga[2]) * e;
+    }
+
+    /* ---------- the bookends: drawn against the page's own text ---------- */
+    // Particle i is LIT iff i % VIS === 0. Every other particle is PARKED: on the same drawing at ink 0,
+    // invisible at rest and ramping to full ink in flight, so every transition grows out of (or
+    // collapses into) one line. The stride also caps density near 50 lit per fu: particle grain, not a rope.
+    const VIS = N === 9000 ? 5 : 4;
+    const fuX = (px: number) => ((px / view.W - 0.5) * view.visW) / view.fit;
+    const fuY = (py: number) => ((0.5 - py / view.H) * view.visH) / view.fit;
+    const pxX = (x: number) => ((x * view.fit) / view.visW + 0.5) * view.W;
+    const pxY = (y: number) => (0.5 - (y * view.fit) / view.visH) * view.H;
+    // an unrevealed `.rv` is parked 24px low until it fades in: measure where its text will rest
+    const rvShift = (el: Element) => {
+      const rv = el.closest(".rv");
+      const m = rv ? getComputedStyle(rv).transform : "none";
+      return m && m !== "none" ? new DOMMatrixReadOnly(m).m42 : 0;
+    };
+    // an element's rect in viewport px as it sits when the scroll rests on `key`
+    const boxOf = (el: Element | null, key: number): Box | null => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      if (!r.width && !r.height) return null;
+      const y = window.scrollY - key - rvShift(el);
+      return { l: r.left, r: r.right, t: r.top + y, b: r.bottom + y };
+    };
+
+    function measureHero(): HeroAnchors {
+      const h1 = document.querySelector("#signal h1");
+      let h1Right = 0;
+      if (h1) {
+        const rg = document.createRange();
+        rg.selectNodeContents(h1);
+        for (const r of Array.from(rg.getClientRects())) h1Right = Math.max(h1Right, r.right);
+      }
+      const box = (sel: string) => boxOf(document.querySelector(sel), 0);
+      // the scroll cue's <p> is a full-width flex row: only its trace and text are in the way
+      const cueEl = document.querySelector("#signal .scrollcue");
+      const cueBox = ((): Box | null => {
+        const whole = boxOf(cueEl, 0);
+        if (!cueEl || !whole) return null;
+        const rg = document.createRange();
+        rg.selectNodeContents(cueEl);
+        const right = Math.max(...Array.from(rg.getClientRects()).map((r) => r.right), whole.l);
+        return { ...whole, r: Math.min(whole.r, right) };
+      })();
+      const cta = box("#signal .hero-cta"), cue = cueBox;
+      return {
+        // fall back to the 1440x900 reference the stroke was authored against
+        h1Right: h1Right || pxX(11.27),
+        ctaY: cta ? (cta.t + cta.b) / 2 : pxY(-9.1),
+        cueY: cue ? (cue.t + cue.b) / 2 : pxY(-11.6),
+        cueBottom: cue ? cue.b : view.H * 0.85,
+        avoid: [box("#signal .lede"), box("#signal .btn.solid"), box("#signal .btn.ghost"), cueBox].filter((b): b is Box => !!b),
+      };
+    }
+
+    // Landscape: the stroke keeps the right third and a >= 5 fu gap to the headline's longest line.
+    // Portrait: it is its own composition in the first screen — beside the CTAs, then sweeping through the
+    // free band under the scroll cue — nudged clear of every text block, and scaled in if that is not enough.
+    function placeHero(src: Cubics, a: HeroAnchors, isPort: boolean): V2[][] {
+      let segs: V2[][] = [src.lead, src.A, src.B];
+      const move = (dx: number, dy: number) => { segs = segs.map((S) => S.map(([x, y]) => [x + dx, y + dy] as V2)); };
+      const halfW = view.visW / view.fit / 2;
+      if (!isPort) {
+        move(
+          clamp(Math.max(fuX(a.h1Right) + GAP_H1 - 16.31, 0.6 * (halfW - 24.2)), -4, halfW - 19.2),
+          clamp((fuY(a.ctaY) + fuY(a.cueY)) / 2 + 10.33, -2, 2)
+        );
+        return segs;
+      }
+      const end = src.B[3];
+      move(fuX(0.66 * view.W) - end[0], fuY(Math.min(a.cueBottom + 0.4 * (view.H - a.cueBottom), view.H - 40)) - end[1]);
+      // how far right (px) the stroke would have to move to clear every text block, 0 if it already does
+      const overlap = () => {
+        const chain = cubicChain(segs, 256);
+        let need = 0;
+        for (let u = 0.2; u <= 0.97; u += 0.01) {
+          const c = chain.at(u), px = pxX(c.x), py = pxY(c.y);
+          for (const r of a.avoid) if (px > r.l - 14 && px < r.r + 14 && py > r.t - 14 && py < r.b + 14) need = Math.max(need, r.r + 14 - px);
+        }
+        return need;
+      };
+      let moved = 0;
+      for (let pass = 0; pass < 3; pass++) {
+        const sh = Math.min(overlap(), 30 - moved);
+        if (sh <= 0) break;
+        moved += sh;
+        move((sh * view.visW) / view.fit / view.W, 0);
+      }
+      if (overlap() > 0) {
+        const e = segs[2][3];
+        segs = segs.map((S) => S.map(([x, y]) => [e[0] + (x - e[0]) * 0.9, e[1] + (y - e[1]) * 0.9] as V2));
+      }
+      return segs;
+    }
+
+    // 00 ONE BREATH. Each bookend builder reseeds its own PRNG, so a rebuild (a resize, a webfont
+    // landing) draws the identical stroke instead of a fresh scatter of grain.
+    function fBreath(isPort: boolean, anc: HeroAnchors) {
+      const rand = mulberry32(0x5eed14 ^ 0xb0);
+      const gauss = gaussFrom(rand);
+      const [lead, A, B] = placeHero(isPort ? BREATH_PORT : BREATH_LAND, anc, isPort);
+      const path = cubicChain([lead, A, B]);
+      const pos = new Float32Array(N * 3);
+      const INK = (N === 9000 ? 0.34 : 0.42) * HERO_GAIN;
+      for (let i = 0; i < N; i++) {
+        const s = clamp((i + (rand() - 0.5) * 0.6) / N, 0, 1);
+        const { x, y, tx, ty } = path.at(s);
+        const p = press(s), sig = 0.025 + 0.24 * p * p; // sigma 0.03 at the hairline ... 0.265 at full press
+        const halo = rand() < 0.1; // a 10% Gaussian haze: a brush's soft edge
+        const lat = halo ? clamp(gauss(), -1.8, 1.8) * (0.08 + 0.9 * sig) : clamp(gauss(), -2.5, 2.5) * sig;
+        pos[i * 3] = x - ty * lat;
+        pos[i * 3 + 1] = y + tx * lat;
+        pos[i * 3 + 2] = halo ? clamp(gauss(), -1.8, 1.8) * 0.2 : gauss() * 0.1; // near the focal plane: a deeper haze would slide off the line in perspective
+        const taper = 1 - Math.pow(smoothstep(0.93, 1.0, s), 1.4); // the brush lifts: a loose end, never a head
+        formAttr[i * 3] = i % VIS === 0 ? INK * (0.35 + 0.65 * p) * taper * (halo ? 0.3 : 1) : 0;
+      }
+      return pos;
+    }
+
+    let alive = true;
+    function buildBookends() {
+      if (!alive) return;
+      const isPort = camera.aspect <= 1;
+      T[0] = fBreath(isPort, measureHero());
+      formBuf.needsUpdate = true;
+      // force the GPU buffers to reload if a bookend is on show
+      if (pair === 0 || pair === 12) pair = -1;
+      if (warp && (warp.from === 0 || warp.to === 0 || warp.from === 13 || warp.to === 13)) {
+        (fromAttr.array as Float32Array).set(T[warp.from]);
+        (toAttr.array as Float32Array).set(T[warp.to]);
+        fromAttr.needsUpdate = true;
+        toAttr.needsUpdate = true;
+      }
     }
 
     function frame(now: number) {
@@ -953,6 +1162,13 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const sw = (now - sweepStart) / 1900;
       U.uSweep.value = swept >= 0 && sw <= 1 && swept !== 0 && swept !== 13 ? sw : -1;
 
+      // the hero draws itself once per load, 300 ms after the field's first frame; the breath's first
+      // light follows at 2.7 s. Motion off = the finished still: fully drawn, no light.
+      const introP = clamp((tRun - 0.3) / 1.8, 0, 1);
+      if (off || introP >= 1) introDone = true;
+      U.uIntro.value = introDone ? 1.06 : 1.06 * easeOutCubic(introP);
+      U.uBreath.value = off ? -1 : tRun - 2.7;
+
       /* the lantern eases in and out; a tap holds it for a moment */
       const on = ptrOnTarget || (now < tapUntil ? 1 : 0);
       U.uPtrOn.value += (on - U.uPtrOn.value) * 0.08;
@@ -968,9 +1184,22 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
 
       composer.render();
     }
+    onResize();
+    const lateKeys = setTimeout(() => {
+      computeKeys();
+      onScroll();
+      buildBookends();
+    }, 700);
+    document.fonts?.ready.then(() => {
+      computeKeys();
+      onScroll();
+      buildBookends();
+    });
     raf = requestAnimationFrame(frame);
 
     return () => {
+      alive = false;
+      clearTimeout(rebuildTimer);
       cancelAnimationFrame(raf);
       clearTimeout(lateKeys);
       window.removeEventListener("scroll", onScroll);
