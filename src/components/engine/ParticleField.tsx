@@ -101,6 +101,16 @@ const HERO_GAIN = 1; // the one knob for the stroke's brightness (acceptance A5/
 
 /** a rect in viewport px, taken at a scene's settled scroll */
 type Box = { l: number; r: number; t: number; b: number };
+type MakerAnchors = { tt: Box; strip: Box; eyebrow: Box; solid: Box; hdr: Box | null; h2Right: number };
+/** 13 TIED OFF, as it falls on the 1440x900 reference: the thread's pins in fu. Also where a text-only maker flies its particles. */
+const TIE_REF = { pin: [11.3, 10.5] as V2, knot: [19.4, -9.8] as V2, bulge: 22.27 };
+const DAYS = [1, 3, 10, 14];
+const SD = DAYS.map((d) => (d - 1) / 13); // 0, .154, .692, 1: the timetable's real rhythm along the thread
+const TIE_GAIN = 1; // the one knob for the thread's brightness (acceptance C2/C3)
+// Per-particle ink along the thread: thread < knots (a crescendo, Day 1 < 3 < 10) < the lamp, which is the brightest
+// thing on the scene yet stays under the CTA. The authored values (thread 0.06, knots .07/.08/.095) put the
+// knots above the lamp in this renderer (measured: Day 10 0.58, lamp 0.48 above the page), so they are halved.
+const TIE_INK = { thread: 0.018, knots: [0.014, 0.018, 0.022], lampCore: 0.09, lampHalo: 0.028 };
 type HeroAnchors = { h1Right: number; ctaY: number; cueY: number; cueBottom: number; bandTop: number; avoid: Box[] };
 
 export default function ParticleField({ grades }: { grades: Grade[] }) {
@@ -561,16 +571,15 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return a;
     }
 
-    void fFunnel; void fFlame; void fRing; void fWind; // superseded by the scene formations below
-    // T[0] is filled by buildBookends (fBreath); T[13] is a placeholder until fTie lands.
+    void fFunnel; void fFlame; void fRing; void fWind; void fWave; // superseded by the scene formations below
+    // T[0] and T[13] are the bookends: buildBookends fills them (fBreath, fTie) against the page's own text.
     const T = [
       new Float32Array(N * 3), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
-      fLamp(), fConch(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), fWave(),
+      fLamp(), fConch(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), new Float32Array(N * 3),
     ];
     // aForm: the bookend drawings' own ink — x = hero, y = maker, z = maker kind (0 thread/parked,
-    // 1-3 the Day 1/3/10 knots, 4 the lamp). The other scenes ignore it. Placeholders draw at full ink.
+    // 1-3 the Day 1/3/10 knots, 4 the lamp). The other scenes ignore it. fBreath writes x, fTie writes y and z.
     const formAttr = new Float32Array(N * 3);
-    for (let i = 0; i < N; i++) { formAttr[i * 3] = 1; formAttr[i * 3 + 1] = 1; }
     const GRADE = grades;
 
     /* ---------- geometry: two formation slots, morphed on the GPU ---------- */
@@ -707,7 +716,6 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           float on = uArrive < 0.0 ? 0.45 : mix(0.45, 1.0, smoothstep(0.0, 0.04, P - aU)); // knots + lamp latch on as it passes
           float swell = (k > 3.5 && uArrive >= 0.0) ? 0.45 * exp(-pow((uArrive - 3.35) / 0.3, 2.0)) : 0.0;
           float m13 = k < 0.5 ? 1.0 : on * (1.0 + (k > 3.5 ? 0.3 * uCta : 0.0)) + swell;
-          vInk = mix(1.0, ink0, w0) * mix(1.0, aForm.y * m13, w13);
 
           // light that travels along a still drawing
           float g0 = 0.0;
@@ -719,6 +727,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           }
           float g13 = (uArrive >= 0.0 && uArrive < 3.6 && k < 0.5) ? 0.9 * exp(-pow((aU - P) / 0.025, 2.0)) : 0.0;
           vGlow = g0 * w0 + g13 * w13;
+          // the thread is faint, so the passing light brings ink of its own (the parked particles on the line join in)
+          vInk = mix(1.0, ink0, w0) * mix(1.0, aForm.y * m13 + g13 * 0.022, w13);
 
           vMix = mix(win(aU, uWinFrom), win(aU, uWinTo), m); // gradient position along the drawing (uGrad picks ordered vs speckled)
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
@@ -804,6 +814,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     /* ---------- scroll score ---------- */
     const sceneEls = Array.prototype.slice.call(document.querySelectorAll(".scene")) as HTMLElement[];
     let keys: number[] = [];
+    let rest13 = 0; // the scroll at which scene 13 rests (its centre-on-screen key): where the maker's anchors are measured
     function computeKeys() {
       // A door-gated (display:none) scene has offsetParent===null; reuse the previous key so the
       // formation index → scene mapping doesn't jump when some scenes are hidden.
@@ -814,6 +825,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         return last;
       });
       if (keys.length > 1) keys[0] = Math.min(keys[0], keys[1] * 0.6);
+      // The section nav lands a scene 64px (its header clearance) above the scene's centred key. The maker's
+      // lamp is the last thing to arrive, so landing there would leave it unformed and the arrival unplayed:
+      // scene 13 counts as reached from the landing point, and its drawing is still anchored to the rest point.
+      rest13 = keys[SCENES - 1];
+      const op = sceneEls[SCENES - 1];
+      if (op && op.offsetHeight > 0) keys[SCENES - 1] = Math.max(keys[SCENES - 2] + 1, rest13 - 64);
     }
     let fTarget = 0;
     let fSmooth = 0;
@@ -836,8 +853,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     const onRegate = () => { computeKeys(); onScroll(); buildBookends(); };
     window.addEventListener("zc:regate", onRegate);
 
-    // the hero's text reflows when its webfonts land: that moves every scene's scroll key, and the
-    // stroke is placed against the text, so it is rebuilt too (debounced — a reflow arrives in bursts)
+    // the hero's and the maker's text reflow when webfonts land: that moves every scene's scroll key, and
+    // both bookend drawings are placed against that text, so they are rebuilt too (debounced — reflow arrives in bursts)
     let rebuildTimer = 0;
     const heroRO = new ResizeObserver(() => {
       computeKeys();
@@ -845,7 +862,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       clearTimeout(rebuildTimer);
       rebuildTimer = window.setTimeout(buildBookends, 120);
     });
-    document.querySelectorAll("#signal h1, #signal .lede, #signal .hero-cta, #signal .eyebrow, #signal .scrollcue").forEach((el) => heroRO.observe(el));
+    document
+      .querySelectorAll("#signal h1, #signal .lede, #signal .hero-cta, #signal .eyebrow, #signal .scrollcue, #operator .shead, #operator .op-grid, #operator .client-strip")
+      .forEach((el) => heroRO.observe(el));
+    // the page itself grows under the reader (the arcade scene is ~200px taller once revealed): every scene key
+    // below it, and the maker's anchors, would otherwise go stale
+    heroRO.observe(document.body);
 
     /* ---------- pointer: camera parallax + the lantern ---------- */
     let mx = 0.5,
@@ -922,6 +944,20 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     let tRun = 0;
     let tPrev = -1;
     let introDone = false;
+    // the maker's arrival plays once per session: a light runs Day 1 to Day 14 and is caught in the lamp.
+    let tieDone = false;
+    try { tieDone = sessionStorage.getItem("zc-tie") === "1"; } catch { /* storage blocked: it just plays again */ }
+    let arriveStart = -1;
+    // the page's "Request a pilot" echoes into the lamp (hover, or keyboard focus)
+    let ctaHot = 0;
+    const ctaEl = document.querySelector<HTMLElement>("#operator .client-strip .btn.solid");
+    const ctaOn = () => { ctaHot = 1; };
+    const ctaOff = () => { ctaHot = 0; };
+    const ctaFocus = () => { if (ctaEl?.matches(":focus-visible")) ctaHot = 1; };
+    ctaEl?.addEventListener("pointerenter", ctaOn);
+    ctaEl?.addEventListener("pointerleave", ctaOff);
+    ctaEl?.addEventListener("focus", ctaFocus);
+    ctaEl?.addEventListener("blur", ctaOff);
     // Per-scene rest values, indexed by scene. The bookends are calm: low bloom, a quarter of the pointer
     // drift (the thread at the end: none), and a colour window that parks each scene's gradient on its line.
     const BLOOM_REST = [0.2, ...Array<number>(12).fill(0.34), 0.18];
@@ -1087,11 +1123,111 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       return pos;
     }
 
+    // 13 TIED OFF — measured at the scroll where scene 13 rests. A fine thread hangs from a Day-1 knot on
+    // the eyebrow row, bows out into the right gutter and ends in a lamp level with "Request a pilot".
+    // Text-only (no thread at all): portrait, a gutter under 4.5 fu, a door-hidden scene, or a curve that
+    // would crowd the timetable, the client strip or the header CTA.
+    function measureMaker(): MakerAnchors | null {
+      const op = document.getElementById("operator");
+      if (!op || (op.offsetParent === null && op.offsetHeight === 0)) return null;
+      const box = (sel: string) => boxOf(document.querySelector(sel), rest13);
+      const tt = box("#operator .timetable"), strip = box("#operator .client-strip");
+      const eyebrow = box("#operator .shead .eyebrow"), solid = box("#operator .client-strip .btn.solid");
+      if (!tt || !strip || !eyebrow || !solid) return null;
+      const hr = document.querySelector(".top-cta")?.getBoundingClientRect(); // fixed: already in viewport px
+      const h2 = document.querySelector("#operator .shead h2");
+      let h2Right = 0;
+      if (h2) {
+        const rg = document.createRange();
+        rg.selectNodeContents(h2);
+        for (const r of Array.from(rg.getClientRects())) h2Right = Math.max(h2Right, r.right);
+      }
+      return { tt, strip, eyebrow, solid, hdr: hr ? { l: hr.left, r: hr.right, t: hr.top, b: hr.bottom } : null, h2Right };
+    }
+    const tieCurve = (pin: V2, knot: V2, bulge: number): V2[] => {
+      const H = pin[1] - knot[1];
+      return [pin, [pin[0] + 0.98 * (bulge - pin[0]), pin[1] - 0.02 * H], [bulge + 0.3 * (bulge - knot[0]), knot[1] + 0.4 * H], knot];
+    };
+    function placeTie(a: MakerAnchors | null, isPort: boolean) {
+      const ref = { ...TIE_REF, textOnly: true };
+      if (!a || isPort) return ref;
+      const halfW = view.visW / view.fit / 2, xLim = halfW - 1.0;
+      const xR = fuX(Math.max(a.tt.r, a.strip.r));
+      if (halfW - xR < 4.5) return ref;
+      const ppf = (view.W * view.fit) / view.visW; // px per fu
+      // Day 1 hangs from the eyebrow row — but never left of the headline's longest line (+3.4 fu: Day 1's knot spreads ~1 fu along the thread), and never
+      // up inside the fixed header's CTA: on a short viewport the eyebrow row sits right under it.
+      const pinY = a.hdr ? Math.min(fuY((a.eyebrow.t + a.eyebrow.b) / 2), fuY(a.hdr.b + 1.5 * ppf + 6)) : fuY((a.eyebrow.t + a.eyebrow.b) / 2);
+      const pin: V2 = [Math.max(xR - 6.0, fuX(a.h2Right) + 3.4), pinY];
+      const knot: V2 = [xR + Math.min(2.2, 0.35 * (xLim - xR)), fuY((a.solid.t + a.solid.b) / 2)];
+      let bulge = Math.min(xLim - 0.6, xR + 5.0);
+      const away = (r: Box, px: number, py: number) => Math.hypot(Math.max(r.l - px, 0, px - r.r), Math.max(r.t - py, 0, py - r.b));
+      const clear = () => {
+        const chain = cubicChain([tieCurve(pin, knot, bulge)], 256);
+        for (let u = 0; u <= 1; u += 0.01) {
+          const c = chain.at(u), px = pxX(c.x), py = pxY(c.y);
+          if (away(a.tt, px, py) < 1.2 * ppf || away(a.strip, px, py) < 1.2 * ppf || (a.hdr && away(a.hdr, px, py) < 1.5 * ppf)) return false;
+        }
+        return true;
+      };
+      for (let tries = 0; tries <= 3; tries++, bulge += 0.3) if (clear()) return { pin, knot, bulge, textOnly: false };
+      return ref;
+    }
+    // the n indices nearest `idx` that are parked (not lit by the stride): the particles a knot or the lamp gathers
+    const parkedNearest = (idx: number, n: number) => {
+      const out: number[] = [];
+      for (let d = 0; out.length < n && d < N; d++) {
+        for (const i of d ? [idx - d, idx + d] : [idx]) if (i >= 0 && i < N && i % VIS !== 0 && out.length < n) out.push(i);
+      }
+      return out;
+    };
+    function fTie(isPort: boolean, anc: MakerAnchors | null) {
+      const rand = mulberry32(0x5eed14 ^ 0x13);
+      const gauss = gaussFrom(rand);
+      const b = placeTie(anc, isPort);
+      const path = cubicChain([tieCurve(b.pin, b.knot, b.bulge)]);
+      const G = b.textOnly ? 0 : TIE_GAIN; // text-only: every ink is 0, so the library flies to the gutter and fades as it lands
+      const pos = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) { // 1) every particle on the thread
+        const s = clamp((i + (rand() - 0.5) * 0.6) / N, 0, 1), { x, y, tx, ty } = path.at(s), lat = gauss() * 0.035;
+        pos[i * 3] = x - ty * lat;
+        pos[i * 3 + 1] = y + tx * lat;
+        pos[i * 3 + 2] = gauss() * 0.04;
+        formAttr[i * 3 + 1] = i % VIS === 0 ? TIE_INK.thread * G : 0;
+        formAttr[i * 3 + 2] = 0;
+      }
+      const nK = Math.round((160 * N) / 9000), nL = Math.round((320 * N) / 9000);
+      for (let k = 0; k < 3; k++) { // 2) the knots: the thread gathered, elongated along it, never a round star
+        const c = path.at(SD[k]);
+        for (const i of parkedNearest(Math.round(SD[k] * N), nK)) {
+          const a = gauss() * 0.3, q = gauss() * 0.1;
+          pos[i * 3] = c.x + c.tx * a - c.ty * q;
+          pos[i * 3 + 1] = c.y + c.ty * a + c.tx * q;
+          pos[i * 3 + 2] = gauss() * 0.03;
+          formAttr[i * 3 + 1] = TIE_INK.knots[k] * G;
+          formAttr[i * 3 + 2] = k + 1;
+        }
+      }
+      const c = path.at(1); // 3) the lamp, Day 14
+      for (const i of parkedNearest(N - 1, nL)) {
+        // the halo is kept near the core: out of the focal plane, perspective slides it off the lamp as stray dots,
+        // and it must stay clear of the client strip's border (acceptance C1)
+        const halo = rand() < 0.45, r = Math.min(Math.abs(gauss()), 2) * (halo ? 0.38 : 0.3), th = rand() * 6.2831853;
+        pos[i * 3] = c.x + r * Math.cos(th);
+        pos[i * 3 + 1] = c.y + r * Math.sin(th);
+        pos[i * 3 + 2] = halo ? clamp(gauss(), -2, 2) * 0.25 : gauss() * 0.03;
+        formAttr[i * 3 + 1] = (halo ? TIE_INK.lampHalo : TIE_INK.lampCore) * G;
+        formAttr[i * 3 + 2] = 4;
+      }
+      return pos;
+    }
+
     let alive = true;
     function buildBookends() {
       if (!alive) return;
       const isPort = camera.aspect <= 1;
       T[0] = fBreath(isPort, measureHero());
+      T[13] = fTie(isPort, measureMaker());
       formBuf.needsUpdate = true;
       // force the GPU buffers to reload if a bookend is on show
       if (pair === 0 || pair === 12) pair = -1;
@@ -1187,6 +1323,22 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       U.uIntro.value = introDone ? 1.06 : 1.06 * easeOutCubic(introP);
       U.uBreath.value = off ? -1 : tRun - 2.7;
 
+      // the maker's arrival, once per session and only once the scroll has come to rest on scene 13
+      if (off || tieDone) U.uArrive.value = 99;
+      else if (settled && k === 13) {
+        if (arriveStart < 0) arriveStart = tRun;
+        const sa = tRun - arriveStart;
+        U.uArrive.value = sa;
+        if (sa > 3.8) {
+          tieDone = true;
+          try { sessionStorage.setItem("zc-tie", "1"); } catch { /* storage blocked */ }
+        }
+      } else if (Math.abs(fSmooth - 13) > 0.5) {
+        arriveStart = -1;
+        U.uArrive.value = -1;
+      }
+      U.uCta.value += (ctaHot - U.uCta.value) * (ctaHot > U.uCta.value ? 0.25 : 0.1); // ~150 ms in, ~400 ms out
+
       /* the lantern eases in and out; a tap holds it for a moment */
       const on = ptrOnTarget || (now < tapUntil ? 1 : 0);
       U.uPtrOn.value += (on - U.uPtrOn.value) * 0.08;
@@ -1226,6 +1378,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("zc:regate", onRegate);
       window.removeEventListener("zc:motion", onMotion);
+      ctaEl?.removeEventListener("pointerenter", ctaOn);
+      ctaEl?.removeEventListener("pointerleave", ctaOff);
+      ctaEl?.removeEventListener("focus", ctaFocus);
+      ctaEl?.removeEventListener("blur", ctaOff);
       heroRO.disconnect();
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("pointerdown", onTap);
