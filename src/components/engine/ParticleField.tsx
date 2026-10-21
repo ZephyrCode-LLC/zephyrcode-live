@@ -21,6 +21,8 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 
 export type Grade = [number[], number[], number];
 
+const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
+
 /** Seeded PRNG: every formation draws from this, so two loads build the identical field (screenshot diffs, A10). */
 function mulberry32(seed: number) {
   let a = seed >>> 0;
@@ -497,6 +499,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       fWind(), fDoors(), fLoop(), fLattice(), fBars(), fOrbit(),
       fLamp(), fConch(), fMerge(), fBlueprint(), fInvader(), fRings(), fBooks(), fWave(),
     ];
+    // aForm: the bookend drawings' own ink — x = hero, y = maker, z = maker kind (0 thread/parked,
+    // 1-3 the Day 1/3/10 knots, 4 the lamp). The other scenes ignore it. Placeholders draw at full ink.
+    const formAttr = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) { formAttr[i * 3] = 1; formAttr[i * 3 + 1] = 1; }
     const GRADE = grades;
 
     /* ---------- geometry: two formation slots, morphed on the GPU ---------- */
@@ -522,6 +528,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     geo.setAttribute("aRand", new THREE.BufferAttribute(aRand, 1));
     geo.setAttribute("aU", new THREE.BufferAttribute(aU, 1));
     geo.setAttribute("aLoop", new THREE.BufferAttribute(aLoop, 3));
+    const formBuf = new THREE.BufferAttribute(formAttr, 3).setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute("aForm", formBuf);
 
     // the ∞ loop's arc-length → θ table, so the shader streams particles at an even pace
     const loopLUT = new THREE.DataTexture(sToTheta, KI, 1, THREE.RedFormat, THREE.FloatType);
@@ -555,19 +563,27 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         uLoopLUT: { value: loopLUT },
         uLoopWH: { value: new THREE.Vector2(LOOP_W, LOOP_H) },
         uLoopFlow: { value: LOOP_FLOW },
+        uIntro: { value: 1.06 }, // hero draw-on: how far along the line (aU) has been drawn; 1.06 = all of it
+        uBreath: { value: -1 }, // hero breath clock in seconds; negative = no light
+        uArrive: { value: -1 }, // maker arrival clock in seconds; -1 = not yet, 99 = already lit
+        uCta: { value: 0 }, // the page's "Request a pilot" echoing into the lamp, 0-1
+        uOrdered: { value: 0 }, // 0 = departures on each particle's own beat, 0.7 = in line order (bookend pairs)
+        uWinFrom: { value: new THREE.Vector2(0, 0) }, // per-scene colour window over aU; (0,0) = off
+        uWinTo: { value: new THREE.Vector2(0, 0) },
       },
       vertexShader: /* glsl */ `
-        attribute vec3 aTo; attribute float aRand; attribute float aU; attribute vec3 aLoop;
-        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow;
-        uniform vec2 uPtr, uLoopWH;
+        attribute vec3 aTo; attribute float aRand; attribute float aU; attribute vec3 aLoop; attribute vec3 aForm;
+        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uIntro, uBreath, uArrive, uCta, uOrdered;
+        uniform vec2 uPtr, uLoopWH, uWinFrom, uWinTo;
         uniform sampler2D uLoopLUT;
-        varying float vMix, vSeed, vLight, vSweep, vDof, vArc;
+        varying float vMix, vSeed, vLight, vSweep, vDof, vArc, vInk, vGlow, vQuiet;
         varying vec2 vLdir;
         const float PI = 3.14159265;
 
         // each scene's living motion — the same choreography v3 ran per particle on the CPU
         vec3 live(vec3 p, float s, float t) {
-          if (abs(s - 2.0) < 0.5) {                 // 02 METHOD: stream round the ∞
+          if (s < 0.5 || s > 12.5) return p;                // 00 ONE BREATH, 13 TIED OFF: the drawing never moves — only light travels along it
+          if (abs(s - 2.0) < 0.5) {                        // 02 METHOD: stream round the ∞
             float sf = fract(aU + t * uLoopFlow);
             float th = texture2D(uLoopLUT, vec2(sf, 0.5)).r;
             p = vec3(uLoopWH.x * cos(th) + aLoop.x, uLoopWH.y * sin(2.0 * th) + aLoop.y, aLoop.z);
@@ -585,6 +601,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           return p;
         }
 
+        // a per-scene colour window over aU, so a scene's gradient can sit on just part of its line
+        float win(float x, vec2 w) { return w.y > w.x ? smoothstep(w.x, w.y, x) : x; }
+
         void main() {
           float t = uTime;
           vSeed = aRand;
@@ -593,7 +612,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
 
           // staggered departure: each particle leaves on its own beat, so a scene change reads
           // as a murmuration rather than every point sliding in lockstep
-          float lag = aRand * 0.45 * (1.0 - uRM);
+          // (the bookend pairs depart in line order instead, so a stroke is laid down or lifted like one)
+          float lag = mix(aRand, aU, uOrdered) * 0.45 * (1.0 - uRM);
           float m = clamp((uMix - lag) / (1.0 - 0.45 * (1.0 - uRM)), 0.0, 1.0);
           m = m * m * (3.0 - 2.0 * m);
           vec3 p = mix(A, B, m);
@@ -607,7 +627,32 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           p.z += arc * (aRand - 0.5) * 9.0;
           vArc = arc;
 
-          vMix = aU; // gradient position along the drawing (uGrad picks ordered vs speckled)
+          // this particle's weight in each bookend scene (its own staggered blend, not the scroll's)
+          float w0 = (uFrom < 0.5 ? 1.0 - m : 0.0) + (uTo < 0.5 ? m : 0.0);
+          float w13 = (uFrom > 12.5 ? 1.0 - m : 0.0) + (uTo > 12.5 ? m : 0.0);
+          vQuiet = clamp(w0 + w13, 0.0, 1.0);
+
+          // ink = the drawing's own weight at rest, 1.0 in flight (parked particles fade in as they leave)
+          float ink0 = aForm.x * (1.0 - smoothstep(uIntro - 0.06, uIntro, aU)); // hero draw-on along the line, once per load
+          float k = aForm.z;
+          float P = clamp(uArrive / 3.2, 0.0, 1.0);                            // arrival light along the thread, linear in days
+          float on = uArrive < 0.0 ? 0.45 : mix(0.45, 1.0, smoothstep(0.0, 0.04, P - aU)); // knots + lamp latch on as it passes
+          float swell = (k > 3.5 && uArrive >= 0.0) ? 0.45 * exp(-pow((uArrive - 3.35) / 0.3, 2.0)) : 0.0;
+          float m13 = k < 0.5 ? 1.0 : on * (1.0 + (k > 3.5 ? 0.3 * uCta : 0.0)) + swell;
+          vInk = mix(1.0, ink0, w0) * mix(1.0, aForm.y * m13, w13);
+
+          // light that travels along a still drawing
+          float g0 = 0.0;
+          if (uBreath >= 0.0 && uRM < 0.5) {                    // the breath: every 10 s, 6.2 s of light, leaves by the loose end
+            float ph = fract(uBreath / 10.0);
+            float h = smoothstep(0.0, 0.62, ph) * 1.04;
+            float dh = h - aU;
+            g0 = (dh >= 0.0 ? exp(-dh / 0.09) : exp(dh / 0.012)) * (1.0 - smoothstep(0.58, 0.66, ph)) * 0.6;
+          }
+          float g13 = (uArrive >= 0.0 && uArrive < 3.6 && k < 0.5) ? 0.9 * exp(-pow((aU - P) / 0.025, 2.0)) : 0.0;
+          vGlow = g0 * w0 + g13 * w13;
+
+          vMix = mix(win(aU, uWinFrom), win(aU, uWinTo), m); // gradient position along the drawing (uGrad picks ordered vs speckled)
           vec4 mv = modelViewMatrix * vec4(p, 1.0);
           vec4 clip = projectionMatrix * mv;
           vec2 ndc = clip.xy / clip.w;
@@ -615,9 +660,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           // the pointer is a lantern: it lights what it nears and gently parts the field
           vec2 d = (ndc - uPtr) * vec2(uAspect, 1.0);
           float d2 = dot(d, d);
-          vLight = exp(-d2 / 0.07) * uPtrOn;
+          vLight = exp(-d2 / 0.07) * uPtrOn * (1.0 - 0.5 * vQuiet);
           vLdir = uPtrOn > 0.01 ? normalize(-d + vec2(0.0001)) : vec2(-0.55, 0.8);
-          ndc += normalize(d + vec2(0.0001)) * vec2(1.0 / uAspect, 1.0) * exp(-d2 / 0.02) * 0.035 * uPtrOn * (1.0 - uRM);
+          ndc += normalize(d + vec2(0.0001)) * vec2(1.0 / uAspect, 1.0) * exp(-d2 / 0.02) * 0.035 * uPtrOn * (1.0 - uRM) * (1.0 - vQuiet);
           clip.xy = ndc * clip.w;
 
           // a light sweep crosses each formation once as it settles
@@ -626,7 +671,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
 
           // focus plane at the formation: points off it grow soft and dim (a little depth of field)
           vDof = clamp(abs(mv.z + 34.0) / 11.0, 0.0, 1.0);
-          gl_PointSize = uSize * (0.42 + aRand * 0.8) * (300.0 / -mv.z) * (1.0 + vDof * 1.3) * (1.0 + arc * 0.25);
+          gl_PointSize = uSize * (0.42 + aRand * 0.8) * (300.0 / -mv.z) * (1.0 + vDof * 1.3) * (1.0 + arc * 0.25) * (1.0 + vGlow * 0.2);
           gl_Position = clip;
         }
       `,
@@ -634,7 +679,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         precision highp float;
         uniform vec3 uColA, uColB;
         uniform float uTime, uAlpha, uGrad;
-        varying float vMix, vSeed, vLight, vSweep, vDof, vArc;
+        varying float vMix, vSeed, vLight, vSweep, vDof, vArc, vInk, vGlow, vQuiet;
         varying vec2 vLdir;
         void main() {
           vec2 c = gl_PointCoord * 2.0 - 1.0;
@@ -648,10 +693,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           float diff = 0.5 + 0.5 * max(dot(n, L), 0.0);
           float spec = pow(max(dot(reflect(-L, n), vec3(0.0, 0.0, 1.0)), 0.0), 16.0);
           vec3 base = mix(uColA, uColB, clamp(mix(vSeed, vMix, uGrad), 0.0, 1.0));
-          float tw = 0.84 + 0.16 * sin(uTime * 2.2 + vSeed * 43.7); // a gentle breath
-          float lift = 1.0 + vLight * 2.6 + vSweep * 0.75;
+          float tw = mix(0.84 + 0.16 * sin(uTime * 2.2 + vSeed * 43.7), 1.0, vQuiet); // everything breathes gently — except the bookends, which never twinkle
+          float lift = (1.0 + vLight * 2.6 + vSweep * 0.75) * (1.0 + vGlow);
           vec3 col = base * diff * lift + spec * (0.18 + vLight * 0.9 + vSweep * 0.3) + vSweep * vec3(0.06, 0.05, 0.04);
-          float a = (core + halo) * tw * uAlpha * (1.0 - vDof * 0.5) * (1.0 - vArc * 0.18);
+          float a = (core + halo) * tw * uAlpha * (1.0 - vDof * 0.5) * (1.0 - vArc * 0.18) * vInk;
           gl_FragColor = vec4(col * a, a);
         }
       `,
@@ -667,7 +712,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     const MOBILE = window.innerWidth < 900;
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene3d, camera));
-    const bloom = MOBILE ? null : new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.34, 0.3, 0.72);
+    const bloom = MOBILE ? null : new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.2, 0.3, 0.72);
     if (bloom) composer.addPass(bloom);
     const bgColor = new THREE.Color(getComputedStyle(document.body).backgroundColor || "#0d0b09");
     const finalPass = new ShaderPass({
@@ -786,11 +831,29 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     const U = mat.uniforms;
     const colA = U.uColA.value as THREE.Color;
     const colB = U.uColB.value as THREE.Color;
-    const t0 = performance.now();
     let raf = 0;
     let pair = 0; // the scene index loaded into the `position` slot (-1 = reload)
     let swept = -1;
     let sweepStart = 0;
+    // The Pause control (SectionNav, WCAG 2.2.2) and prefers-reduced-motion both land here: the field
+    // treats a pause exactly like reduced motion — a finished still frame, morphs become cross-fades.
+    let paused = false;
+    try { paused = localStorage.getItem("zc-motion") === "paused"; } catch { /* storage blocked: default to motion on */ }
+    paused = paused || document.documentElement.dataset.motion === "paused";
+    const onMotion = (e: Event) => { paused = !!(e as CustomEvent<{ paused?: boolean }>).detail?.paused; };
+    window.addEventListener("zc:motion", onMotion);
+    const motionOff = () => RM || paused;
+    // The field's clock runs only while motion is on, so a pause freezes it where it stands and
+    // resuming carries on from there (nothing jumps either way).
+    let tRun = 0;
+    let tPrev = -1;
+    // Per-scene rest values, indexed by scene. The bookends are calm: low bloom, a quarter of the pointer
+    // drift (the thread at the end: none), and a colour window that parks each scene's gradient on its line.
+    const BLOOM_REST = [0.2, ...Array<number>(12).fill(0.34), 0.18];
+    const DRIFT = [0.35, ...Array<number>(12).fill(1), 0];
+    const WIN: Array<[number, number]> = Array.from({ length: SCENES }, () => [0, 0] as [number, number]);
+    WIN[0] = [0.58, 0.95];
+    WIN[13] = [0.55, 1.0];
     // A long jump (the section nav, a deep link) would otherwise drag the field through every
     // formation in between in about a second. Instead it warps: straight from where it is to
     // where it's going, along the same flowing path a neighbouring transition takes.
@@ -802,19 +865,30 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       fromAttr.needsUpdate = true;
       toAttr.needsUpdate = true;
     };
-    const gradeLerp = (ga: Grade, gb: Grade, e: number) => {
+    // `route`: pass through bone. A straight RGB lerp from brass/ember to mint crosses olive and khaki.
+    const BONE = [0.92, 0.9, 0.85];
+    function gradeLerp(ga: Grade, gb: Grade, e: number, route = false): void {
+      if (route) {
+        const mid: Grade = [BONE, BONE, gb[2]];
+        if (e < 0.5) gradeLerp(ga, mid, e * 2);
+        else gradeLerp(mid, gb, e * 2 - 1);
+        return;
+      }
       colA.setRGB(ga[0][0] + (gb[0][0] - ga[0][0]) * e, ga[0][1] + (gb[0][1] - ga[0][1]) * e, ga[0][2] + (gb[0][2] - ga[0][2]) * e, THREE.SRGBColorSpace);
       colB.setRGB(ga[1][0] + (gb[1][0] - ga[1][0]) * e, ga[1][1] + (gb[1][1] - ga[1][1]) * e, ga[1][2] + (gb[1][2] - ga[1][2]) * e, THREE.SRGBColorSpace);
       U.uGrad.value = ga[2] + (gb[2] - ga[2]) * e;
-    };
+    }
 
     function frame(now: number) {
       raf = requestAnimationFrame(frame);
-      if (document.hidden || !renderer) return;
-      const t = RM ? 0 : (now - t0) / 1000;
-      U.uTime.value = t;
+      if (document.hidden || !renderer) { tPrev = -1; return; }
+      const off = motionOff();
+      if (tPrev >= 0 && !off) tRun += Math.min(0.25, (now - tPrev) / 1000);
+      tPrev = now;
+      U.uTime.value = tRun; // 0 for the whole of a reduced-motion session; frozen while paused
+      U.uRM.value = off ? 1 : 0;
 
-      if (!RM && !warp && Math.abs(fTarget - fSmooth) > 1.5) {
+      if (!off && !warp && Math.abs(fTarget - fSmooth) > 1.5) {
         const from = Math.round(fSmooth),
           to = Math.round(fTarget);
         if (from !== to) {
@@ -824,6 +898,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         }
       }
 
+      // the pair of scenes on show (a, b), how far through (te), and the eased blend (e)
+      let a: number, b: number, e: number, te: number;
       if (warp) {
         let k = Math.min(1, (now - warp.start) / WARP_MS);
         // a nav click smooth-scrolls, so the destination keeps moving for a moment: while still
@@ -835,49 +911,57 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           toAttr.needsUpdate = true;
           k = Math.min(1, (now - warp.start) / WARP_MS);
         }
-        U.uFrom.value = warp.from;
-        U.uTo.value = warp.to;
-        U.uMix.value = k;
-        gradeLerp(GRADE[warp.from], GRADE[warp.to], k * k * (3 - 2 * k));
+        a = warp.from;
+        b = warp.to;
+        te = k;
+        e = k * k * (3 - 2 * k);
         if (k >= 1) {
           fSmooth = warp.to; // land; if the reader kept scrolling, the next frame carries on from here
           warp = null;
         }
       } else {
-        fSmooth += (fTarget - fSmooth) * (RM ? 1 : 0.06);
-        const sa = Math.max(0, Math.min(SCENES - 2, Math.floor(fSmooth)));
-        const te = Math.max(0, Math.min(1, fSmooth - sa));
-        if (sa !== pair) {
-          load(sa, sa + 1);
-          pair = sa;
+        fSmooth += (fTarget - fSmooth) * (off ? 1 : 0.06);
+        a = clamp(Math.floor(fSmooth), 0, SCENES - 2);
+        b = a + 1;
+        te = clamp(fSmooth - a, 0, 1);
+        e = te * te * (3 - 2 * te);
+        if (a !== pair) {
+          load(a, b);
+          pair = a;
         }
-        U.uFrom.value = sa;
-        U.uTo.value = sa + 1;
-        U.uMix.value = te;
-        /* grade lerp (scene colours are authored in sRGB; the pipeline works in linear) */
-        gradeLerp(GRADE[sa], GRADE[sa + 1], te * te * (3 - 2 * te));
       }
+      U.uFrom.value = a;
+      U.uTo.value = b;
+      U.uMix.value = te;
+      /* grade lerp (scene colours are authored in sRGB; the pipeline works in linear) */
+      gradeLerp(GRADE[a], GRADE[b], e, a === 13 || b === 13);
+      (U.uWinFrom.value as THREE.Vector2).set(WIN[a][0], WIN[a][1]);
+      (U.uWinTo.value as THREE.Vector2).set(WIN[b][0], WIN[b][1]);
+      U.uOrdered.value = a === 0 || b === 0 || a === 13 || b === 13 ? 0.7 : 0;
+      // each scene rests at its own bloom; the drama is in transit
+      if (bloom) bloom.strength = BLOOM_REST[a] + (BLOOM_REST[b] - BLOOM_REST[a]) * e + 0.16 * Math.sin(Math.PI * te);
 
-      // the settle sweep: once per arrival, when the scroll has come to rest on a scene
+      // the settle sweep: once per arrival, when the scroll has come to rest on a scene (not on the bookends)
       const k = Math.round(fSmooth);
       const settled = !warp && Math.abs(fTarget - fSmooth) < 0.004 && Math.abs(fSmooth - k) < 0.012;
-      if (!RM && settled && k !== swept) {
+      if (!off && settled && k !== swept) {
         swept = k;
         sweepStart = now;
       } else if (!settled && Math.abs(fSmooth - swept) > 0.5) {
         swept = -1;
       }
       const sw = (now - sweepStart) / 1900;
-      U.uSweep.value = swept >= 0 && sw <= 1 ? sw : -1;
+      U.uSweep.value = swept >= 0 && sw <= 1 && swept !== 0 && swept !== 13 ? sw : -1;
 
       /* the lantern eases in and out; a tap holds it for a moment */
       const on = ptrOnTarget || (now < tapUntil ? 1 : 0);
       U.uPtrOn.value += (on - U.uPtrOn.value) * 0.08;
       (U.uPtr.value as THREE.Vector2).lerp(ptrTarget, 0.18);
 
-      /* camera drift */
-      cx += ((mx - 0.5) * 3.2 - cx) * 0.04;
-      cy += (-(my - 0.5) * 2.0 - cy) * 0.04;
+      /* camera drift: a quarter of it on the hero, none at the end, none at all when motion is off */
+      const dk = off ? 0 : DRIFT[a] + (DRIFT[b] - DRIFT[a]) * e;
+      cx += ((mx - 0.5) * 3.2 * dk - cx) * 0.04;
+      cy += (-(my - 0.5) * 2.0 * dk - cy) * 0.04;
       camera.position.x = cx;
       camera.position.y = cy;
       camera.lookAt(0, 0, 0);
@@ -891,6 +975,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       clearTimeout(lateKeys);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("zc:regate", onRegate);
+      window.removeEventListener("zc:motion", onMotion);
       heroRO.disconnect();
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("pointerdown", onTap);
