@@ -739,7 +739,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
 
           // focus plane at the formation: points off it grow soft and dim (a little depth of field)
           vDof = clamp(abs(mv.z + 34.0) / 11.0, 0.0, 1.0);
-          gl_PointSize = uSize * (0.42 + aRand * 0.8) * (300.0 / -mv.z) * (1.0 + vDof * 1.3) * (1.0 + arc * 0.25) * (1.0 + vGlow * 0.2);
+          gl_PointSize = uSize * (0.42 + aRand * 0.8) * (300.0 / -mv.z) * (1.0 + vDof * 1.3) * (1.0 + arc * 0.25) * (1.0 + vGlow * 0.1);
           gl_Position = clip;
         }
       `,
@@ -1158,7 +1158,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       U.uTo.value = b;
       U.uMix.value = te;
       /* grade lerp (scene colours are authored in sRGB; the pipeline works in linear) */
-      gradeLerp(GRADE[a], GRADE[b], e, a === 13 || b === 13);
+      // (routed through bone, the grade moves on the raw scroll progress: eased, a quarter of the way in it is
+      // still library brass — hue 39°, saturation 0.37 — which reads as khaki against the mint it is heading for)
+      const route = a === 13 || b === 13;
+      gradeLerp(GRADE[a], GRADE[b], route ? te : e, route);
       (U.uWinFrom.value as THREE.Vector2).set(WIN[a][0], WIN[a][1]);
       (U.uWinTo.value as THREE.Vector2).set(WIN[b][0], WIN[b][1]);
       U.uOrdered.value = a === 0 || b === 0 || a === 13 || b === 13 ? 0.7 : 0;
@@ -1189,10 +1192,13 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       U.uPtrOn.value += (on - U.uPtrOn.value) * 0.08;
       (U.uPtr.value as THREE.Vector2).lerp(ptrTarget, 0.18);
 
-      /* camera drift: a quarter of it on the hero, none at the end, none at all when motion is off */
-      const dk = off ? 0 : DRIFT[a] + (DRIFT[b] - DRIFT[a]) * e;
-      cx += ((mx - 0.5) * 3.2 * dk - cx) * 0.04;
-      cy += (-(my - 0.5) * 2.0 * dk - cy) * 0.04;
+      /* camera drift: a quarter of it on the hero, none at the end. With motion off the camera is held where it
+         stands (a paused field would otherwise keep gliding home for a second or two) */
+      if (!off) {
+        const dk = DRIFT[a] + (DRIFT[b] - DRIFT[a]) * e;
+        cx += ((mx - 0.5) * 3.2 * dk - cx) * 0.04;
+        cy += (-(my - 0.5) * 2.0 * dk - cy) * 0.04;
+      }
       camera.position.x = cx;
       camera.position.y = cy;
       camera.lookAt(0, 0, 0);
