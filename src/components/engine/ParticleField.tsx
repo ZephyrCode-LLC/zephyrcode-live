@@ -110,7 +110,7 @@ const TIE_GAIN = 1; // the one knob for the thread's brightness (acceptance C2/C
 // Per-particle ink along the thread: thread < knots (a crescendo, Day 1 < 3 < 10) < the lamp, which is the brightest
 // thing on the scene yet stays under the CTA. The authored values (thread 0.06, knots .07/.08/.095) put the
 // knots above the lamp in this renderer (measured: Day 10 0.58, lamp 0.48 above the page), so they are halved.
-const TIE_INK = { thread: 0.018, knots: [0.014, 0.018, 0.022], lampCore: 0.09, lampHalo: 0.028 };
+const TIE_INK = { thread: 0.014, knots: [0.013, 0.016, 0.019], lampCore: 0.09, lampHalo: 0.022 };
 type HeroAnchors = { h1Right: number; ctaY: number; cueY: number; cueBottom: number; bandTop: number; avoid: Box[] };
 
 export default function ParticleField({ grades }: { grades: Grade[] }) {
@@ -1201,11 +1201,11 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         formAttr[i * 3 + 1] = i % VIS === 0 ? TIE_INK.thread * G : 0;
         formAttr[i * 3 + 2] = 0;
       }
-      const nK = Math.round((160 * N) / 9000), nL = Math.round((320 * N) / 9000);
+      const nK = Math.round((240 * N) / 9000), nL = Math.round((320 * N) / 9000);
       for (let k = 0; k < 3; k++) { // 2) the knots: the thread gathered, elongated along it, never a round star
         const c = path.at(SD[k]);
         for (const i of parkedNearest(Math.round(SD[k] * N), nK)) {
-          const a = gauss() * 0.3, q = gauss() * 0.1;
+          const a = clamp(gauss(), -2.2, 2.2) * 0.5, q = clamp(gauss(), -2.2, 2.2) * 0.13; // a swelling ~3:1 along the thread
           pos[i * 3] = c.x + c.tx * a - c.ty * q;
           pos[i * 3 + 1] = c.y + c.ty * a + c.tx * q;
           pos[i * 3 + 2] = gauss() * 0.03;
@@ -1217,10 +1217,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       for (const i of parkedNearest(N - 1, nL)) {
         // the halo is kept near the core: out of the focal plane, perspective slides it off the lamp as stray dots,
         // and it must stay clear of the client strip's border (acceptance C1)
-        const halo = rand() < 0.45, r = Math.min(Math.abs(gauss()), 2) * (halo ? 0.38 : 0.3), th = rand() * 6.2831853;
+        const halo = rand() < 0.45, r = halo ? 0.18 + Math.min(Math.abs(gauss()), 2) * 0.3 : Math.min(Math.abs(gauss()), 2) * 0.2, th = rand() * 6.2831853;
         pos[i * 3] = c.x + r * Math.cos(th);
         pos[i * 3 + 1] = c.y + r * Math.sin(th);
-        pos[i * 3 + 2] = halo ? clamp(gauss(), -2, 2) * 0.25 : gauss() * 0.03;
+        pos[i * 3 + 2] = gauss() * 0.03;
         formAttr[i * 3 + 1] = (halo ? TIE_INK.lampHalo : TIE_INK.lampCore) * G;
         formAttr[i * 3 + 2] = 4;
       }
