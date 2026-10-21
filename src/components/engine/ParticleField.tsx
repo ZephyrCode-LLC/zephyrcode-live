@@ -101,7 +101,7 @@ const HERO_GAIN = 1; // the one knob for the stroke's brightness (acceptance A5/
 
 /** a rect in viewport px, taken at a scene's settled scroll */
 type Box = { l: number; r: number; t: number; b: number };
-type HeroAnchors = { h1Right: number; ctaY: number; cueY: number; cueBottom: number; avoid: Box[] };
+type HeroAnchors = { h1Right: number; ctaY: number; cueY: number; cueBottom: number; bandTop: number; avoid: Box[] };
 
 export default function ParticleField({ grades }: { grades: Grade[] }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -997,13 +997,14 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const right = Math.max(...Array.from(rg.getClientRects()).map((r) => r.right), whole.l);
         return { ...whole, r: Math.min(whole.r, right) };
       })();
-      const cta = box("#signal .hero-cta"), cue = cueBox;
+      const cta = box("#signal .hero-cta"), cue = cueBox, solid = box("#signal .btn.solid");
       return {
         // fall back to the 1440x900 reference the stroke was authored against
         h1Right: h1Right || pxX(11.27),
         ctaY: cta ? (cta.t + cta.b) / 2 : pxY(-9.1),
         cueY: cue ? (cue.t + cue.b) / 2 : pxY(-11.6),
         cueBottom: cue ? cue.b : view.H * 0.85,
+        bandTop: solid ? solid.t : view.H * 0.6,
         avoid: [box("#signal .lede"), box("#signal .btn.solid"), box("#signal .btn.ghost"), cueBox].filter((b): b is Box => !!b),
       };
     }
@@ -1024,12 +1025,29 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       }
       const end = src.B[3];
       move(fuX(0.66 * view.W) - end[0], fuY(Math.min(a.cueBottom + 0.4 * (view.H - a.cueBottom), view.H - 40)) - end[1]);
+      const scaleAboutEnd = (k: number) => {
+        const e = segs[2][3];
+        segs = segs.map((S) => S.map(([x, y]) => [e[0] + (x - e[0]) * k, e[1] + (y - e[1]) * k] as V2));
+      };
+      // The stroke is ground in the band under the CTAs. On a tall tablet the band is shorter than the stroke,
+      // so draw it smaller (never under 0.35 — below that it would only be a curl in the corner).
+      {
+        const chain = cubicChain(segs, 256);
+        let top = Infinity;
+        for (let u = 0; u <= 0.97; u += 0.01) {
+          const c = chain.at(u), px = pxX(c.x);
+          if (px >= 0 && px <= view.W) top = Math.min(top, pxY(c.y)); // only what is on screen counts
+        }
+        const endPy = pxY(segs[2][3][1]), limit = a.bandTop + 10; // 10px for the brush's own width
+        if (top < limit && endPy > top) scaleAboutEnd(clamp((endPy - limit) / (endPy - top), 0.35, 1));
+      }
       // how far right (px) the stroke would have to move to clear every text block, 0 if it already does
       const overlap = () => {
         const chain = cubicChain(segs, 256);
         let need = 0;
-        for (let u = 0.2; u <= 0.97; u += 0.01) {
+        for (let u = 0; u <= 0.97; u += 0.01) {
           const c = chain.at(u), px = pxX(c.x), py = pxY(c.y);
+          if (px < -20 || px > view.W + 20) continue; // off screen: nothing to collide with
           for (const r of a.avoid) if (px > r.l - 14 && px < r.r + 14 && py > r.t - 14 && py < r.b + 14) need = Math.max(need, r.r + 14 - px);
         }
         return need;
@@ -1041,10 +1059,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         moved += sh;
         move((sh * view.visW) / view.fit / view.W, 0);
       }
-      if (overlap() > 0) {
-        const e = segs[2][3];
-        segs = segs.map((S) => S.map(([x, y]) => [e[0] + (x - e[0]) * 0.9, e[1] + (y - e[1]) * 0.9] as V2));
-      }
+      for (let k = 0; k < 3 && overlap() > 0; k++) scaleAboutEnd(0.9);
       return segs;
     }
 
