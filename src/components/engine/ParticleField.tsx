@@ -110,7 +110,7 @@ const TIE_GAIN = 1; // the one knob for the thread's brightness (acceptance C2/C
 // Per-particle ink along the thread: thread < knots (a crescendo, Day 1 < 3 < 10) < the lamp, which is the brightest
 // thing on the scene yet stays under the CTA. The authored values (thread 0.06, knots .07/.08/.095) put the
 // knots above the lamp in this renderer (measured: Day 10 0.58, lamp 0.48 above the page), so they are halved.
-const TIE_INK = { thread: 0.014, knots: [0.013, 0.016, 0.019], lampCore: 0.09, lampHalo: 0.022 };
+const TIE_INK = { thread: 0.014, knots: [0.012, 0.0145, 0.017], lampCore: 0.066, lampHalo: 0.02 };
 type HeroAnchors = { h1Right: number; ctaY: number; cueY: number; cueBottom: number; bandTop: number; avoid: Box[] };
 
 export default function ParticleField({ grades }: { grades: Grade[] }) {
@@ -723,7 +723,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           float P = clamp(uArrive / 3.2, 0.0, 1.0);                            // arrival light along the thread, linear in days
           float on = uArrive < 0.0 ? 0.45 : mix(0.45, 1.0, smoothstep(0.0, 0.04, P - aU)); // knots + lamp latch on as it passes
           float swell = (k > 3.5 && uArrive >= 0.0) ? 0.45 * exp(-pow((uArrive - 3.35) / 0.3, 2.0)) : 0.0;
-          float m13 = k < 0.5 ? 1.0 : on * (1.0 + (k > 3.5 ? 0.3 * uCta : 0.0)) + swell;
+          float m13 = k < 0.5 ? 1.0 : on * (1.0 + (k > 3.5 ? 0.6 * uCta : 0.0)) + swell;
 
           // light that travels along a still drawing
           float g0 = 0.0;
@@ -1228,7 +1228,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       for (const i of parkedNearest(N - 1, nL)) {
         // the halo is kept near the core: out of the focal plane, perspective slides it off the lamp as stray dots,
         // and it must stay clear of the client strip's border (acceptance C1)
-        const halo = rand() < 0.45, r = halo ? 0.18 + Math.min(Math.abs(gauss()), 2) * 0.3 : Math.min(Math.abs(gauss()), 2) * 0.2, th = rand() * 6.2831853;
+        const halo = rand() < 0.45, r = halo ? 0.15 + Math.min(Math.abs(gauss()), 2) * 0.22 : Math.min(Math.abs(gauss()), 2) * 0.2, th = rand() * 6.2831853;
         pos[i * 3] = c.x + r * Math.cos(th);
         pos[i * 3 + 1] = c.y + r * Math.sin(th);
         pos[i * 3 + 2] = gauss() * 0.03;
