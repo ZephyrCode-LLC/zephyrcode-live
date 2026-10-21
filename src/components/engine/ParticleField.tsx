@@ -643,6 +643,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         uIntro: { value: 1.06 }, // hero draw-on: how far along the line (aU) has been drawn; 1.06 = all of it
         uBreath: { value: -1 }, // hero breath clock in seconds; negative = no light
         uArrive: { value: -1 }, // maker arrival clock in seconds; -1 = not yet, 99 = already lit
+        uLift13: { value: 0 }, // fu the page has carried scene 13 past (or short of) its rest scroll
         uCta: { value: 0 }, // the page's "Request a pilot" echoing into the lamp, 0-1
         uOrdered: { value: 0 }, // 0 = departures on each particle's own beat, 0.7 = in line order (bookend pairs)
         uWinFrom: { value: new THREE.Vector2(0, 0) }, // per-scene colour window over aU; (0,0) = off
@@ -650,7 +651,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       },
       vertexShader: /* glsl */ `
         attribute vec3 aTo; attribute float aRand; attribute float aU; attribute vec3 aLoop; attribute vec3 aForm;
-        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uIntro, uBreath, uArrive, uCta, uOrdered;
+        uniform float uTime, uMix, uFrom, uTo, uSize, uRM, uAspect, uSweep, uPtrOn, uLoopFlow, uIntro, uBreath, uArrive, uCta, uOrdered, uLift13;
         uniform vec2 uPtr, uLoopWH, uWinFrom, uWinTo;
         uniform sampler2D uLoopLUT;
         varying float vMix, vSeed, vLight, vSweep, vDof, vArc, vInk, vGlow, vQuiet;
@@ -686,6 +687,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
           vSeed = aRand;
           vec3 A = live(position, uFrom, t);
           vec3 B = live(aTo, uTo, t);
+          // 13 is drawn against the maker's text at one scroll; the page carries it from there like the text
+          // itself, so the lamp stays beside "Request a pilot" and leaves with it instead of hanging over the footer
+          if (uFrom > 12.5) A.y += uLift13;
+          if (uTo > 12.5) B.y += uLift13;
 
           // staggered departure: each particle leaves on its own beat, so a scene change reads
           // as a murmuration rather than every point sliding in lockstep
@@ -1337,6 +1342,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         arriveStart = -1;
         U.uArrive.value = -1;
       }
+      U.uLift13.value = ((window.scrollY - rest13) * view.visH) / view.H / view.fit;
       U.uCta.value += (ctaHot - U.uCta.value) * (ctaHot > U.uCta.value ? 0.25 : 0.1); // ~150 ms in, ~400 ms out
 
       /* the lantern eases in and out; a tap holds it for a moment */
