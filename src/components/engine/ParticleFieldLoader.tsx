@@ -10,14 +10,14 @@ const ParticleField = dynamic(() => import("./ParticleField"), { ssr: false });
  * The hub's per-room palette: the field is coloured AND shaped to befit each of the 13
  * sections it sits behind, changing all the way down the page. Code-owned + version-controlled
  * (overrides the CMS grades). Formations, in scroll order:
- * signal(wind) · doors(figure+open doors) · method(∞ loop) · audits(lattice) · arena(bars) ·
+ * signal(one breath — a calligraphic wind stroke) · doors(figure+open doors) · method(∞ loop) · audits(lattice) · arena(bars) ·
  * sage(orbit) · stories(lamp) · kshetra(conch) · samhita(merge) · studio(browser wireframe) ·
- * arcade(Pac-Man chase) · systems(3 rings) · library(books+headphones+TV) · operator(the maker at his desk).
+ * arcade(Pac-Man chase) · systems(3 rings) · library(books+headphones+TV) · operator(tied off — the thread, Day 1→14).
  * Values are RGB 0–1 (THREE.Color); each scene is [colA, colB, gradMix] (gradMix 1 = ordered
  * gradient along the shape, 0 = per-particle two-tone speckle).
  */
 const SECTION_GRADES: Grade[] = [
-  [[0.92, 0.4, 0.18], [0.82, 0.68, 0.4], 0.45], // signal — ember → brass, the warm opening
+  [[0.94, 0.9, 0.84], [0.91, 0.365, 0.165], 1.0], // signal — bone → ember: the headline's own two inks, along the stroke (the colour window parks the ember on its last quarter)
   [[0.62, 0.55, 0.45], [0.97, 0.75, 0.38], 0.4], // doors — stone figure + gold threshold light
   [[0.26, 0.86, 0.95], [0.5, 0.42, 0.92], 1.0], // method — cyan → indigo flowing around the ∞ loop
   [[0.24, 0.85, 0.9], [0.82, 0.92, 0.96], 0.5], // audits — telemetry cyan → icy white (the system under glass)
@@ -30,7 +30,7 @@ const SECTION_GRADES: Grade[] = [
   [[1.0, 0.9, 0.22], [0.45, 0.8, 1.0], 1.0], // arcade — ordered neon: the Pac + pellets glow yellow → the ghost pack + swarm go ice-blue
   [[0.32, 0.79, 0.55], [0.6, 0.92, 0.72], 0.5], // systems — forge green, the three OS rings
   [[0.79, 0.64, 0.36], [0.95, 0.82, 0.5], 0.5], // library — brass, the books/headphones/TV
-  [[0.91, 0.4, 0.18], [1.0, 0.6, 0.3], 0.4], // operator — ember, the maker at his desk
+  [[0.9, 0.92, 0.88], [0.56, 0.88, 0.68], 1.0], // operator — cool bone → pale mint: progress through the fortnight, ending in the lamp (paler than the CTA's #54d38a, so the CTA keeps the top chroma; no ember here)
 ];
 
 export function ParticleFieldLoader({ grades }: { grades: Grade[] }) {

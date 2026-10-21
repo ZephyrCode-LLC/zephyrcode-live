@@ -50,6 +50,12 @@
    up/down bleed → never washes the seam into a neighbouring section); -20% sides
    so the ellipse edges fall off-canvas and it blends, never reads as a panel. */
 [data-site="home"] .scene::before { content: ""; position: absolute; inset: 0 -20%; z-index: 0; pointer-events: none; background: radial-gradient(82% 82% at 42% 50%, rgba(9, 7, 5, 0.92), rgba(9, 7, 5, 0.6) 56%, rgba(9, 7, 5, 0) 84%); }
+/* The hero's wash leans left: the one-breath stroke lives in the right third, which the generic wash would dim to ~40%. */
+[data-site="home"] .hero::before { background: radial-gradient(64% 80% at 26% 50%, rgba(9, 7, 5, 0.9), rgba(9, 7, 5, 0.5) 55%, rgba(9, 7, 5, 0) 80%); }
+/* Same for the maker, desktop only: its thread hangs in the right gutter. The timetable and client strip keep their own backgrounds. */
+@media (min-width: 900px) {
+  [data-site="home"] #operator::before { background: radial-gradient(70% 85% at 32% 50%, rgba(9, 7, 5, 0.92), rgba(9, 7, 5, 0.55) 58%, rgba(9, 7, 5, 0) 82%); }
+}
 [data-site="home"] .scene > * { position: relative; z-index: 2; }
 /* Readability over the particle field: every scene text inherits a dark halo
    (text-shadow is inherited), so labels/captions that aren't headings are still
@@ -62,6 +68,11 @@
 
 /* hero */
 [data-site="home"] .hero { min-height: 100vh; justify-content: center; }
+/* Portrait: the stroke is ground in the first screen (ParticleField places it in the band under the scroll cue). The top
+   padding keeps the centred text clear of the fixed header; the bottom padding is that band. */
+@media (max-aspect-ratio: 1/1) {
+  [data-site="home"] .hero { padding-top: 88px; padding-bottom: max(140px, 18svh); }
+}
 [data-site="home"] .hero h1 { font-size: clamp(2.9rem, 8.2vw, 7.2rem); font-weight: 300; max-width: 13ch; }
 [data-site="home"] .hero h1 em { font-style: italic; font-weight: 400; color: color-mix(in oklab, var(--accent) 85%, white); }
 [data-site="home"] .hero .lede { margin-top: 34px; max-width: 58ch; font-size: clamp(1.02rem, 1.5vw, 1.18rem); color: var(--bone-dim); font-weight: 300; }
@@ -76,6 +87,8 @@
 [data-site="home"] .shead { margin-bottom: clamp(36px, 6vh, 64px); }
 [data-site="home"] .shead h2 { font-size: clamp(2rem, 4.6vw, 3.6rem); max-width: 20ch; }
 [data-site="home"] .shead h2 em { font-style: italic; color: var(--brass); }
+/* the maker's italic is pale mint, not brass: brass would be a third hue next to the bone/mint thread (and gold is not a room accent) */
+[data-site="home"] #operator .shead h2 em { color: color-mix(in srgb, var(--accent) 40%, var(--bone)); }
 [data-site="home"] .shead .sub { margin-top: 18px; color: var(--bone-dim); max-width: 62ch; font-size: 1.05rem; }
 
 /* method */
