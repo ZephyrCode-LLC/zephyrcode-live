@@ -23,6 +23,18 @@ import "@/styles/sites/home-starmap.css";
 
 export type Grade = [number[], number[], number];
 
+/** Seeded PRNG: every formation draws from this, so two loads build the identical field (screenshot diffs, A10). */
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 /** The hero's star chart: one star per section, in page order (same ids + labels as the section nav). */
 const STAR_IDS = ["signal", "doors", "method", "audits", "arena", "sage", "stories", "kshetra", "samhita", "studio", "arcade", "systems", "library", "operator"];
 const STAR_LABELS = ["You are here", "Doors", "Method", "Audits", "Arena", "Sage", "Stories", "Kshetra", "Samhita", "Studio", "Arcade", "Systems", "Library", "Maker"];
@@ -71,11 +83,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
 
     const N = window.innerWidth < 700 ? 4200 : 9000;
     const SCENES = 14;
-    const rnd = (a: number, b: number) => a + Math.random() * (b - a);
+    const rand = mulberry32(0x5eed14);
+    const rnd = (a: number, b: number) => a + rand() * (b - a);
 
     // shared glyph helpers: draw a line of points into `pts`, and scatter `pts` across all particles.
     const seg = (pts: Array<[number, number]>, x0: number, y0: number, x1: number, y1: number, n: number) => {
-      for (let s = 0; s < n; s++) { const t = Math.random(); pts.push([x0 + (x1 - x0) * t, y0 + (y1 - y0) * t]); }
+      for (let s = 0; s < n; s++) { const t = rand(); pts.push([x0 + (x1 - x0) * t, y0 + (y1 - y0) * t]); }
     };
     const rectPts = (pts: Array<[number, number]>, x0: number, y0: number, x1: number, y1: number, n: number) => {
       seg(pts, x0, y0, x1, y0, n); seg(pts, x0, y1, x1, y1, n); seg(pts, x0, y0, x0, y1, n); seg(pts, x1, y0, x1, y1, n);
@@ -83,11 +96,11 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     // a SOLID band of half-width w along a segment (a fat limb / body mass) — reads cleanly as particles.
     const bar = (pts: Array<[number, number]>, x0: number, y0: number, x1: number, y1: number, w: number, n: number) => {
       const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy) || 1, px = -dy / L, py = dx / L;
-      for (let s = 0; s < n; s++) { const t = Math.random(), o = (Math.random() * 2 - 1) * w; pts.push([x0 + dx * t + px * o, y0 + dy * t + py * o]); }
+      for (let s = 0; s < n; s++) { const t = rand(), o = (rand() * 2 - 1) * w; pts.push([x0 + dx * t + px * o, y0 + dy * t + py * o]); }
     };
     // an elliptical arc from angle a0→a1 with a little radial jitter jr (fraction of radius) — crisp curves.
     const arc = (pts: Array<[number, number]>, cx: number, cy: number, rx: number, ry: number, a0: number, a1: number, n: number, jr = 0.03) => {
-      for (let s = 0; s < n; s++) { const t = a0 + Math.random() * (a1 - a0), rr = 1 + (Math.random() * 2 - 1) * jr; pts.push([cx + Math.cos(t) * rx * rr, cy + Math.sin(t) * ry * rr]); }
+      for (let s = 0; s < n; s++) { const t = a0 + rand() * (a1 - a0), rr = 1 + (rand() * 2 - 1) * jr; pts.push([cx + Math.cos(t) * rx * rr, cy + Math.sin(t) * ry * rr]); }
     };
     // a point on a quadratic bezier, and a soft dotted stroke of half-width w along one.
     const qAt = (p0: [number, number], p1: [number, number], p2: [number, number], t: number): [number, number] => {
@@ -95,9 +108,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     };
     const qcurve = (pts: Array<[number, number]>, p0: [number, number], p1: [number, number], p2: [number, number], n: number, w: number) => {
       for (let s = 0; s < n; s++) {
-        const t = Math.random(), m = 1 - t, q = qAt(p0, p1, p2, t);
+        const t = rand(), m = 1 - t, q = qAt(p0, p1, p2, t);
         const dx = 2 * m * (p1[0] - p0[0]) + 2 * t * (p2[0] - p1[0]), dy = 2 * m * (p1[1] - p0[1]) + 2 * t * (p2[1] - p1[1]);
-        const L = Math.hypot(dx, dy) || 1, o = (Math.random() * 2 - 1) * w;
+        const L = Math.hypot(dx, dy) || 1, o = (rand() * 2 - 1) * w;
         pts.push([q[0] - (dy / L) * o, q[1] + (dx / L) * o]);
       }
     };
@@ -144,7 +157,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const yn = Math.pow(u, 1.25);
         const y = -9 + yn * 22;
         const prof = Math.pow(1 - yn, 1.15) * (0.5 + 0.5 * Math.sin(Math.min(yn * 3.4, Math.PI)));
-        const R = 6.4 * prof * Math.sqrt(Math.random());
+        const R = 6.4 * prof * Math.sqrt(rand());
         const ang = rnd(0, Math.PI * 2);
         a[i * 3] = Math.cos(ang) * R;
         a[i * 3 + 1] = y + rnd(-0.5, 0.5);
@@ -200,11 +213,11 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const push = (x: number, y: number) => pts.push([x, y]);
       // ---- THE THINKER: a compact standing figure in the classic thinking pose — one arm folded
       // across the waist, the other elbow resting on it, hand raised to the chin, head gently bowed. ----
-      const blob = (cx: number, cy: number, rx: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); push(cx + Math.cos(ang) * rr * rx, cy + Math.sin(ang) * rr * ry); } };
+      const blob = (cx: number, cy: number, rx: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = rand() * 6.283, rr = Math.sqrt(rand()); push(cx + Math.cos(ang) * rr * rx, cy + Math.sin(ang) * rr * ry); } };
       // (slim torso + elbows swung WIDE so real daylight separates the raised arm from the body)
       blob(0.0, 9.2, 1.18, 1.34, 105);                       // head, slightly bowed
       bar(pts, 0.02, 7.95, 0.1, 7.4, 0.52, 18);              // neck
-      for (let s = 0; s < 205; s++) { const t = Math.random(), y = 7.3 - t * 4.0, hw = 1.62 - 0.55 * t; push((Math.random() * 2 - 1) * hw + 0.15 * t, y); } // torso, shoulders → waist
+      for (let s = 0; s < 205; s++) { const t = rand(), y = 7.3 - t * 4.0, hw = 1.62 - 0.55 * t; push((rand() * 2 - 1) * hw + 0.15 * t, y); } // torso, shoulders → waist
       blob(0.22, 3.0, 1.42, 0.62, 34);                       // hips
       bar(pts, -0.42, 2.8, -0.68, -0.3, 0.58, 95);           // near leg
       bar(pts, 0.84, 2.8, 1.24, -0.3, 0.58, 95);             // far leg
@@ -227,8 +240,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         seg(pts, xL, DT, xF, DT + tilt, 78);        // top edge (slants down-left)
         seg(pts, xL, DB, xF, DB + tilt, 78);        // bottom edge (parallel)
         seg(pts, xF, DB + tilt, xF, DT + tilt, 96); // free edge (tall)
-        for (let s = 0; s < 40; s++) { const u = Math.random(); const xx = xF + (xL - xF) * u; const yT = (DT + tilt) - tilt * u, yB = (DB + tilt) - tilt * u; push(xx, yB + (yT - yB) * Math.random()); } // leaf face
-        for (let s = 0; s < 10; s++) push(xF + 0.35, (DB + DT) / 2 + tilt / 2 + (Math.random() * 2 - 1) * 0.25); // knob on the free edge
+        for (let s = 0; s < 40; s++) { const u = rand(); const xx = xF + (xL - xF) * u; const yT = (DT + tilt) - tilt * u, yB = (DB + tilt) - tilt * u; push(xx, yB + (yT - yB) * rand()); } // leaf face
+        for (let s = 0; s < 10; s++) push(xF + 0.35, (DB + DT) / 2 + tilt / 2 + (rand() * 2 - 1) * 0.25); // knob on the free edge
       }
       fillPts(a, pts, 0.12, 1.1);
       return a;
@@ -281,9 +294,9 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const y = (i / N) * MAXH;               // desired height (correlates with aU)
         let lo = 0; while (lo < NB && hts[lo] < y) lo++; // bars lo..NB-1 are tall enough
         const span = NB - lo;
-        const k = span > 0 ? lo + Math.floor(Math.random() * span) : NB - 1;
-        a[i * 3] = xcs[k] + (Math.random() * 2 - 1) * BW;
-        a[i * 3 + 1] = BASE + y + (Math.random() * 2 - 1) * 0.14;
+        const k = span > 0 ? lo + Math.floor(rand() * span) : NB - 1;
+        a[i * 3] = xcs[k] + (rand() * 2 - 1) * BW;
+        a[i * 3 + 1] = BASE + y + (rand() * 2 - 1) * 0.14;
         a[i * 3 + 2] = rnd(-1.4, 1.4);
       }
       return a;
@@ -293,8 +306,8 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     function fOrbit() {
       const a = new Float32Array(N * 3);
       for (let i = 0; i < N; i++) {
-        if (Math.random() < 0.28) {             // nucleus
-          const ang = rnd(0, 6.283), r = 3.0 * Math.sqrt(Math.random());
+        if (rand() < 0.28) {             // nucleus
+          const ang = rnd(0, 6.283), r = 3.0 * Math.sqrt(rand());
           a[i * 3] = Math.cos(ang) * r; a[i * 3 + 1] = Math.sin(ang) * r * 0.95; a[i * 3 + 2] = rnd(-1.6, 1.6);
         } else {                                 // orbit ring
           const ang = (i / N) * Math.PI * 2;
@@ -310,15 +323,15 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
       const BX = 7, BY = 3, BCY = -4.5;
-      for (let s = 0; s < 640; s++) { const t = Math.PI + Math.random() * Math.PI; pts.push([BX * Math.cos(t), BCY + BY * Math.sin(t)]); } // bowl (lower half-ellipse)
-      for (let s = 0; s < 240; s++) pts.push([(Math.random() * 2 - 1) * BX * 0.9, BCY - Math.random() * BY * 0.85]); // oil fill
-      for (let s = 0; s < 220; s++) { const u = Math.random() * 2 - 1; pts.push([u * BX, BCY + 0.15 - Math.abs(u) * 0.55]); } // rim with a slight spout at the ends
-      for (let s = 0; s < 120; s++) pts.push([(Math.random() * 2 - 1) * 3.2, -8.0 + Math.random() * 0.6]); // base
-      for (let s = 0; s < 70; s++) pts.push([(Math.random() * 2 - 1) * 0.25, -4.3 + Math.random() * 2.1]); // wick
+      for (let s = 0; s < 640; s++) { const t = Math.PI + rand() * Math.PI; pts.push([BX * Math.cos(t), BCY + BY * Math.sin(t)]); } // bowl (lower half-ellipse)
+      for (let s = 0; s < 240; s++) pts.push([(rand() * 2 - 1) * BX * 0.9, BCY - rand() * BY * 0.85]); // oil fill
+      for (let s = 0; s < 220; s++) { const u = rand() * 2 - 1; pts.push([u * BX, BCY + 0.15 - Math.abs(u) * 0.55]); } // rim with a slight spout at the ends
+      for (let s = 0; s < 120; s++) pts.push([(rand() * 2 - 1) * 3.2, -8.0 + rand() * 0.6]); // base
+      for (let s = 0; s < 70; s++) pts.push([(rand() * 2 - 1) * 0.25, -4.3 + rand() * 2.1]); // wick
       for (let s = 0; s < 1400; s++) { // flame — teardrop rising to a tip
-        const h = Math.random(), y = -2.2 + h * 9.4;
+        const h = rand(), y = -2.2 + h * 9.4;
         const w = 2.5 * (h < 0.32 ? 0.15 + 0.85 * Math.sqrt(h / 0.32) : Math.pow((1 - h) / 0.68, 0.8));
-        pts.push([(Math.random() * 2 - 1) * w, y]);
+        pts.push([(rand() * 2 - 1) * w, y]);
       }
       for (const p of pts) { p[0] = p[0] * 1.4 + 5; p[1] *= 1.4; } // scale the lamp up + set it right of the copy
       fillPts(a, pts, 0.14, 1.2);
@@ -357,7 +370,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     function fMerge() {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
-      const dot = (cx: number, cy: number, r: number, n: number) => { for (let s = 0; s < n; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); pts.push([cx + Math.cos(ang) * rr * r, cy + Math.sin(ang) * rr * r]); } };
+      const dot = (cx: number, cy: number, r: number, n: number) => { for (let s = 0; s < n; s++) { const ang = rand() * 6.283, rr = Math.sqrt(rand()); pts.push([cx + Math.cos(ang) * rr * r, cy + Math.sin(ang) * rr * r]); } };
       bar(pts, -17, 0, 17, 0, 0.09, 300);                                   // the main line
       qcurve(pts, [-9, 0], [-8.4, 4.4], [-5.5, 4.4], 105, 0.08);            // branch out…
       bar(pts, -5.5, 4.4, 3.5, 4.4, 0.08, 130);                             // …the branch lane…
@@ -381,7 +394,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const L = -16, R = 16, TP = 10, BT = -10;
       rectPts(pts, L, BT, R, TP, 120);            // window frame
       seg(pts, L, TP - 2.4, R, TP - 2.4, 70);     // title-bar divider
-      for (let d = 0; d < 3; d++) for (let s = 0; s < 22; s++) { const ang = Math.random() * 6.283, r = 0.35 * Math.sqrt(Math.random()); pts.push([L + 1.4 + d * 1.3 + Math.cos(ang) * r, TP - 1.2 + Math.sin(ang) * r]); } // window dots
+      for (let d = 0; d < 3; d++) for (let s = 0; s < 22; s++) { const ang = rand() * 6.283, r = 0.35 * Math.sqrt(rand()); pts.push([L + 1.4 + d * 1.3 + Math.cos(ang) * r, TP - 1.2 + Math.sin(ang) * r]); } // window dots
       rectPts(pts, L + 2, 1.5, R - 2, TP - 4, 55); // hero block
       rectPts(pts, L + 2, BT + 2, -1, -0.5, 48);   // left column
       rectPts(pts, 1, BT + 2, R - 2, -0.5, 48);    // right column
@@ -399,10 +412,10 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const BH = R * 1.25, er = 0.27 * R;
         const eyes: Array<[number, number]> = [[gx - 0.42 * R, gy + 0.2 * R], [gx + 0.42 * R, gy + 0.2 * R]];
         for (let s = 0; s < Math.round(R * R * 46); s++) {
-          const u = Math.random() * 2 - 1, x = gx + u * R;
+          const u = rand() * 2 - 1, x = gx + u * R;
           const yTop = gy + Math.sqrt(Math.max(0.02, 1 - u * u)) * R;                 // the dome
           const yBot = gy - BH + 0.3 * R * Math.abs(Math.sin(u * 3 * Math.PI));      // the scalloped skirt
-          const y = yBot + Math.random() * Math.max(0.05, yTop - yBot);
+          const y = yBot + rand() * Math.max(0.05, yTop - yBot);
           if ((x - eyes[0][0]) ** 2 + (y - eyes[0][1]) ** 2 < er * er) continue;
           if ((x - eyes[1][0]) ** 2 + (y - eyes[1][1]) ** 2 < er * er) continue;
           pts.push([x, y]);
@@ -412,7 +425,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const m = 0.55, ea = face + (Math.cos(face) >= 0 ? 1.15 : -1.15);            // the eye sits above the mouth
         const ex = px + Math.cos(ea) * 0.48 * R, ey = py + Math.sin(ea) * 0.48 * R, er = 0.21 * R;
         for (let s = 0; s < Math.round(R * R * 50); s++) {
-          const ang = face + m + Math.random() * (Math.PI * 2 - 2 * m), rr = R * Math.sqrt(Math.random());
+          const ang = face + m + rand() * (Math.PI * 2 - 2 * m), rr = R * Math.sqrt(rand());
           const x = px + Math.cos(ang) * rr, y = py + Math.sin(ang) * rr;
           if ((x - ex) ** 2 + (y - ey) ** 2 < er * er) continue;
           pts.push([x, y]);
@@ -421,12 +434,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const invader = (ix: number, iy: number, R: number) => {
         const g = R * 0.5;
         const cells: Array<[number, number]> = [[-1, 1], [1, 1], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [-2, -1], [-1, -1], [1, -1], [2, -1], [-1, -2], [1, -2]];
-        for (const cl of cells) for (let s = 0; s < 9; s++) pts.push([ix + cl[0] * g + (Math.random() * 2 - 1) * g * 0.36, iy + cl[1] * g + (Math.random() * 2 - 1) * g * 0.36]);
+        for (const cl of cells) for (let s = 0; s < 9; s++) pts.push([ix + cl[0] * g + (rand() * 2 - 1) * g * 0.36, iy + cl[1] * g + (rand() * 2 - 1) * g * 0.36]);
         seg(pts, ix - 1.7 * g, iy + 2.5 * g, ix - g, iy + 1.3 * g, 8); seg(pts, ix + 1.7 * g, iy + 2.5 * g, ix + g, iy + 1.3 * g, 8); // antennae
       };
       // the chase, centre stage: a big Pac gobbling a pellet trail toward a fleeing ghost pack
       pac(-16.5, 0, 2.8, 0);
-      for (const px of [-11.6, -9.2, -6.8, -4.4, -2.0]) for (let s = 0; s < 26; s++) { const ang = Math.random() * 6.283, rr = 0.4 * Math.sqrt(Math.random()); pts.push([px + Math.cos(ang) * rr, Math.sin(ang) * rr]); }
+      for (const px of [-11.6, -9.2, -6.8, -4.4, -2.0]) for (let s = 0; s < 26; s++) { const ang = rand() * 6.283, rr = 0.4 * Math.sqrt(rand()); pts.push([px + Math.cos(ang) * rr, Math.sin(ang) * rr]); }
       ghost(3.8, 0.3, 2.4); ghost(9.4, -0.4, 2.2); ghost(14.6, 0.5, 2.05);
       // smaller creatures scattered across the whole width — loose, playful, not a grid
       invader(-20.0, 7.6, 1.7); invader(-7.0, 8.4, 1.5); invader(6.8, 7.8, 1.65); invader(18.5, 8.2, 1.55);
@@ -445,7 +458,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       const pts: Array<[number, number]> = [];
       const R = 7.4;
       const centers: Array<[number, number]> = [[0, 4.3], [-3.7, -2.15], [3.7, -2.15]];
-      for (const ct of centers) for (let s = 0; s < 1600; s++) { const ang = Math.random() * 6.283, rr = R + (Math.random() * 2 - 1) * 0.18; pts.push([ct[0] + Math.cos(ang) * rr, ct[1] + Math.sin(ang) * rr]); }
+      for (const ct of centers) for (let s = 0; s < 1600; s++) { const ang = rand() * 6.283, rr = R + (rand() * 2 - 1) * 0.18; pts.push([ct[0] + Math.cos(ang) * rr, ct[1] + Math.sin(ang) * rr]); }
       fillPts(a, pts, 0.1, 1.4);
       return a;
     }
@@ -479,7 +492,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       for (const side of [-1, 1]) {
         seg(pts, hx + side * 4.05, hy + 0.3, hx + side * 4.2, hy - 1.1, 24);    // yoke
         arc(pts, hx + side * 4.05, hy - 2.5, 1.05, 1.4, 0, Math.PI * 2, 92, 0.035); // cup shell
-        for (let s = 0; s < 62; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); pts.push([hx + side * 4.05 + Math.cos(ang) * rr * 0.55, hy - 2.5 + Math.sin(ang) * rr * 0.85]); } // pad
+        for (let s = 0; s < 62; s++) { const ang = rand() * 6.283, rr = Math.sqrt(rand()); pts.push([hx + side * 4.05 + Math.cos(ang) * rr * 0.55, hy - 2.5 + Math.sin(ang) * rr * 0.85]); } // pad
       }
       // ---- TV (top-right): a retro set — rounded shell, screen with an outlined ▶, knobs, speaker, V antennae ----
       const tx = 16, ty = 6.6, TW = 4.6, TH = 3.2, cr = 0.9;
@@ -503,7 +516,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     function fMaker() {
       const a = new Float32Array(N * 3);
       const pts: Array<[number, number]> = [];
-      const disc = (cx: number, cy: number, r: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = Math.random() * 6.283, rr = Math.sqrt(Math.random()); pts.push([cx + Math.cos(ang) * rr * r, cy + Math.sin(ang) * rr * ry]); } };
+      const disc = (cx: number, cy: number, r: number, ry: number, n: number) => { for (let s = 0; s < n; s++) { const ang = rand() * 6.283, rr = Math.sqrt(rand()); pts.push([cx + Math.cos(ang) * rr * r, cy + Math.sin(ang) * rr * ry]); } };
       // ---- the room: a floor line grounds the whole scene ----
       seg(pts, -22, -11, 23, -11, 140);
       // ---- books stacked on the floor, far corner (they stay left, under the copy) ----
@@ -519,12 +532,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
       // ---- laptop, open toward the boy, its light spilling his way ----
       bar(pts, 0.8, -2.8, 6.8, -2.8, 0.2, 72);              // base
       bar(pts, 6.8, -2.8, 5.3, 3.4, 0.18, 92);              // screen, tilted back
-      for (let s = 0; s < 100; s++) { const t = Math.random(); pts.push([(6.5 - 1.45 * t) - Math.random() * 1.6, -2.7 + t * 5.7]); } // screen light
+      for (let s = 0; s < 100; s++) { const t = rand(); pts.push([(6.5 - 1.45 * t) - rand() * 1.6, -2.7 + t * 5.7]); } // screen light
       // ---- the maker, side view, leaning into the work — larger, so the pose stays crisp ----
       disc(-5.3, 4.3, 1.7, 1.85, 185);                      // head
       arc(pts, -5.3, 4.45, 2.5, 2.5, Math.PI * 0.06, Math.PI * 0.94, 160, 0.02); // headphone band
       disc(-6.2, 3.8, 0.75, 1.05, 80);                      // near ear cup
-      for (let s = 0; s < 480; s++) { const t = Math.random(), y = 2.2 - t * 5.1, hw = 2.0 - 0.5 * t, xc = -4.9 - 1.9 * t; pts.push([xc + (Math.random() * 2 - 1) * hw, y]); } // torso, leaning in
+      for (let s = 0; s < 480; s++) { const t = rand(), y = 2.2 - t * 5.1, hw = 2.0 - 0.5 * t, xc = -4.9 - 1.9 * t; pts.push([xc + (rand() * 2 - 1) * hw, y]); } // torso, leaning in
       bar(pts, -4.4, 1.3, -2.6, -1.4, 0.6, 82);             // upper arm
       bar(pts, -2.6, -1.4, 2.9, -2.5, 0.52, 100);           // forearm → hands on the keys
       bar(pts, -6.6, -3.1, -2.9, -3.5, 1.15, 175);          // lap
@@ -575,12 +588,12 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const c = accents[si] ?? accents[0];
         const nCore = Math.round(90 * mag * k9), nSpike = Math.round(64 * mag * k9);
         for (let k = 0; k < nCore; k++) {
-          const r = 0.16 * mag * Math.sqrt(-2 * Math.log(Math.random() + 1e-6)), th = Math.random() * 6.283;
+          const r = 0.16 * mag * Math.sqrt(-2 * Math.log(rand() + 1e-6)), th = rand() * 6.283;
           put(x + r * Math.cos(th), y + r * Math.sin(th), rnd(-0.15, 0.15), c, 1, si);
         }
         for (let k = 0; k < nSpike; k++) {
           // an X-shaped glint (diagonal, so the arms never run through a label beside the star)
-          const u = Math.random() * 2 - 1, t = (Math.sign(u) * u * u * 1.15 * mag) / Math.SQRT2, d = k % 2 === 0 ? 1 : -1;
+          const u = rand() * 2 - 1, t = (Math.sign(u) * u * u * 1.15 * mag) / Math.SQRT2, d = k % 2 === 0 ? 1 : -1;
           put(x + t + rnd(-0.025, 0.025), y + d * t + rnd(-0.025, 0.025), 0, c, 0.85, si);
         }
       });
@@ -588,13 +601,13 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
         const [x0, y0] = STARS[p], [x1, y1] = STARS[q];
         const n = Math.round(Math.hypot(x1 - x0, y1 - y0) * 7 * k9);
         for (let k = 0; k < n; k++) {
-          const t = 0.1 + Math.random() * 0.8; // a gap at each end, so the stars read as stars
+          const t = 0.1 + rand() * 0.8; // a gap at each end, so the stars read as stars
           put(x0 + (x1 - x0) * t + rnd(-0.04, 0.04), y0 + (y1 - y0) * t + rnd(-0.04, 0.04), 0, accents[p].clone().lerp(accents[q], t), 0.45, -1);
         }
       });
       const atlas = new THREE.Color(0.72, 0.64, 0.56);
       for (let k = 0, n = Math.round(700 * k9); k < n; k++) {
-        const th = Math.random() * 6.283, rr = k % 3 === 0 ? 14.6 : 11.2, x = 15.6 + rr * 1.08 * Math.cos(th), y = rr * Math.sin(th);
+        const th = rand() * 6.283, rr = k % 3 === 0 ? 14.6 : 11.2, x = 15.6 + rr * 1.08 * Math.cos(th), y = rr * Math.sin(th);
         if (x < 8.5) continue; // the atlas ring never runs behind the headline
         put(x, y, 0, atlas, 0.3, -1);
       }
@@ -621,7 +634,7 @@ export default function ParticleField({ grades }: { grades: Grade[] }) {
     const aU = new Float32Array(N);
     const aLoop = new Float32Array(N * 3);
     for (let i = 0; i < N; i++) {
-      aRand[i] = Math.random();
+      aRand[i] = rand();
       aU[i] = i / N; // doubles as the particle's place on the ∞ loop (loopFrac)
       aLoop[i * 3] = loopOn[i * 2];
       aLoop[i * 3 + 1] = loopOn[i * 2 + 1];
